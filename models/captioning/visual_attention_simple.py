@@ -81,7 +81,7 @@ random.shuffle(image_paths)
 # Select the first 6000 image_paths from the shuffled set.
 # Approximately each image id has 5 captions associated with it, so that will
 # lead to 30,000 examples.
-train_image_paths = image_paths[:10000]
+train_image_paths = image_paths[:]
 #train_image_paths = image_paths[:]
 print(len(train_image_paths))
 
@@ -173,8 +173,8 @@ def calc_max_length(tensor):
 
 
 # Choose the top 5000 words from the vocabulary
-top_k = 5000
-tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=top_k,
+VOCAB_SIZE = 6000
+tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=VOCAB_SIZE,
                                                   oov_token="<unk>",
                                                   filters='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ ')
 tokenizer.fit_on_texts(train_captions)
@@ -255,7 +255,7 @@ len(img_name_train), len(cap_train), len(img_name_val), len(cap_val)
 BUFFER_SIZE = 1000
 embedding_dim = 256
 units = 512
-vocab_size = top_k + 1
+vocab_size = VOCAB_SIZE + 1
 num_steps = len(img_name_train) // BATCH_SIZE
 # Shape of the vector extracted from InceptionV3 is (64, 2048)
 # These two variables represent that vector shape

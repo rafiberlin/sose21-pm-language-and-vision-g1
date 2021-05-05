@@ -81,7 +81,7 @@ random.shuffle(image_paths)
 # Select the first 6000 image_paths from the shuffled set.
 # Approximately each image id has 5 captions associated with it, so that will
 # lead to 30,000 examples.
-train_image_paths = image_paths[:16]
+train_image_paths = image_paths[:10000]
 #train_image_paths = image_paths[:]
 print(len(train_image_paths))
 

@@ -3,7 +3,7 @@
 # If you want to debug (step in where the loss is calculated), comment out the annotation @tf.function
 
 import tensorflow as tf
-
+import pickle
 # You'll generate plots of attention in order to see which parts of an image
 # our model focuses on during captioning
 import matplotlib.pyplot as plt
@@ -168,6 +168,9 @@ def calc_max_length(tensor):
 
 # Choose the top 5000 words from the vocabulary
 VOCAB_SIZE = 5000
+
+serialized_tokenizer = "./checkpoints/train/tokenizer.pickle"
+
 tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=VOCAB_SIZE,
                                                   oov_token="<unk>",
                                                   filters='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ ')
@@ -175,22 +178,16 @@ tokenizer.fit_on_texts(train_captions)
 
 tokenizer.word_index['<pad>'] = 0
 tokenizer.index_word[0] = '<pad>'
-
-# Create the tokenized vectors
 train_seqs = tokenizer.texts_to_sequences(train_captions)
-
-# In[16]:
-
-
-# Pad each vector to the max_length of the captions
-# If you do not provide a max_length value, pad_sequences calculates it automatically
 cap_vector = tf.keras.preprocessing.sequence.pad_sequences(train_seqs, padding='post')
-
 # In[17]:
-
 
 # Calculates the max_length, which is used to store the attention weights
 max_length = calc_max_length(train_seqs)
+tokenizer.max_length = max_length
+with open(serialized_tokenizer, 'wb') as handle:
+    pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
 
 # ## Split the data into training and testing
 
@@ -592,9 +589,9 @@ real_caption = ' '.join([tokenizer.index_word[i]
                          for i in cap_val[rid] if i not in [0]])
 result, attention_plot = evaluate(image)
 
-print('Real Caption:', real_caption)
-print('Prediction Caption:', ' '.join(result))
-plot_attention(image, result, attention_plot)
+# print('Real Caption:', real_caption)
+# print('Prediction Caption:', ' '.join(result))
+# plot_attention(image, result, attention_plot)
 
 # ## Try it on your own images
 # For fun, below we've provided a method you can use to caption your own images with the model we've just trained. Keep in mind, it was trained on a relatively small amount of data, and your images may be different from the training data (so be prepared for weird results!)
@@ -609,9 +606,10 @@ image_path = tf.keras.utils.get_file('image' + image_extension, origin=image_url
 
 result, attention_plot = evaluate(image_path)
 print('Prediction Caption:', ' '.join(result))
-plot_attention(image_path, result, attention_plot)
+print("End")
+# plot_attention(image_path, result, attention_plot)
 # opening the image
-Image.open(image_path)
+
 
 # # Next steps
 #

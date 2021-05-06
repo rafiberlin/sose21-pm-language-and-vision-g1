@@ -25,26 +25,25 @@ print(tf.executing_eagerly())
 
 # In[3]:
 # Download caption annotation files
-#CHANGE THIS!
+# CHANGE THIS!
 base_dir = '/home/rafi/_datasets/MSCOCO/'
 annotation_folder = 'annotations'
 annotation_file = os.path.join(base_dir, annotation_folder, 'captions_train2017.json')
 if not os.path.exists(os.path.join(base_dir, annotation_folder)):
-  annotation_zip = tf.keras.utils.get_file('captions.zip',
-                                           cache_subdir=os.path.abspath(base_dir),
-                                           origin='http://images.cocodataset.org/annotations/annotations_trainval2017.zip',
-                                           extract=True)
+    annotation_zip = tf.keras.utils.get_file('captions.zip',
+                                             cache_subdir=os.path.abspath(base_dir),
+                                             origin='http://images.cocodataset.org/annotations/annotations_trainval2017.zip',
+                                             extract=True)
 # Download image files
-#CHANGE THIS!
+# CHANGE THIS!
 image_folder = 'train2017'
 PATH = os.path.join(base_dir, image_folder)
 if not os.path.exists(os.path.join(base_dir, image_folder)):
-  image_zip = tf.keras.utils.get_file('train2017.zip',
-                                      cache_subdir=os.path.abspath(base_dir),
-                                      origin='http://images.cocodataset.org/zips/train2017.zip',
-                                      extract=True)
-  os.remove(image_zip)
-
+    image_zip = tf.keras.utils.get_file('train2017.zip',
+                                        cache_subdir=os.path.abspath(base_dir),
+                                        origin='http://images.cocodataset.org/zips/train2017.zip',
+                                        extract=True)
+    os.remove(image_zip)
 
 # ## Optional: limit the size of the training set
 # To speed up training for this tutorial, you'll use a subset of 30,000 captions and their corresponding images to train our model. Choosing to use more data would result in improved captioning quality.
@@ -55,17 +54,15 @@ if not os.path.exists(os.path.join(base_dir, image_folder)):
 with open(annotation_file, 'r') as f:
     annotations = json.load(f)
 
-
 # In[5]:
 
 
 # Group all captions together having the same image ID.
 image_path_to_caption = collections.defaultdict(list)
 for val in annotations['annotations']:
-  caption = f"<start> {val['caption']} <end>"
-  image_path = os.path.join(PATH , '%012d.jpg' % (val['image_id']))
-  image_path_to_caption[image_path].append(caption)
-
+    caption = f"<start> {val['caption']} <end>"
+    image_path = os.path.join(PATH, '%012d.jpg' % (val['image_id']))
+    image_path_to_caption[image_path].append(caption)
 
 # In[6]:
 
@@ -77,9 +74,8 @@ random.shuffle(image_paths)
 # Approximately each image id has 5 captions associated with it, so that will
 # lead to 30,000 examples.
 train_image_paths = image_paths[:]
-#train_image_paths = image_paths[:]
+# train_image_paths = image_paths[:]
 print(len(train_image_paths))
-
 
 # In[7]:
 
@@ -88,10 +84,9 @@ train_captions = []
 img_name_vector = []
 
 for image_path in train_image_paths:
-  caption_list = image_path_to_caption[image_path]
-  train_captions.extend(caption_list)
-  img_name_vector.extend([image_path] * len(caption_list))
-
+    caption_list = image_path_to_caption[image_path]
+    train_captions.extend(caption_list)
+    img_name_vector.extend([image_path] * len(caption_list))
 
 # In[8]:
 
@@ -136,7 +131,6 @@ hidden_layer = image_model.layers[-1].output
 
 image_features_extract_model = tf.keras.Model(new_input, hidden_layer)
 
-
 BATCH_SIZE = 8
 
 from tqdm import tqdm
@@ -147,33 +141,29 @@ encode_train = sorted(set(img_name_vector))
 # Feel free to change batch_size according to your system configuration
 image_dataset = tf.data.Dataset.from_tensor_slices(encode_train)
 image_dataset = image_dataset.map(
-  load_image, num_parallel_calls=tf.data.AUTOTUNE).batch(BATCH_SIZE)
+    load_image, num_parallel_calls=tf.data.AUTOTUNE).batch(BATCH_SIZE)
 
-index_feature =True
+index_feature = True
 
 for f in os.listdir(PATH):
     if f.endswith(".npy"):
         index_feature = False
         break
 
-
 if index_feature:
-  for img, path in tqdm(image_dataset):
-    batch_features = image_features_extract_model(img)
-    batch_features = tf.reshape(batch_features,
-                                  (batch_features.shape[0], -1, batch_features.shape[3]))
+    for img, path in tqdm(image_dataset):
+        batch_features = image_features_extract_model(img)
+        batch_features = tf.reshape(batch_features,
+                                    (batch_features.shape[0], -1, batch_features.shape[3]))
 
-    for bf, p in zip(batch_features, path):
-      path_of_feature = p.numpy().decode("utf-8")
-      np.save(path_of_feature, bf.numpy())
-
-
+        for bf, p in zip(batch_features, path):
+            path_of_feature = p.numpy().decode("utf-8")
+            np.save(path_of_feature, bf.numpy())
 
 
 # Find the maximum length of any caption in our dataset
 def calc_max_length(tensor):
     return max(len(t) for t in tensor)
-
 
 
 # Choose the top 5000 words from the vocabulary
@@ -183,15 +173,11 @@ tokenizer = tf.keras.preprocessing.text.Tokenizer(num_words=VOCAB_SIZE,
                                                   filters='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ ')
 tokenizer.fit_on_texts(train_captions)
 
-
-
 tokenizer.word_index['<pad>'] = 0
 tokenizer.index_word[0] = '<pad>'
 
-
 # Create the tokenized vectors
 train_seqs = tokenizer.texts_to_sequences(train_captions)
-
 
 # In[16]:
 
@@ -200,13 +186,11 @@ train_seqs = tokenizer.texts_to_sequences(train_captions)
 # If you do not provide a max_length value, pad_sequences calculates it automatically
 cap_vector = tf.keras.preprocessing.sequence.pad_sequences(train_seqs, padding='post')
 
-
 # In[17]:
 
 
 # Calculates the max_length, which is used to store the attention weights
 max_length = calc_max_length(train_seqs)
-
 
 # ## Split the data into training and testing
 
@@ -215,35 +199,33 @@ max_length = calc_max_length(train_seqs)
 
 img_to_cap_vector = collections.defaultdict(list)
 for img, cap in zip(img_name_vector, cap_vector):
-  img_to_cap_vector[img].append(cap)
+    img_to_cap_vector[img].append(cap)
 
 # Create training and validation sets using an 80-20 split randomly.
 img_keys = list(img_to_cap_vector.keys())
 random.shuffle(img_keys)
 
-slice_index = int(len(img_keys)*0.8)
+slice_index = int(len(img_keys) * 0.8)
 img_name_train_keys, img_name_val_keys = img_keys[:slice_index], img_keys[slice_index:]
 
 img_name_train = []
 cap_train = []
 for imgt in img_name_train_keys:
-  capt_len = len(img_to_cap_vector[imgt])
-  img_name_train.extend([imgt] * capt_len)
-  cap_train.extend(img_to_cap_vector[imgt])
+    capt_len = len(img_to_cap_vector[imgt])
+    img_name_train.extend([imgt] * capt_len)
+    cap_train.extend(img_to_cap_vector[imgt])
 
 img_name_val = []
 cap_val = []
 for imgv in img_name_val_keys:
-  capv_len = len(img_to_cap_vector[imgv])
-  img_name_val.extend([imgv] * capv_len)
-  cap_val.extend(img_to_cap_vector[imgv])
-
+    capv_len = len(img_to_cap_vector[imgv])
+    img_name_val.extend([imgv] * capv_len)
+    cap_val.extend(img_to_cap_vector[imgv])
 
 # In[19]:
 
 
 len(img_name_train), len(cap_train), len(img_name_val), len(cap_val)
-
 
 # ## Create a tf.data dataset for training
 #
@@ -272,8 +254,8 @@ attention_features_shape = 64
 
 # Load the numpy files
 def map_func(img_name, cap):
-  img_tensor = np.load(img_name.decode('utf-8')+'.npy')
-  return img_tensor, cap
+    img_tensor = np.load(img_name.decode('utf-8') + '.npy')
+    return img_tensor, cap
 
 
 # In[22]:
@@ -283,8 +265,8 @@ dataset = tf.data.Dataset.from_tensor_slices((img_name_train, cap_train))
 
 # Use map to load the numpy files in parallel
 dataset = dataset.map(lambda item1, item2: tf.numpy_function(
-          map_func, [item1, item2], [tf.float32, tf.int32]),
-          num_parallel_calls=tf.data.AUTOTUNE)
+    map_func, [item1, item2], [tf.float32, tf.int32]),
+                      num_parallel_calls=tf.data.AUTOTUNE)
 
 # Shuffle and batch
 dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
@@ -306,35 +288,35 @@ dataset = dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
 
 
 class BahdanauAttention(tf.keras.Model):
-  def __init__(self, units):
-    super(BahdanauAttention, self).__init__()
-    self.W1 = tf.keras.layers.Dense(units)
-    self.W2 = tf.keras.layers.Dense(units)
-    self.V = tf.keras.layers.Dense(1)
+    def __init__(self, units):
+        super(BahdanauAttention, self).__init__()
+        self.W1 = tf.keras.layers.Dense(units)
+        self.W2 = tf.keras.layers.Dense(units)
+        self.V = tf.keras.layers.Dense(1)
 
-  def call(self, features, hidden):
-    # features(CNN_encoder output) shape == (batch_size, 64, embedding_dim)
+    def call(self, features, hidden):
+        # features(CNN_encoder output) shape == (batch_size, 64, embedding_dim)
 
-    # hidden shape == (batch_size, hidden_size)
-    # hidden_with_time_axis shape == (batch_size, 1, hidden_size)
-    hidden_with_time_axis = tf.expand_dims(hidden, 1)
+        # hidden shape == (batch_size, hidden_size)
+        # hidden_with_time_axis shape == (batch_size, 1, hidden_size)
+        hidden_with_time_axis = tf.expand_dims(hidden, 1)
 
-    # attention_hidden_layer shape == (batch_size, 64, units)
-    attention_hidden_layer = (tf.nn.tanh(self.W1(features) +
-                                         self.W2(hidden_with_time_axis)))
+        # attention_hidden_layer shape == (batch_size, 64, units)
+        attention_hidden_layer = (tf.nn.tanh(self.W1(features) +
+                                             self.W2(hidden_with_time_axis)))
 
-    # score shape == (batch_size, 64, 1)
-    # This gives you an unnormalized score for each image feature.
-    score = self.V(attention_hidden_layer)
+        # score shape == (batch_size, 64, 1)
+        # This gives you an unnormalized score for each image feature.
+        score = self.V(attention_hidden_layer)
 
-    # attention_weights shape == (batch_size, 64, 1)
-    attention_weights = tf.nn.softmax(score, axis=1)
+        # attention_weights shape == (batch_size, 64, 1)
+        attention_weights = tf.nn.softmax(score, axis=1)
 
-    # context_vector shape after sum == (batch_size, hidden_size)
-    context_vector = attention_weights * features
-    context_vector = tf.reduce_sum(context_vector, axis=1)
+        # context_vector shape after sum == (batch_size, hidden_size)
+        context_vector = attention_weights * features
+        context_vector = tf.reduce_sum(context_vector, axis=1)
 
-    return context_vector, attention_weights
+        return context_vector, attention_weights
 
 
 # In[24]:
@@ -358,46 +340,46 @@ class CNN_Encoder(tf.keras.Model):
 
 
 class RNN_Decoder(tf.keras.Model):
-  def __init__(self, embedding_dim, units, vocab_size):
-    super(RNN_Decoder, self).__init__()
-    self.units = units
+    def __init__(self, embedding_dim, units, vocab_size):
+        super(RNN_Decoder, self).__init__()
+        self.units = units
 
-    self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
-    self.gru = tf.keras.layers.GRU(self.units,
-                                   return_sequences=True,
-                                   return_state=True,
-                                   recurrent_initializer='glorot_uniform')
-    self.fc1 = tf.keras.layers.Dense(self.units)
-    self.fc2 = tf.keras.layers.Dense(vocab_size)
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+        self.gru = tf.keras.layers.GRU(self.units,
+                                       return_sequences=True,
+                                       return_state=True,
+                                       recurrent_initializer='glorot_uniform')
+        self.fc1 = tf.keras.layers.Dense(self.units)
+        self.fc2 = tf.keras.layers.Dense(vocab_size)
 
-    self.attention = BahdanauAttention(self.units)
+        self.attention = BahdanauAttention(self.units)
 
-  def call(self, x, features, hidden):
-    # defining attention as a separate model
-    context_vector, attention_weights = self.attention(features, hidden)
+    def call(self, x, features, hidden):
+        # defining attention as a separate model
+        context_vector, attention_weights = self.attention(features, hidden)
 
-    # x shape after passing through embedding == (batch_size, 1, embedding_dim)
-    x = self.embedding(x)
+        # x shape after passing through embedding == (batch_size, 1, embedding_dim)
+        x = self.embedding(x)
 
-    # x shape after concatenation == (batch_size, 1, embedding_dim + hidden_size)
-    x = tf.concat([tf.expand_dims(context_vector, 1), x], axis=-1)
+        # x shape after concatenation == (batch_size, 1, embedding_dim + hidden_size)
+        x = tf.concat([tf.expand_dims(context_vector, 1), x], axis=-1)
 
-    # passing the concatenated vector to the GRU
-    output, state = self.gru(x)
+        # passing the concatenated vector to the GRU
+        output, state = self.gru(x)
 
-    # shape == (batch_size, max_length, hidden_size)
-    x = self.fc1(output)
+        # shape == (batch_size, max_length, hidden_size)
+        x = self.fc1(output)
 
-    # x shape == (batch_size * max_length, hidden_size)
-    x = tf.reshape(x, (-1, x.shape[2]))
+        # x shape == (batch_size * max_length, hidden_size)
+        x = tf.reshape(x, (-1, x.shape[2]))
 
-    # output shape == (batch_size * max_length, vocab)
-    x = self.fc2(x)
+        # output shape == (batch_size * max_length, vocab)
+        x = self.fc2(x)
 
-    return x, state, attention_weights
+        return x, state, attention_weights
 
-  def reset_state(self, batch_size):
-    return tf.zeros((batch_size, self.units))
+    def reset_state(self, batch_size):
+        return tf.zeros((batch_size, self.units))
 
 
 # In[26]:
@@ -405,7 +387,6 @@ class RNN_Decoder(tf.keras.Model):
 
 encoder = CNN_Encoder(embedding_dim)
 decoder = RNN_Decoder(embedding_dim, units, vocab_size)
-
 
 # In[27]:
 
@@ -416,13 +397,13 @@ loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
 
 
 def loss_function(real, pred):
-  mask = tf.math.logical_not(tf.math.equal(real, 0))
-  loss_ = loss_object(real, pred)
+    mask = tf.math.logical_not(tf.math.equal(real, 0))
+    loss_ = loss_object(real, pred)
 
-  mask = tf.cast(mask, dtype=loss_.dtype)
-  loss_ *= mask
+    mask = tf.cast(mask, dtype=loss_.dtype)
+    loss_ *= mask
 
-  return tf.reduce_mean(loss_)
+    return tf.reduce_mean(loss_)
 
 
 # ## Checkpoint
@@ -436,16 +417,14 @@ ckpt = tf.train.Checkpoint(encoder=encoder,
                            optimizer=optimizer)
 ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=5)
 
-
 # In[29]:
 
 
 start_epoch = 0
 if ckpt_manager.latest_checkpoint:
-  start_epoch = int(ckpt_manager.latest_checkpoint.split('-')[-1])
-  # restoring the latest checkpoint in checkpoint_path
-  ckpt.restore(ckpt_manager.latest_checkpoint)
-
+    start_epoch = int(ckpt_manager.latest_checkpoint.split('-')[-1])
+    # restoring the latest checkpoint in checkpoint_path
+    ckpt.restore(ckpt_manager.latest_checkpoint)
 
 # ## Training
 #
@@ -471,35 +450,35 @@ loss_plot = []
 
 @tf.function
 def train_step(img_tensor, target):
-  loss = 0
+    loss = 0
 
-  # initializing the hidden state for each batch
-  # because the captions are not related from image to image
-  hidden = decoder.reset_state(batch_size=target.shape[0])
+    # initializing the hidden state for each batch
+    # because the captions are not related from image to image
+    hidden = decoder.reset_state(batch_size=target.shape[0])
 
-  dec_input = tf.expand_dims([tokenizer.word_index['<start>']] * target.shape[0], 1)
+    dec_input = tf.expand_dims([tokenizer.word_index['<start>']] * target.shape[0], 1)
 
-  with tf.GradientTape() as tape:
-      features = encoder(img_tensor)
+    with tf.GradientTape() as tape:
+        features = encoder(img_tensor)
 
-      for i in range(1, target.shape[1]):
-          # passing the features through the decoder
-          predictions, hidden, _ = decoder(dec_input, features, hidden)
+        for i in range(1, target.shape[1]):
+            # passing the features through the decoder
+            predictions, hidden, _ = decoder(dec_input, features, hidden)
 
-          loss += loss_function(target[:, i], predictions)
+            loss += loss_function(target[:, i], predictions)
 
-          # using teacher forcing
-          dec_input = tf.expand_dims(target[:, i], 1)
+            # using teacher forcing
+            dec_input = tf.expand_dims(target[:, i], 1)
 
-  total_loss = (loss / int(target.shape[1]))
+    total_loss = (loss / int(target.shape[1]))
 
-  trainable_variables = encoder.trainable_variables + decoder.trainable_variables
+    trainable_variables = encoder.trainable_variables + decoder.trainable_variables
 
-  gradients = tape.gradient(loss, trainable_variables)
+    gradients = tape.gradient(loss, trainable_variables)
 
-  optimizer.apply_gradients(zip(gradients, trainable_variables))
+    optimizer.apply_gradients(zip(gradients, trainable_variables))
 
-  return loss, total_loss
+    return loss, total_loss
 
 
 # In[32]:
@@ -568,7 +547,7 @@ def evaluate(image):
                                                          features,
                                                          hidden)
 
-        attention_plot[i] = tf.reshape(attention_weights, (-1, )).numpy()
+        attention_plot[i] = tf.reshape(attention_weights, (-1,)).numpy()
 
         predicted_id = tf.random.categorical(predictions, 1)[0][0].numpy()
         result.append(tokenizer.index_word[predicted_id])
@@ -593,8 +572,8 @@ def plot_attention(image, result, attention_plot):
     len_result = len(result)
     for i in range(len_result):
         temp_att = np.resize(attention_plot[i], (8, 8))
-        grid_size = max(np.ceil(len_result/2), 2)
-        ax = fig.add_subplot(grid_size, grid_size, i+1)
+        grid_size = max(np.ceil(len_result / 2), 2)
+        ax = fig.add_subplot(grid_size, grid_size, i + 1)
         ax.set_title(result[i])
         img = ax.imshow(temp_image)
         ax.imshow(temp_att, cmap='gray', alpha=0.6, extent=img.get_extent())
@@ -610,13 +589,12 @@ def plot_attention(image, result, attention_plot):
 rid = np.random.randint(0, len(img_name_val))
 image = img_name_val[rid]
 real_caption = ' '.join([tokenizer.index_word[i]
-                        for i in cap_val[rid] if i not in [0]])
+                         for i in cap_val[rid] if i not in [0]])
 result, attention_plot = evaluate(image)
 
 print('Real Caption:', real_caption)
 print('Prediction Caption:', ' '.join(result))
 plot_attention(image, result, attention_plot)
-
 
 # ## Try it on your own images
 # For fun, below we've provided a method you can use to caption your own images with the model we've just trained. Keep in mind, it was trained on a relatively small amount of data, and your images may be different from the training data (so be prepared for weird results!)
@@ -627,14 +605,13 @@ plot_attention(image, result, attention_plot)
 
 image_url = 'https://tensorflow.org/images/surf.jpg'
 image_extension = image_url[-4:]
-image_path = tf.keras.utils.get_file('image'+image_extension, origin=image_url)
+image_path = tf.keras.utils.get_file('image' + image_extension, origin=image_url)
 
 result, attention_plot = evaluate(image_path)
 print('Prediction Caption:', ' '.join(result))
 plot_attention(image_path, result, attention_plot)
 # opening the image
 Image.open(image_path)
-
 
 # # Next steps
 #

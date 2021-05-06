@@ -43,10 +43,9 @@ def get_eval_model():
     BATCH_SIZE = 8
 
 
-
     # Choose the top 5000 words from the vocabulary
     VOCAB_SIZE = 5000
-    serialized_tokenizer = "./checkpoints/train/tokenizer.pickle"
+    serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)), "checkpoints/train/tokenizer.pickle")
     with open(serialized_tokenizer, 'rb') as handle:
         tokenizer = pickle.load(handle)
         max_length = tokenizer.max_length

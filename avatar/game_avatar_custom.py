@@ -1,4 +1,6 @@
 from avatar.game_avatar import Avatar
+from models.captioning import evaluate
+import tensorflow as tf
 
 """
     Avatar action routines
@@ -35,6 +37,7 @@ class CustomAvatar(Avatar):
     def __init__(self, image_directory):
         self.image_directory = image_directory
         self.observation = None
+        self.caption_expert = evaluate.get_eval_model()
 
     def step(self, observation: dict) -> dict:
         print(observation)  # for debugging
@@ -59,7 +62,12 @@ class CustomAvatar(Avatar):
 
         if message.startswith("what"):
             if self.observation:
-                return "I see " + self.observation["image"]
+                image_extension = ".jpg"
+                image_path = tf.keras.utils.get_file('image' + image_extension, origin="http://localhost:8000/"+self.observation["image"])
+
+                caption, _ = self.caption_expert(image_path)
+
+                return "I see ("+ self.observation["image"]+"): " + ' '.join(caption[:-1])
             else:
                 return "I dont know"
 

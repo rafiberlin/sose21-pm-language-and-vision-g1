@@ -235,7 +235,9 @@ def get_eval_model():
 
     return evaluate
 
-
+# model to unpack at this level:
+#https://drive.google.com/file/d/1d2ZH7699DDStrJt5EOsFneT1XWGgcNRj/view?usp=sharing
+# at the same level as this scrip, you should see directory called checkpoints/
 if __name__ == "__main__":
     model = get_eval_model()
 

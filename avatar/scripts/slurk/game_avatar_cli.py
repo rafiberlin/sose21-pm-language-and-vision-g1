@@ -11,7 +11,8 @@ import base64
 import click
 import socketIO_client
 
-from avatar.game_avatar import SimpleAvatar
+from avatar.game_avatar_custom import CustomAvatar
+#from avatar.game_avatar import SimpleAvatar
 from avatar.game_avatar_slurk import AvatarBot
 
 
@@ -57,7 +58,8 @@ def start_and_wait(token, slurk_host, slurk_context, slurk_port, image_directory
     socket_url = build_url(slurk_host, slurk_context)
     sio = socketIO_client.SocketIO(socket_url, slurk_port, headers=custom_headers, Namespace=AvatarBot)
     # NOTE: YOU SHOULD REFERENCE YOUR MODEL HERE
-    avatar_model = SimpleAvatar(image_directory)
+    #avatar_model = SimpleAvatar(image_directory)
+    avatar_model = CustomAvatar(image_directory)
     sio.get_namespace().set_agent(avatar_model)
     sio.wait()
 

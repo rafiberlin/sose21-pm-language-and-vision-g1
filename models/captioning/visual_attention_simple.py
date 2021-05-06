@@ -483,35 +483,35 @@ def train_step(img_tensor, target):
 
 EPOCHS = 20
 
-# for epoch in tqdm(range(start_epoch, EPOCHS)):
-#     start = time.time()
-#     total_loss = 0
-#
-#     for (batch, (img_tensor, target)) in enumerate(dataset):
-#         batch_loss, t_loss = train_step(img_tensor, target)
-#         total_loss += t_loss
-#
-#         if batch % 100 == 0:
-#             average_batch_loss = batch_loss.numpy()/int(target.shape[1])
-#             print(f'Epoch {epoch+1} Batch {batch} Loss {average_batch_loss:.4f}')
-#     # storing the epoch end loss value to plot later
-#     loss_plot.append(total_loss / num_steps)
-#
-#     if epoch % 5 == 0:
-#       ckpt_manager.save()
-#
-#     print(f'Epoch {epoch+1} Loss {total_loss/num_steps:.6f}')
-#     print(f'Time taken for 1 epoch {time.time()-start:.2f} sec\n')
+for epoch in tqdm(range(start_epoch, EPOCHS)):
+    start = time.time()
+    total_loss = 0
+
+    for (batch, (img_tensor, target)) in enumerate(dataset):
+        batch_loss, t_loss = train_step(img_tensor, target)
+        total_loss += t_loss
+
+        if batch % 100 == 0:
+            average_batch_loss = batch_loss.numpy()/int(target.shape[1])
+            print(f'Epoch {epoch+1} Batch {batch} Loss {average_batch_loss:.4f}')
+    # storing the epoch end loss value to plot later
+    loss_plot.append(total_loss / num_steps)
+
+    if epoch % 5 == 0:
+      ckpt_manager.save()
+
+    print(f'Epoch {epoch+1} Loss {total_loss/num_steps:.6f}')
+    print(f'Time taken for 1 epoch {time.time()-start:.2f} sec\n')
 
 
 # In[33]:
 
 
-plt.plot(loss_plot)
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.title('Loss Plot')
-plt.show()
+# plt.plot(loss_plot)
+# plt.xlabel('Epochs')
+# plt.ylabel('Loss')
+# plt.title('Loss Plot')
+# plt.show()
 
 
 # ## Caption!
@@ -589,8 +589,8 @@ real_caption = ' '.join([tokenizer.index_word[i]
                          for i in cap_val[rid] if i not in [0]])
 result, attention_plot = evaluate(image)
 
-# print('Real Caption:', real_caption)
-# print('Prediction Caption:', ' '.join(result))
+print('Real Caption:', real_caption)
+print('Prediction Caption:', ' '.join(result))
 # plot_attention(image, result, attention_plot)
 
 # ## Try it on your own images

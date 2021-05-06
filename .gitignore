@@ -6,6 +6,11 @@ __pycache__/
 # IDE specific rules (PyCharm)
 .idea
 
+# Exclude Tensorflow checkpoints
+
+*checkpoint*
+*ckpt*
+
 # C extensions
 *.so
 

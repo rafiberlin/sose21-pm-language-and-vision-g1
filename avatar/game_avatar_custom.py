@@ -71,7 +71,7 @@ class CustomAvatar(Avatar):
 
                 caption, _ = self.caption_expert(image_path)
 
-                return "I see ("+ self.observation["image"]+"): " + ' '.join(caption[:-1])
+                return "I see ("+ image_url+"): " + ' '.join(caption[:-1])
             else:
                 return "I dont know"
 

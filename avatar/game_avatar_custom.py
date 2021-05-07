@@ -13,6 +13,7 @@ DIRECTION_TO_WORD = {
     "s": "south"
 }
 
+ADE20K_URL = "http://localhost:8000/"
 
 def direction_to_word(direction: str):
     if direction in DIRECTION_TO_WORD:
@@ -62,8 +63,11 @@ class CustomAvatar(Avatar):
 
         if message.startswith("what"):
             if self.observation:
-                image_extension = ".jpg"
-                image_path = tf.keras.utils.get_file('image' + image_extension, origin="http://localhost:8000/"+self.observation["image"])
+
+                image_url = ADE20K_URL+self.observation["image"]
+                last_char_index = image_url.rfind("/")
+                image_name = image_url[last_char_index + 1:]
+                image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
                 caption, _ = self.caption_expert(image_path)
 

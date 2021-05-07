@@ -241,8 +241,9 @@ if __name__ == "__main__":
     model = get_eval_model()
 
     image_url = 'https://tensorflow.org/images/surf.jpg'
-    image_extension = image_url[-4:]
-    image_path = tf.keras.utils.get_file('image' + image_extension, origin=image_url)
+    last_char_index = image_url.rfind("/")
+    image_name = image_url[last_char_index+1:]
+    image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
     result, _ = model(image_path)
 

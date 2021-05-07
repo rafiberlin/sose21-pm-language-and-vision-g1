@@ -166,7 +166,9 @@ def get_eval_model():
     optimizer = tf.keras.optimizers.Adam()
 
 
-    checkpoint_path = "./checkpoints/train"
+    #checkpoint_path = "./checkpoints/train"
+
+    checkpoint_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "checkpoints/train/")
     ckpt = tf.train.Checkpoint(encoder=encoder,
                                decoder=decoder,
                                optimizer=optimizer)
@@ -241,6 +243,7 @@ if __name__ == "__main__":
     model = get_eval_model()
 
     image_url = 'https://tensorflow.org/images/surf.jpg'
+    #image_url = 'http://localhost:8000/a/atrium/home/ADE_train_00001860.jpg'
     last_char_index = image_url.rfind("/")
     image_name = image_url[last_char_index+1:]
     image_path = tf.keras.utils.get_file(image_name, origin=image_url)

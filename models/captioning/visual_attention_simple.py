@@ -121,12 +121,7 @@ Image.open(img_name_vector[0])
 # In[10]:
 
 
-image_model = tf.keras.applications.InceptionV3(include_top=False,
-                                                weights='imagenet')
-new_input = image_model.input
-hidden_layer = image_model.layers[-1].output
-
-image_features_extract_model = tf.keras.Model(new_input, hidden_layer)
+image_features_extract_model = util.get_image_feature_extractor()
 
 BATCH_SIZE = 8
 

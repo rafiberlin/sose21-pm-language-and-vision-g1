@@ -1,7 +1,8 @@
 from avatar.game_avatar import Avatar
 from models.captioning import evaluate
 import tensorflow as tf
-
+import json
+import os
 """
     Avatar action routines
 """
@@ -39,6 +40,10 @@ class CustomAvatar(Avatar):
         self.image_directory = image_directory
         self.observation = None
         self.caption_expert = evaluate.get_eval_model()
+        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config.json")
+        with open(config_file, "r") as read_file:
+            conf = json.load(read_file)["image_server"]
+        self.ADE20K_URL = f"http://{conf['host']}:{conf['port']}/"
 
     def step(self, observation: dict) -> dict:
         print(observation)  # for debugging
@@ -64,7 +69,7 @@ class CustomAvatar(Avatar):
         if message.startswith("what"):
             if self.observation:
 
-                image_url = ADE20K_URL+self.observation["image"]
+                image_url = self.ADE20K_URL+self.observation["image"]
                 last_char_index = image_url.rfind("/")
                 image_name = image_url[last_char_index + 1:]
                 image_path = tf.keras.utils.get_file(image_name, origin=image_url)

@@ -6,10 +6,10 @@ import tensorflow as tf
 import pickle
 import numpy as np
 import os
-
-
 import models.utils.util as util
 from models.model import RNN_Decoder, CNN_Encoder, BahdanauAttention
+
+
 
 
 def get_eval_model():

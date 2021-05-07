@@ -15,8 +15,11 @@ import os
 import time
 import json
 from PIL import Image
+import models.utils.util as util
+from models.model import RNN_Decoder, CNN_Encoder, BahdanauAttention
 
-print(tf.executing_eagerly())
+
+
 # ## Download and prepare the MS-COCO dataset
 #
 # You will use the [MS-COCO dataset](http://cocodataset.org/#home) to train our model. The dataset contains over 82,000 images, each of which has at least 5 different caption annotations. The code below downloads and extracts the dataset automatically.
@@ -105,12 +108,6 @@ Image.open(img_name_vector[0])
 # In[9]:
 
 
-def load_image(image_path):
-    img = tf.io.read_file(image_path)
-    img = tf.image.decode_jpeg(img, channels=3)
-    img = tf.image.resize(img, (299, 299))
-    img = tf.keras.applications.inception_v3.preprocess_input(img)
-    return img, image_path
 
 
 # ## Initialize InceptionV3 and load the pretrained Imagenet weights
@@ -141,7 +138,7 @@ encode_train = sorted(set(img_name_vector))
 # Feel free to change batch_size according to your system configuration
 image_dataset = tf.data.Dataset.from_tensor_slices(encode_train)
 image_dataset = image_dataset.map(
-    load_image, num_parallel_calls=tf.data.AUTOTUNE).batch(BATCH_SIZE)
+    util.load_image, num_parallel_calls=tf.data.AUTOTUNE).batch(BATCH_SIZE)
 
 index_feature = True
 
@@ -284,103 +281,6 @@ dataset = dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
 # In[23]:
 
 
-class BahdanauAttention(tf.keras.Model):
-    def __init__(self, units):
-        super(BahdanauAttention, self).__init__()
-        self.W1 = tf.keras.layers.Dense(units)
-        self.W2 = tf.keras.layers.Dense(units)
-        self.V = tf.keras.layers.Dense(1)
-
-    def call(self, features, hidden):
-        # features(CNN_encoder output) shape == (batch_size, 64, embedding_dim)
-
-        # hidden shape == (batch_size, hidden_size)
-        # hidden_with_time_axis shape == (batch_size, 1, hidden_size)
-        hidden_with_time_axis = tf.expand_dims(hidden, 1)
-
-        # attention_hidden_layer shape == (batch_size, 64, units)
-        attention_hidden_layer = (tf.nn.tanh(self.W1(features) +
-                                             self.W2(hidden_with_time_axis)))
-
-        # score shape == (batch_size, 64, 1)
-        # This gives you an unnormalized score for each image feature.
-        score = self.V(attention_hidden_layer)
-
-        # attention_weights shape == (batch_size, 64, 1)
-        attention_weights = tf.nn.softmax(score, axis=1)
-
-        # context_vector shape after sum == (batch_size, hidden_size)
-        context_vector = attention_weights * features
-        context_vector = tf.reduce_sum(context_vector, axis=1)
-
-        return context_vector, attention_weights
-
-
-# In[24]:
-
-
-class CNN_Encoder(tf.keras.Model):
-    # Since you have already extracted the features and dumped it
-    # This encoder passes those features through a Fully connected layer
-    def __init__(self, embedding_dim):
-        super(CNN_Encoder, self).__init__()
-        # shape after fc == (batch_size, 64, embedding_dim)
-        self.fc = tf.keras.layers.Dense(embedding_dim)
-
-    def call(self, x):
-        x = self.fc(x)
-        x = tf.nn.relu(x)
-        return x
-
-
-# In[25]:
-
-
-class RNN_Decoder(tf.keras.Model):
-    def __init__(self, embedding_dim, units, vocab_size):
-        super(RNN_Decoder, self).__init__()
-        self.units = units
-
-        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
-        self.gru = tf.keras.layers.GRU(self.units,
-                                       return_sequences=True,
-                                       return_state=True,
-                                       recurrent_initializer='glorot_uniform')
-        self.fc1 = tf.keras.layers.Dense(self.units)
-        self.fc2 = tf.keras.layers.Dense(vocab_size)
-
-        self.attention = BahdanauAttention(self.units)
-
-    def call(self, x, features, hidden):
-        # defining attention as a separate model
-        context_vector, attention_weights = self.attention(features, hidden)
-
-        # x shape after passing through embedding == (batch_size, 1, embedding_dim)
-        x = self.embedding(x)
-
-        # x shape after concatenation == (batch_size, 1, embedding_dim + hidden_size)
-        x = tf.concat([tf.expand_dims(context_vector, 1), x], axis=-1)
-
-        # passing the concatenated vector to the GRU
-        output, state = self.gru(x)
-
-        # shape == (batch_size, max_length, hidden_size)
-        x = self.fc1(output)
-
-        # x shape == (batch_size * max_length, hidden_size)
-        x = tf.reshape(x, (-1, x.shape[2]))
-
-        # output shape == (batch_size * max_length, vocab)
-        x = self.fc2(x)
-
-        return x, state, attention_weights
-
-    def reset_state(self, batch_size):
-        return tf.zeros((batch_size, self.units))
-
-
-# In[26]:
-
 
 encoder = CNN_Encoder(embedding_dim)
 decoder = RNN_Decoder(embedding_dim, units, vocab_size)
@@ -502,115 +402,3 @@ for epoch in tqdm(range(start_epoch, EPOCHS)):
 
     print(f'Epoch {epoch+1} Loss {total_loss/num_steps:.6f}')
     print(f'Time taken for 1 epoch {time.time()-start:.2f} sec\n')
-
-
-# In[33]:
-
-
-# plt.plot(loss_plot)
-# plt.xlabel('Epochs')
-# plt.ylabel('Loss')
-# plt.title('Loss Plot')
-# plt.show()
-
-
-# ## Caption!
-#
-# * The evaluate function is similar to the training loop, except you don't use teacher forcing here. The input to the decoder at each time step is its previous predictions along with the hidden state and the encoder output.
-# * Stop predicting when the model predicts the end token.
-# * And store the attention weights for every time step.
-
-# In[34]:
-
-
-def evaluate(image):
-    attention_plot = np.zeros((max_length, attention_features_shape))
-
-    hidden = decoder.reset_state(batch_size=1)
-
-    temp_input = tf.expand_dims(load_image(image)[0], 0)
-    img_tensor_val = image_features_extract_model(temp_input)
-    img_tensor_val = tf.reshape(img_tensor_val, (img_tensor_val.shape[0],
-                                                 -1,
-                                                 img_tensor_val.shape[3]))
-
-    features = encoder(img_tensor_val)
-
-    dec_input = tf.expand_dims([tokenizer.word_index['<start>']], 0)
-    result = []
-
-    for i in range(max_length):
-        predictions, hidden, attention_weights = decoder(dec_input,
-                                                         features,
-                                                         hidden)
-
-        attention_plot[i] = tf.reshape(attention_weights, (-1,)).numpy()
-
-        predicted_id = tf.random.categorical(predictions, 1)[0][0].numpy()
-        result.append(tokenizer.index_word[predicted_id])
-
-        if tokenizer.index_word[predicted_id] == '<end>':
-            return result, attention_plot
-
-        dec_input = tf.expand_dims([predicted_id], 0)
-
-    attention_plot = attention_plot[:len(result), :]
-    return result, attention_plot
-
-
-# In[35]:
-
-
-def plot_attention(image, result, attention_plot):
-    temp_image = np.array(Image.open(image))
-
-    fig = plt.figure(figsize=(10, 10))
-
-    len_result = len(result)
-    for i in range(len_result):
-        temp_att = np.resize(attention_plot[i], (8, 8))
-        grid_size = max(np.ceil(len_result / 2), 2)
-        ax = fig.add_subplot(grid_size, grid_size, i + 1)
-        ax.set_title(result[i])
-        img = ax.imshow(temp_image)
-        ax.imshow(temp_att, cmap='gray', alpha=0.6, extent=img.get_extent())
-
-    plt.tight_layout()
-    plt.show()
-
-
-# In[36]:
-
-
-# captions on the validation set
-rid = np.random.randint(0, len(img_name_val))
-image = img_name_val[rid]
-real_caption = ' '.join([tokenizer.index_word[i]
-                         for i in cap_val[rid] if i not in [0]])
-result, attention_plot = evaluate(image)
-
-print('Real Caption:', real_caption)
-print('Prediction Caption:', ' '.join(result))
-# plot_attention(image, result, attention_plot)
-
-# ## Try it on your own images
-# For fun, below we've provided a method you can use to caption your own images with the model we've just trained. Keep in mind, it was trained on a relatively small amount of data, and your images may be different from the training data (so be prepared for weird results!)
-#
-
-# In[37]:
-
-
-image_url = 'https://tensorflow.org/images/surf.jpg'
-image_extension = image_url[-4:]
-image_path = tf.keras.utils.get_file('image' + image_extension, origin=image_url)
-
-result, attention_plot = evaluate(image_path)
-print('Prediction Caption:', ' '.join(result))
-print("End")
-# plot_attention(image_path, result, attention_plot)
-# opening the image
-
-
-# # Next steps
-#
-# Congrats! You've just trained an image captioning model with attention. Next, take a look at this example [Neural Machine Translation with Attention](../sequences/nmt_with_attention.ipynb). It uses a similar architecture to translate between Spanish and English sentences. You can also experiment with training the code in this notebook on a different dataset.

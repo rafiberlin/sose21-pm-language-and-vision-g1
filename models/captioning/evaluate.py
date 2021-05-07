@@ -200,8 +200,8 @@ def get_eval_model():
                                                              hidden)
 
             attention_plot[i] = tf.reshape(attention_weights, (-1,)).numpy()
-
-            predicted_id = tf.random.categorical(predictions, 1)[0][0].numpy()
+            predicted_id = tf.math.argmax(predictions[0]).numpy()
+            #predicted_id = tf.random.categorical(predictions, 1)[0][0].numpy()
             result.append(tokenizer.index_word[predicted_id])
 
             if tokenizer.index_word[predicted_id] == '<end>':

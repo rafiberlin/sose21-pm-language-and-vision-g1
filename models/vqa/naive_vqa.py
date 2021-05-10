@@ -5,6 +5,8 @@ import json
 import pickle
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
+import random as rn
 from PIL import Image
 
 #Beware : VQA uses pictures from MS COCO 2014 => some pictures disapeared in MS COCO 2017...
@@ -31,21 +33,21 @@ def get_pretrained_image_encoder():
     return encoder
 
 
-encoder = get_pretrained_image_encoder()
-
-annotation_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_mscoco_train2014_annotations.json")
-question_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_OpenEnded_mscoco_train2014_questions.json")
-
-with open(annotation_file, 'r') as f:
-    annotations = json.load(f)["annotations"]
-
-with open(question_file, 'r') as f:
-    questions = json.load(f)["questions"]
-
-#Get the first image
-image_id = annotations[0]["image_id"]
-coco_train = os.path.join(MS_COCO_DIR, "train2017")
-image_path = os.path.join( coco_train, '%012d.jpg' % (image_id))
+# encoder = get_pretrained_image_encoder()
+#
+# annotation_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_mscoco_train2014_annotations.json")
+# question_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_OpenEnded_mscoco_train2014_questions.json")
+#
+# with open(annotation_file, 'r') as f:
+#     annotations = json.load(f)["annotations"]
+#
+# with open(question_file, 'r') as f:
+#     questions = json.load(f)["questions"]
+#
+# #Get the first image
+# image_id = annotations[0]["image_id"]
+# coco_train = os.path.join(MS_COCO_DIR, "train2017")
+# image_path = os.path.join( coco_train, '%012d.jpg' % (image_id))
 
 # I have to check that but I think each line in questions matches the corresponding lines in annotations (answers)
 
@@ -98,18 +100,22 @@ def load_preprocessed_data ():
 
     return X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val
 
-def get_imageTensor(img, ques):
+def get_image_tensor(img, ques):
     #path = img.decode('utf-8').replace(imageDirectory,imageNumpyDirectory).replace('.jpg',"") +'.npy'
     #img_tensor = np.load(path)
-    img_tensor = all_image_dict[img.decode('utf-8')]
+    img_tensor = np.load(img.decode('utf-8')+'.npy')
     return img_tensor, ques
 
-def createDataset(image_paths, question_vector, answer_vector, batch_size=8):
+def create_dataset(image_paths, question_vector, answer_vector, batch_size=8):
+    # WHen enumerate is called, it return a tuple. in the element, there is another tuple of img, question
+    # in the second element you get the actual answer...
+
+
     dataset_input = tf.data.Dataset.from_tensor_slices((image_paths, question_vector.astype(np.float32)))
     dataset_output = tf.data.Dataset.from_tensor_slices((answer_vector.astype(np.float32)))
     # using map to load the numpy files in parallel
     dataset_input = dataset_input.map(
-        lambda img, ques: tf.numpy_function(get_imageTensor, [img, ques], [tf.float32, tf.float32]),
+        lambda img, ques: tf.numpy_function(get_image_tensor, [img, ques], [tf.float32, tf.float32]),
         num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
     # shuffling and batching
@@ -123,9 +129,9 @@ def createDataset(image_paths, question_vector, answer_vector, batch_size=8):
     return dataset
 
 
-def build_naive_vqa_model(image_embed_size, feature_map_number, answer_number):
+def build_naive_vqa_model(image_embed_size, feature_map_number, answer_number, question_max_length, vocab_size):
     image_input = tf.keras.layers.Input(shape=(feature_map_number, feature_map_number, image_embed_size))
-    question_input = tf.keras.layers.Input(shape=(question_vector_train.shape[1],))
+    question_input = tf.keras.layers.Input(shape=(question_max_length,))
 
     image_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=7, strides=1, padding="valid",
                                                activation='relu',
@@ -140,7 +146,7 @@ def build_naive_vqa_model(image_embed_size, feature_map_number, answer_number):
                                           kernel_initializer=tf.keras.initializers.he_uniform(seed=32))(image_dense_1)
 
     # Input 2 Pathway
-    question_emb = tf.keras.layers.Embedding(input_dim=len(tokenizer.word_index) + 1, output_dim=300,
+    question_emb = tf.keras.layers.Embedding(input_dim=len(vocab_size) + 1, output_dim=300,
                                              name="Embedding_Layer",
                                              embeddings_initializer=tf.keras.initializers.RandomNormal(mean=0, stddev=1,
                                                                                                        seed=23))(
@@ -173,6 +179,10 @@ def build_naive_vqa_model(image_embed_size, feature_map_number, answer_number):
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
+
+
+
+
 def cache_vqa_images(image_paths_train):
 
     image_encoder = get_pretrained_image_encoder()
@@ -188,7 +198,7 @@ def cache_vqa_images(image_paths_train):
         save_path = os.path.join(coco_train, vqa_dir, name)
         np.save(save_path, img_tensor.numpy())
 
-    for i , path in enumerate(image_paths_train):
+    for i , path in tqdm(enumerate(image_paths_train)):
         cache_vqa_image_feature(path)
 
 # The preprocessed vqa data can be downloaded from:
@@ -199,22 +209,56 @@ if __name__ == "__main__":
     X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val = load_preprocessed_data()
     coco_train = os.path.join(MS_COCO_DIR, "train2017")
     coco_train_cache = os.path.join(MS_COCO_DIR, "train2017", "vqa_cache")
-    image_path = os.path.join(coco_train, '%012d.jpg' % (image_id))
     image_paths_train = X_train['image_id'].apply(lambda x:  os.path.join(coco_train, '%012d.jpg' % (x))).values
     image_paths_train_cache  =X_train['image_id'].apply(lambda x: os.path.join(coco_train_cache, '%012d.jpg' % (x))).values
     image_paths_val = X_val['image_id'].apply(lambda x:  os.path.join(coco_train, '%012d.jpg' % (x))).values
+    image_paths_val_cache = X_val['image_id'].apply(lambda x: os.path.join(coco_train_cache, '%012d.jpg' % (x))).values
 
+    question_max_length = question_vector_train.shape[1]
+    vocabulary_size = tokenizer.word_index
     ans_vocab = {l: i for i, l in enumerate(label_encoder.classes_)}
     number_of_answers = len(ans_vocab)
 
+    answer_vector_train = label_encoder.fit_transform(X_train['multiple_choice_answer'].apply(lambda x: x).values)
+    answer_vector_val = label_encoder.transform(X_val['multiple_choice_answer'].apply(lambda x: x).values)
+
     #Just apply it once and comment out
+    if not os.path.exists(coco_train_cache):
+        os.makedirs(coco_train_cache)
     #cache_vqa_images(image_paths_train)
+    #cache_vqa_images(image_paths_val)
+
 
     #TODO Finish the implementation of the naive model based on
     # 3_Modeling.ipynb from https://github.com/harsha977/Visual-Question-Answering-With-Hierarchical-Question-Image-Co-Attention
 
 
-    # vqa = build_naive_vqa_model(256, 8, number_of_answers)
+    vqa = build_naive_vqa_model(256, 8, number_of_answers, question_max_length, vocabulary_size)
+
+    train_dataset = create_dataset(image_paths_train_cache, question_vector_train, answer_vector_train)
+    val_dataset = create_dataset(image_paths_val_cache, question_vector_val, answer_vector_val)
+
 
     all_image_dict = {}
-    pass
+    # for i, e in enumerate(dataset):
+    #     pass
+
+    np.random.seed(42)
+
+    ##fixing tensorflow RS
+    tf.random.set_seed(32)
+
+    ##python RS
+    rn.seed(12)
+
+    #Just apply it once and comment out
+    if not os.path.exists("./logs"):
+        os.makedirs("./logs")
+
+    cb = [
+        tf.keras.callbacks.EarlyStopping(patience=2),
+        tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints/model.{epoch:02d}-{val_loss:.2f}.h5'),
+        tf.keras.callbacks.TensorBoard(log_dir='./logs'),
+    ]
+
+    vqa.fit(train_dataset, epochs = 20, validation_data = val_dataset, callbacks = cb)

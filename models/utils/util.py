@@ -2,7 +2,8 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-
+from models.model import CNN_Encoder
+import os
 
 def load_image(image_path):
     img = tf.io.read_file(image_path)
@@ -37,3 +38,22 @@ def plot_attention(image, result, attention_plot):
 
     plt.tight_layout()
     plt.show()
+
+def get_pretrained_image_encoder():
+    # Get the Image Encoder trained on captioning with frozen weights
+
+    encoder = CNN_Encoder(embedding_dim=256)
+
+    checkpoint_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "captioning/checkpoints/train/")
+    ckpt = tf.train.Checkpoint(encoder=encoder)
+    ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=5)
+
+    if ckpt_manager.latest_checkpoint:
+        # restoring the latest checkpoint in checkpoint_path
+        ckpt.restore(ckpt_manager.latest_checkpoint).expect_partial()
+    else:
+        print("Not able to restore pretrained Image Encoder")
+
+    for l in encoder.layers:
+        l.trainable = False
+    return encoder

@@ -14,6 +14,10 @@ def get_eval_model():
 
     return model
 
+# The preprocessed vqa data and model can be downloaded from:
+#https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
+#must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
+
 if __name__ == "__main__":
     model = get_eval_model()
     image_extractor = util.get_pretrained_image_encoder()

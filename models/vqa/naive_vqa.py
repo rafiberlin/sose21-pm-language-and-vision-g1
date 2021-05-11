@@ -185,7 +185,7 @@ def cache_vqa_images(image_paths_train):
     for i , path in tqdm(enumerate(image_paths_train)):
         cache_vqa_image_feature(path)
 
-# The preprocessed vqa data can be downloaded from:
+# The preprocessed vqa data and model can be downloaded from:
 #https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
 #must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py)
 if __name__ == "__main__":

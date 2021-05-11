@@ -57,7 +57,7 @@ class TrainedVQA:
 
         return label
 
-def get_eval_model():
+def get_eval_vqa_model():
     serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         "checkpoints/tokenizer.pickle")
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     image_url = 'https://tensorflow.org/images/surf.jpg'
     question = "Is there a man?"
-    vqa = get_eval_model()
+    vqa = get_eval_vqa_model()
     label = vqa.infer((image_url, question))
     print(label)
 

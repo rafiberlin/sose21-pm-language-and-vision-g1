@@ -12,7 +12,7 @@ from models.model import RNN_Decoder, CNN_Encoder, BahdanauAttention
 
 
 
-def get_eval_model():
+def get_eval_captioning_model():
     # Choose the top 5000 words from the vocabulary
     VOCAB_SIZE = 5000
     serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -87,7 +87,7 @@ def get_eval_model():
 # https://drive.google.com/file/d/1d2ZH7699DDStrJt5EOsFneT1XWGgcNRj/view?usp=sharing
 # at the same level as this scrip, you should see directory called checkpoints/
 if __name__ == "__main__":
-    model = get_eval_model()
+    model = get_eval_captioning_model()
 
     image_url = 'https://tensorflow.org/images/surf.jpg'
     # image_url = 'http://localhost:8000/a/atrium/home/ADE_train_00001860.jpg'

@@ -58,21 +58,6 @@ class TrainedVQA:
         return label
 
 def get_eval_model():
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "checkpoints/model.06-1.80.h5")
-
-    model = keras.models.load_model(path)
-
-    return model
-
-# The preprocessed vqa data and model can be downloaded from:
-#https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
-#must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
-
-if __name__ == "__main__":
-
-    image_url = 'https://tensorflow.org/images/surf.jpg'
-    question = "Is there a man?"
     serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         "checkpoints/tokenizer.pickle")
 
@@ -83,6 +68,18 @@ if __name__ == "__main__":
                                         "checkpoints/label_encoder.pickle")
 
     vqa = TrainedVQA(model_path, serialized_tokenizer, label_encoder_serialized)
+
+    return vqa
+
+# The preprocessed vqa data and model can be downloaded from:
+#https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
+#must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
+
+if __name__ == "__main__":
+
+    image_url = 'https://tensorflow.org/images/surf.jpg'
+    question = "Is there a man?"
+    vqa = get_eval_model()
     label = vqa.infer((image_url, question))
     print(label)
 

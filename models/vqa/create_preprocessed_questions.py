@@ -156,12 +156,13 @@ if __name__ == "__main__":
     train_question_seqs = tokenizer.texts_to_sequences(X_train['question'].values)
     val_question_seqs = tokenizer.texts_to_sequences(X_val['question'].values)
 
-    print("Number of words in tokenizer:", len(tokenizer.word_index))
-    ques_vocab = tokenizer.word_index
+
 
     # Padding
-    # tokenizer.word_index['<pad>'] = 0
-    # tokenizer.index_word[0] = '<pad>'
+    tokenizer.word_index['<pad>'] = 0
+    tokenizer.index_word[0] = '<pad>'
+    print("Number of words in tokenizer:", len(tokenizer.word_index))
+    ques_vocab = tokenizer.word_index
     question_vector_train = tf.keras.preprocessing.sequence.pad_sequences(train_question_seqs, padding='post')
     question_vector_val = tf.keras.preprocessing.sequence.pad_sequences(val_question_seqs, padding='post',
                                                                         maxlen=question_vector_train.shape[1])

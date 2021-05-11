@@ -34,11 +34,20 @@ if __name__ == "__main__":
     last_char_index = image_url.rfind("/")
     image_name = image_url[last_char_index + 1:]
     image_path = tf.keras.utils.get_file(image_name, origin=image_url)
+    inception_v3 = util.get_image_feature_extractor()
     images = tf.expand_dims(util.load_image(image_path)[0], 0)
-    question_seq = tokenizer.texts_to_sequences(preprocessed_question)
-    vectorized_question_seq = tf.keras.preprocessing.sequence.pad_sequences(question_seq, padding='post')
+    images = inception_v3(images)
+    images = image_extractor(images)
+    question_seq = tokenizer.texts_to_sequences([preprocessed_question])
+    vectorized_question_seq = tf.keras.preprocessing.sequence.pad_sequences(question_seq, maxlen=model.input[1].shape[1], padding='post')
     input = (images, vectorized_question_seq)
     inference = model.predict(input)
     print(inference)
 
 
+    label_encoder_serialized =  os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        "checkpoints/label_encoder.pickle")
+
+    with open(label_encoder_serialized, 'rb') as handle:
+        label_encoder = pickle.load(handle)
+    #TODO put the inference into a softmax to get the most probably answer and use the label encoder to get the answer as a string...

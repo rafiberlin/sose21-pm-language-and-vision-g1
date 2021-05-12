@@ -73,12 +73,11 @@ class CustomAvatar(Avatar):
         image_url = None
         if self.observation:
             image_url = self.ADE20K_URL + self.observation["image"]
-            image_url = self.ADE20K_URL + self.observation["image"]
             last_char_index = image_url.rfind("/")
             image_name = image_url[last_char_index + 1:]
             image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
-        if message.startswith("what"):
+        if message.startswith("describe"):
             if self.observation:
                 caption, _ = self.caption_expert(image_path)
 

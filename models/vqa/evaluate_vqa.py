@@ -2,6 +2,7 @@ from tensorflow import keras
 import tensorflow as tf
 import os
 import models.utils.util as util
+from models.vqa.naive_vqa import build_naive_vqa_model
 import pickle
 import numpy as np
 from models.vqa.create_preprocessed_questions import preprocess_english, preprocess_english_add_tokens
@@ -10,7 +11,10 @@ from models.vqa.create_preprocessed_questions import preprocess_english, preproc
 class TrainedVQA:
 
     def __init__(self, model_path, tokenizer_path, label_encoder_path):
-        self.model = keras.models.load_model(model_path)
+        # self.model = keras.models.load_model(model_path)
+        self.model = build_naive_vqa_model(256, 8, 1000, 24, 11952)
+        self.model.load_weights(model_path)
+
         self.inception_v3 = util.get_image_feature_extractor()
         self.image_caption_processing = util.get_pretrained_image_encoder()
         with open(tokenizer_path, 'rb') as handle:
@@ -62,7 +66,7 @@ def get_eval_vqa_model():
                                         "checkpoints/tokenizer.pickle")
 
     model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "checkpoints/model.06-1.80.h5")
+                 "checkpoints/naive_vqa.tf")
 
     label_encoder_serialized =  os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         "checkpoints/label_encoder.pickle")
@@ -82,4 +86,6 @@ if __name__ == "__main__":
     vqa = get_eval_vqa_model()
     label = vqa.infer((image_url, question))
     print(label)
+
+
 

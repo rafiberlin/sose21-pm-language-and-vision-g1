@@ -130,7 +130,7 @@ def build_naive_vqa_model(image_embed_size, feature_map_number, answer_number, q
                                           kernel_initializer=tf.keras.initializers.he_uniform(seed=32))(image_dense_1)
 
     # Input 2 Pathway
-    question_emb = tf.keras.layers.Embedding(input_dim=len(vocab_size) + 1, output_dim=300,
+    question_emb = tf.keras.layers.Embedding(input_dim=vocab_size + 1, output_dim=300,
                                              name="Embedding_Layer",
                                              embeddings_initializer=tf.keras.initializers.RandomNormal(mean=0, stddev=1,
                                                                                                        seed=23))(
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     image_paths_val_cache = X_val['image_id'].apply(lambda x: os.path.join(coco_train_cache, '%012d.jpg' % (x))).values
 
     question_max_length = question_vector_train.shape[1]
-    vocabulary_size = tokenizer.word_index
+    vocabulary_size = len(tokenizer.word_index)
     ans_vocab = {l: i for i, l in enumerate(label_encoder.classes_)}
     number_of_answers = len(ans_vocab)
 

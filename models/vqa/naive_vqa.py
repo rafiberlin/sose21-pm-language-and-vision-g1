@@ -11,8 +11,6 @@ import models.utils.util as util
 from PIL import Image
 
 #Beware : VQA uses pictures from MS COCO 2014 => some pictures disapeared in MS COCO 2017...
-VQA_ANNOTATIONS_DIR = "/home/rafi/_datasets/VQA/"
-MS_COCO_DIR = '/home/rafi/_datasets/MSCOCO/'
 
 
 
@@ -189,6 +187,13 @@ def cache_vqa_images(image_paths_train):
 #https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
 #must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py)
 if __name__ == "__main__":
+
+    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
+    with open(config_file, "r") as read_file:
+        conf = json.load(read_file)
+
+    VQA_ANNOTATIONS_DIR = conf["vqa_dir"]
+    MS_COCO_DIR = conf["ms_coco_dir"]
 
     X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val = load_preprocessed_data()
     coco_train = os.path.join(MS_COCO_DIR, "train2017")

@@ -17,7 +17,7 @@ DIRECTION_TO_WORD = {
     "s": "south"
 }
 
-ADE20K_URL = "http://localhost:8000/"
+
 
 def direction_to_word(direction: str):
     if direction in DIRECTION_TO_WORD:

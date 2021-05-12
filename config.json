@@ -2,5 +2,8 @@
   "image_server": {
     "host": "localhost",
     "port": 8000
-  }
+  },
+
+  "ms_coco_dir" : "/home/rafi/_datasets/MSCOCO/",
+  "vqa_dir" : "/home/rafi/_datasets/VQA/"
 }

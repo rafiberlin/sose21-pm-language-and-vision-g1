@@ -76,14 +76,15 @@ def get_eval_vqa_model():
     return vqa
 
 # The preprocessed vqa data and model can be downloaded from:
-#https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
-#must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
+# https://drive.google.com/file/d/1qNIb24KBYJZs6AJOEkuq4TNJXSRVV-fa/view?usp=sharing
+# must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
 if __name__ == "__main__":
 
     image_url = 'https://tensorflow.org/images/surf.jpg'
     #question = "What do you see?" # answer: waves
     #question = "What is it?"  # answer: surfer
-    question = "Is there a man?" # answer: yes
+    #question = "Is there a man?" # answer: yes
+    question = "Is this a man or a dog?"  # answer: man
     vqa = get_eval_vqa_model()
     label = vqa.infer((image_url, question))
     print("question: ", question)

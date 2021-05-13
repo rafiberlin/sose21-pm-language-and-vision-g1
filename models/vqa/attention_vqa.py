@@ -207,9 +207,10 @@ if __name__ == "__main__":
 
     cb = [
         tf.keras.callbacks.EarlyStopping(patience=4, monitor='val_accuracy'),
-        tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints/attention_model.{epoch:02d}-{val_loss:.2f}.h5'),
+        tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints/attention_model.{epoch:02d}-{val_accuracy:.3f}.h5'),
         tf.keras.callbacks.TensorBoard(log_dir='./logs'),
     ]
+    vqa.load_weights("./checkpoints/attention_model.08-0.39.h5")
     #vqa.save(".test")
     # tf.keras.models.load_model(".test/")
     #tf.config.experimental_run_functions_eagerly(True)

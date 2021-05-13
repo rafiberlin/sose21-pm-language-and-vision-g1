@@ -1,6 +1,7 @@
 from avatar.game_avatar import Avatar
 from models.captioning.evaluate import get_eval_captioning_model
-from models.vqa.evaluate_vqa import get_eval_vqa_model
+# from models.vqa.evaluate_vqa import get_eval_vqa_model
+from models.vqa.evaluate_attention_vqa import get_eval_vqa_model
 import tensorflow as tf
 import json
 import os

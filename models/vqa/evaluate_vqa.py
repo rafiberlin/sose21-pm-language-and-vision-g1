@@ -11,7 +11,7 @@ from models.vqa.create_preprocessed_questions import preprocess_english, preproc
 class TrainedVQA:
 
     def __init__(self, model_path, tokenizer_path, label_encoder_path):
-        # self.model = keras.models.load_model(model_path)
+        #self.model = keras.models.load_model(model_path)
         self.model = build_naive_vqa_model(256, 8, 1000, 24, 11952)
         self.model.load_weights(model_path)
 
@@ -53,7 +53,7 @@ class TrainedVQA:
 
         inference = self.model.predict(input)
         decision = tf.nn.softmax(inference)
-        # get the column id whithe the higehst probability mass
+        # get the column id whithe the highest probability mass
         id = tf.math.argmax(decision, 1).numpy()
         one_hot_decision = np.zeros(self.answer_number)
         one_hot_decision[id] = 1
@@ -66,7 +66,7 @@ def get_eval_vqa_model():
                                         "checkpoints/tokenizer.pickle")
 
     model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "checkpoints/naive_vqa.tf")
+                 "checkpoints/model_best.h5")
 
     label_encoder_serialized =  os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         "checkpoints/label_encoder.pickle")
@@ -78,14 +78,16 @@ def get_eval_vqa_model():
 # The preprocessed vqa data and model can be downloaded from:
 #https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
 #must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
-# new weights to be loaded: https://drive.google.com/file/d/1XdjsafBYHHt_G_sQeoEfo_gsGyIBZdr2/view?usp=sharing
 if __name__ == "__main__":
 
     image_url = 'https://tensorflow.org/images/surf.jpg'
-    question = "Is there a man?"
+    #question = "What do you see?" # answer: waves
+    #question = "What is it?"  # answer: surfer
+    question = "Is there a man?" # answer: no
     vqa = get_eval_vqa_model()
     label = vqa.infer((image_url, question))
-    print(label)
+    print("question: ", question)
+    print("answer: ", label[0])
 
 
 

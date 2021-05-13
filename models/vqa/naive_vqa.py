@@ -115,7 +115,7 @@ def build_naive_vqa_model(image_embed_size, feature_map_number, answer_number, q
     image_input = tf.keras.layers.Input(shape=(feature_map_number, feature_map_number, image_embed_size))
     question_input = tf.keras.layers.Input(shape=(question_max_length,))
 
-    image_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=7, strides=1, padding="valid",
+    image_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=8, strides=1, padding="valid",
                                                activation='relu',
                                                kernel_initializer=tf.keras.initializers.he_normal(seed=45))(image_input)
 
@@ -224,7 +224,7 @@ if __name__ == "__main__":
 
     vqa = build_naive_vqa_model(256, 8, number_of_answers, question_max_length, vocabulary_size)
 
-    BATCH_SIZE = 16
+    BATCH_SIZE = 64
 
     train_dataset = create_dataset(image_paths_train_cache, question_vector_train, answer_vector_train, BATCH_SIZE)
     val_dataset = create_dataset(image_paths_val_cache, question_vector_val, answer_vector_val, BATCH_SIZE)
@@ -247,8 +247,8 @@ if __name__ == "__main__":
         os.makedirs("./logs")
 
     cb = [
-        tf.keras.callbacks.EarlyStopping(patience=2),
-        tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints/model.{epoch:02d}-{val_loss:.2f}.h5'),
+        tf.keras.callbacks.EarlyStopping(patience=4),
+        tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints2/model.{epoch:02d}-{val_loss:.2f}.h5'),
         tf.keras.callbacks.TensorBoard(log_dir='./logs'),
     ]
 

@@ -78,6 +78,9 @@ def get_eval_vqa_model():
 # The preprocessed vqa data and model can be downloaded from:
 # https://drive.google.com/file/d/1qNIb24KBYJZs6AJOEkuq4TNJXSRVV-fa/view?usp=sharing
 # must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
+
+# If the h5 file can t be loaded, here is  a file to the weights as tensorflow format (tf)
+# https://drive.google.com/file/d/1Sr7dTPV54LQW0UZGJZTqLUtLzBIrRfuy/view?usp=sharing
 if __name__ == "__main__":
 
     image_url = 'https://tensorflow.org/images/surf.jpg'

@@ -14,7 +14,7 @@ class TrainedVQA:
         #self.model = keras.models.load_model(model_path)
         self.model = build_co_attention_model(256, 8, 1000, 24, 11953)
         self.model.load_weights(model_path)
-
+        # self.model.save_weights("attention_model_best.tf")
         self.inception_v3 = util.get_image_feature_extractor()
         self.image_caption_processing = util.get_pretrained_image_encoder()
         with open(tokenizer_path, 'rb') as handle:
@@ -66,7 +66,7 @@ def get_eval_vqa_model():
                                         "checkpoints/tokenizer.pickle")
 
     model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "checkpoints/attention_model_best.h5")
+                 "checkpoints/attention_model_best.tf")
 
     label_encoder_serialized =  os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         "checkpoints/label_encoder.pickle")

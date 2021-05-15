@@ -66,7 +66,7 @@ def get_eval_vqa_model():
                                         "checkpoints/tokenizer.pickle")
 
     model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "checkpoints/attention_model_best.tf")
+                 "checkpoints/attention_model_best.h5")
 
     label_encoder_serialized =  os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         "checkpoints/label_encoder.pickle")

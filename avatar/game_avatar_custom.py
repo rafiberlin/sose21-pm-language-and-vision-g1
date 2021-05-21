@@ -3,8 +3,8 @@ from models.captioning.evaluate import get_eval_captioning_model
 # from models.vqa.evaluate_vqa import get_eval_vqa_model
 from models.vqa.evaluate_attention_vqa import get_eval_vqa_model
 import tensorflow as tf
-import json
-import os
+from models.utils.util import get_config
+
 
 
 """
@@ -45,9 +45,9 @@ class CustomAvatar(Avatar):
         self.observation = None
         self.caption_expert = get_eval_captioning_model()
         self.vqa_expert = get_eval_vqa_model()
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config.json")
-        with open(config_file, "r") as read_file:
-            conf = json.load(read_file)["image_server"]
+
+        conf = get_config()
+        conf = conf["image_server"]
         self.ADE20K_URL = f"http://{conf['host']}:{conf['port']}/"
 
     def step(self, observation: dict) -> dict:

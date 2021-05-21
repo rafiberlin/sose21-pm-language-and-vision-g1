@@ -5,5 +5,7 @@
   },
 
   "ms_coco_dir" : "/home/rafi/_datasets/MSCOCO/",
-  "vqa_dir" : "/home/rafi/_datasets/VQA/"
+  "vqa_dir" : "/home/rafi/_datasets/VQA/",
+  "ade20k_dir" : "/home/rafi/_datasets/ADE20K/",
+  "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/"
 }

@@ -4,7 +4,18 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from models.model import CNN_Encoder
 import os
+import json
 
+def get_config():
+    """
+    Get the general project config
+    :return:
+    """
+    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
+    with open(config_file, "r") as read_file:
+        conf = json.load(read_file)
+
+    return conf
 def load_image(image_path):
     img = tf.io.read_file(image_path)
     img = tf.image.decode_jpeg(img, channels=3)

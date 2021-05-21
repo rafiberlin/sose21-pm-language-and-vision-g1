@@ -92,3 +92,7 @@ tqdm == 4.49.0
 # sose21-pm-language-and-vision-g1/avatar/mapworld/mapworld.py: 6
 # sose21-pm-language-and-vision-g1/build/lib/avatar/mapworld/mapworld.py: 6
 transitions == 0.8.7
+
+
+pycocotools
+pycocoevalcap

@@ -5,6 +5,10 @@ from models.captioning.evaluate import get_eval_captioning_model
 from pycocoevalcap.bleu.bleu import Bleu
 from nltk.tokenize import word_tokenize
 from tqdm import tqdm
+import json
+import collections
+import random
+
 def get_ade20k_caption_annotations():
     """
     Precondition: checkout the https://github.com/clp-research/image-description-sequences under the location
@@ -47,13 +51,69 @@ def calc_scores(ref, hypo):
             final_scores[method] = score
     return final_scores
 
-if __name__ == "__main__":
-    caption = get_ade20k_caption_annotations()
+def get_ms_coco_captions(data_type="train2017", shuffle=True, image_number=600):
+
+    """
+
+    :param data_type: either train2017 or val2017
+    :return:
+    """
+    conf = get_config()
+
+    base_dir = conf["ms_coco_dir"]
+    annotation_folder = 'annotations'
+    annotation_file = os.path.join(base_dir, annotation_folder, 'captions_'+data_type+'.json')
+    image_folder = data_type
+    PATH = os.path.join(base_dir, image_folder)
+    # In[4]:
+    with open(annotation_file, 'r') as f:
+        annotations = json.load(f)
+
+    # In[5]:
+
+    # Group all captions together having the same image ID.
+    image_path_to_caption = collections.defaultdict(list)
+    for val in annotations['annotations']:
+        caption = val['caption']
+        image_path = os.path.join(PATH, '%012d.jpg' % (val['image_id']))
+        image_path_to_caption[image_path].append(caption)
+
+    image_paths = list(image_path_to_caption.keys())
+    if shuffle:
+        random.shuffle(image_paths)
+    if image_number:
+        image_paths = image_paths[:image_number]
+        return {path: image_path_to_caption[path] for path in image_paths}
+
+    return image_path_to_caption
+
+def perform_bleu_score_on_mscoco():
+
+    captions  = get_ms_coco_captions()
     caption_expert = get_eval_captioning_model()
-    scores = []
+
     references = {}
     hypothesis = {}
-    for i, row in tqdm(caption.iterrows()):
+
+    for image_path in tqdm(captions):
+        first_caption = " ".join(word_tokenize(captions[image_path][0]))
+        predicted_caption, _ = caption_expert(image_path)
+        if predicted_caption[-1] == "<end>":
+            predicted_caption = predicted_caption[:-1]
+        predicted_caption = " ".join(predicted_caption)
+        references[image_path]= [first_caption]
+        hypothesis[image_path] = [predicted_caption]
+    scores = calc_scores(references, hypothesis)
+    print("MS COCO", scores)
+    return scores
+
+def perform_bleu_score_on_ade20k():
+    captions = get_ade20k_caption_annotations()
+    caption_expert = get_eval_captioning_model()
+
+    references = {}
+    hypothesis = {}
+    for i, row in tqdm(captions.iterrows()):
         gold_caption = " ".join(word_tokenize(row["caption"]))
         image_path = row["image_path"]
         image_id = row["image_id"]
@@ -66,4 +126,10 @@ if __name__ == "__main__":
 
 
     scores = calc_scores(references, hypothesis)
-    print(scores)
+    print("ADE20k", scores)
+    return scores
+
+if __name__ == "__main__":
+
+    perform_bleu_score_on_ade20k()
+    perform_bleu_score_on_mscoco()

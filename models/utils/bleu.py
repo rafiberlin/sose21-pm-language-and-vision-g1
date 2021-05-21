@@ -4,7 +4,7 @@ import os
 from models.captioning.evaluate import get_eval_captioning_model
 from pycocoevalcap.bleu.bleu import Bleu
 from nltk.tokenize import word_tokenize
-
+from tqdm import tqdm
 def get_ade20k_caption_annotations():
     """
     Precondition: checkout the https://github.com/clp-research/image-description-sequences under the location
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     scores = []
     references = {}
     hypothesis = {}
-    for i, row in caption.iterrows():
+    for i, row in tqdm(caption.iterrows()):
         gold_caption = " ".join(word_tokenize(row["caption"]))
         image_path = row["image_path"]
         image_id = row["image_id"]

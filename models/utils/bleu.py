@@ -51,7 +51,7 @@ def calc_scores(ref, hypo):
             final_scores[method] = score
     return final_scores
 
-def get_ms_coco_captions(data_type="train2017", shuffle=True, image_number=600):
+def get_ms_coco_captions(data_type="val2017", shuffle=True, image_number=600):
 
     """
 
@@ -96,12 +96,16 @@ def perform_bleu_score_on_mscoco():
     hypothesis = {}
 
     for image_path in tqdm(captions):
-        first_caption = " ".join(word_tokenize(captions[image_path][0]))
+        cap1 = " ".join(word_tokenize(captions[image_path][0]))
+        cap2 = " ".join(word_tokenize(captions[image_path][1]))
+        cap3 = " ".join(word_tokenize(captions[image_path][2]))
+        cap4 = " ".join(word_tokenize(captions[image_path][3]))
+        cap5 = " ".join(word_tokenize(captions[image_path][4]))
         predicted_caption, _ = caption_expert(image_path)
         if predicted_caption[-1] == "<end>":
             predicted_caption = predicted_caption[:-1]
         predicted_caption = " ".join(predicted_caption)
-        references[image_path]= [first_caption]
+        references[image_path]= [cap1, cap2, cap3, cap4, cap5]
         hypothesis[image_path] = [predicted_caption]
     scores = calc_scores(references, hypothesis)
     print("MS COCO", scores)
@@ -131,5 +135,5 @@ def perform_bleu_score_on_ade20k():
 
 if __name__ == "__main__":
 
-    perform_bleu_score_on_ade20k()
+    #perform_bleu_score_on_ade20k()
     perform_bleu_score_on_mscoco()

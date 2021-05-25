@@ -11,6 +11,11 @@ Unpack under ./models/captioning
 You should end up with all files under ./models/captioning/checkpoints/train
 
 
+Our best model is:
+
+https://drive.google.com/file/d/1OHMokofF4mgjSzRcdcKEqqkpb3TLIx1P/view?usp=sharing
+
+
 ## VQA 
 
 https://drive.google.com/file/d/1qNIb24KBYJZs6AJOEkuq4TNJXSRVV-fa/view?usp=sharing

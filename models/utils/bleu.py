@@ -8,6 +8,9 @@ from tqdm import tqdm
 import json
 import collections
 import random
+import pickle
+from tensorflow.keras.preprocessing.text import text_to_word_sequence
+
 
 def get_ade20k_caption_annotations():
     """
@@ -51,7 +54,7 @@ def calc_scores(ref, hypo):
             final_scores[method] = score
     return final_scores
 
-def get_ms_coco_captions(data_type="val2017", shuffle=True, image_number=600):
+def get_ms_coco_captions(data_type="val2017", shuffle=False, image_number=None):
 
     """
 
@@ -87,25 +90,26 @@ def get_ms_coco_captions(data_type="val2017", shuffle=True, image_number=600):
 
     return image_path_to_caption
 
-def perform_bleu_score_on_mscoco():
+def perform_bleu_score_on_mscoco(data_type="val2017", shuffle=False, image_number=None):
 
-    captions  = get_ms_coco_captions()
+    captions  = get_ms_coco_captions(data_type=data_type, shuffle=shuffle, image_number=image_number)
     caption_expert = get_eval_captioning_model()
+
+    serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        "../captioning/checkpoints/train/tokenizer.pickle")
+    with open(serialized_tokenizer, 'rb') as handle:
+        tokenizer = pickle.load(handle)
 
     references = {}
     hypothesis = {}
 
     for image_path in tqdm(captions):
-        cap1 = " ".join(word_tokenize(captions[image_path][0]))
-        cap2 = " ".join(word_tokenize(captions[image_path][1]))
-        cap3 = " ".join(word_tokenize(captions[image_path][2]))
-        cap4 = " ".join(word_tokenize(captions[image_path][3]))
-        cap5 = " ".join(word_tokenize(captions[image_path][4]))
+        removed_punctuation_caps = [" ".join(text_to_word_sequence(c, filters=tokenizer.filters)) for c in captions[image_path]]
         predicted_caption, _ = caption_expert(image_path)
         if predicted_caption[-1] == "<end>":
             predicted_caption = predicted_caption[:-1]
         predicted_caption = " ".join(predicted_caption)
-        references[image_path]= [cap1, cap2, cap3, cap4, cap5]
+        references[image_path]= removed_punctuation_caps
         hypothesis[image_path] = [predicted_caption]
     scores = calc_scores(references, hypothesis)
     print("MS COCO", scores)
@@ -114,11 +118,15 @@ def perform_bleu_score_on_mscoco():
 def perform_bleu_score_on_ade20k():
     captions = get_ade20k_caption_annotations()
     caption_expert = get_eval_captioning_model()
+    serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        "../captioning/checkpoints/train/tokenizer.pickle")
+    with open(serialized_tokenizer, 'rb') as handle:
+        tokenizer = pickle.load(handle)
 
     references = {}
     hypothesis = {}
     for i, row in tqdm(captions.iterrows()):
-        gold_caption = " ".join(word_tokenize(row["caption"]))
+        gold_caption = " ".join(text_to_word_sequence(row["caption"], filters=tokenizer.filters))
         image_path = row["image_path"]
         image_id = row["image_id"]
         predicted_caption, _ = caption_expert(image_path)

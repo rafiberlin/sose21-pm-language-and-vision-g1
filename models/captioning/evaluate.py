@@ -42,7 +42,9 @@ def get_eval_captioning_model():
     if ckpt_manager.latest_checkpoint:
         # restoring the latest checkpoint in checkpoint_path
         ckpt.restore(ckpt_manager.latest_checkpoint).expect_partial()
-
+        print("Restore :", ckpt_manager.latest_checkpoint)
+    else:
+        print("WARNING : no model loaded!")
     image_features_extract_model = util.get_image_feature_extractor()
 
     def evaluate(image):

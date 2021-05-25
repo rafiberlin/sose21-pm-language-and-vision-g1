@@ -12,9 +12,11 @@ class TrainedVQA:
 
     def __init__(self, model_path, tokenizer_path, label_encoder_path):
         #self.model = keras.models.load_model(model_path)
-        self.model = build_co_attention_model(256, 8, 1000, 24, 11953)
+        #self.model = build_co_attention_model(256, 8, 1000, 24, 11953)
+        #https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
+        self.model = build_co_attention_model(256, 8, 2000, 24, 12147)
         self.model.load_weights(model_path)
-        # self.model.save_weights("attention_model_best.tf")
+        #self.model.save_weights("attention_model_best.tf")
         self.inception_v3 = util.get_image_feature_extractor()
         self.image_caption_processing = util.get_pretrained_image_encoder()
         with open(tokenizer_path, 'rb') as handle:
@@ -84,8 +86,9 @@ def get_eval_vqa_model():
 if __name__ == "__main__":
 
     image_url = 'https://tensorflow.org/images/surf.jpg'
-    #question = "What do you see?" # answer: waves
-    #question = "What is it?"  # answer: surfer
+    #question = "What do you see?" # answer: surfboard
+    #question = "What is it?"  # answer: surfboard
+    #question = "Who is it?"  # answer: surfer
     #question = "Is there a man?" # answer: yes
     question = "Is this a man or a dog?"  # answer: man
     vqa = get_eval_vqa_model()

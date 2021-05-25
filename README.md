@@ -4,29 +4,24 @@
 
 ## Captioning
 
-https://drive.google.com/file/d/1d2ZH7699DDStrJt5EOsFneT1XWGgcNRj/view?usp=sharing
+https://drive.google.com/file/d/1OHMokofF4mgjSzRcdcKEqqkpb3TLIx1P/view?usp=sharing
 
 Unpack under ./models/captioning
 
 You should end up with all files under ./models/captioning/checkpoints/train
 
 
-Our best model is:
-
-https://drive.google.com/file/d/1OHMokofF4mgjSzRcdcKEqqkpb3TLIx1P/view?usp=sharing
 
 
 ## VQA 
 
-https://drive.google.com/file/d/1qNIb24KBYJZs6AJOEkuq4TNJXSRVV-fa/view?usp=sharing
+https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
 
 Unpack under ./models/vqa
 
 You should end up with all files under ./models/vqa/checkpoints (I know, not consistent with captioning...)
 
-If you have a problem with the weights, download the 2 files from https://drive.google.com/file/d/1Sr7dTPV54LQW0UZGJZTqLUtLzBIrRfuy/view?usp=sharing
-
-put them under ./models/vqa/checkpoints and change the path in evaluate_attention_vqa.py
+If you have a problem with the weights, change the path in evaluate_attention_vqa.py
 
 from checkpoints/attention_model_best.h5 to checkpoints/attention_model_best.tf
 

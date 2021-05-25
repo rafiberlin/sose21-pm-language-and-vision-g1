@@ -64,6 +64,7 @@ def get_pretrained_image_encoder():
     if ckpt_manager.latest_checkpoint:
         # restoring the latest checkpoint in checkpoint_path
         ckpt.restore(ckpt_manager.latest_checkpoint).expect_partial()
+        print("Restoring:", ckpt_manager.latest_checkpoint)
     else:
         print("Not able to restore pretrained Image Encoder")
 

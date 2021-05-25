@@ -124,29 +124,14 @@ def build_co_attention_model(image_embedding, feature_maps, number_of_answers, q
     return model
 
 
-def cache_vqa_images(image_paths_train):
-
-    image_encoder = util.get_pretrained_image_encoder()
 
 
-    def cache_vqa_image_feature(img_name, vqa_dir="vqa_cache"):
-        img_tensor =  np.load(img_name + '.npy')
-        img_tensor = image_encoder(img_tensor)
-        img_tensor = tf.reshape(img_tensor, (8, 8 , -1))
-        last_char_index = img_name.rfind(os.path.sep)
-        coco_train = img_name[:last_char_index]
-        name = img_name[last_char_index + 1:]
-        save_path = os.path.join(coco_train, vqa_dir, name)
-        np.save(save_path, img_tensor.numpy())
-
-    for i , path in tqdm(enumerate(image_paths_train)):
-        cache_vqa_image_feature(path)
 
 # The preprocessed vqa data and model can be downloaded from:
 #https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
 #must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py)
 if __name__ == "__main__":
-
+    BATCH_SIZE = 128
     config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
     with open(config_file, "r") as read_file:
         conf = json.load(read_file)
@@ -166,15 +151,10 @@ if __name__ == "__main__":
     vocabulary_size = len(tokenizer.word_index)
     ans_vocab = {l: i for i, l in enumerate(label_encoder.classes_)}
     number_of_answers = len(ans_vocab)
-
     answer_vector_train = label_encoder.fit_transform(X_train['multiple_choice_answer'].apply(lambda x: x).values)
     answer_vector_val = label_encoder.transform(X_val['multiple_choice_answer'].apply(lambda x: x).values)
 
-    #Just apply it once and comment out
-    if not os.path.exists(coco_train_cache):
-        os.makedirs(coco_train_cache)
-    #cache_vqa_images(image_paths_train)
-    #cache_vqa_images(image_paths_val)
+
 
 
     #TODO Finish the implementation of the naive model based on
@@ -183,7 +163,7 @@ if __name__ == "__main__":
 
     vqa = build_co_attention_model(256, 8, number_of_answers, question_max_length, vocabulary_size)
 
-    BATCH_SIZE = 64
+
 
     train_dataset = create_dataset(image_paths_train_cache, question_vector_train, answer_vector_train, BATCH_SIZE)
     val_dataset = create_dataset(image_paths_val_cache, question_vector_val, answer_vector_val, BATCH_SIZE)
@@ -210,7 +190,7 @@ if __name__ == "__main__":
         tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints/attention_model.{epoch:02d}-{val_accuracy:.3f}.h5'),
         tf.keras.callbacks.TensorBoard(log_dir='./logs'),
     ]
-    vqa.load_weights("./checkpoints/attention_model.08-0.39.h5")
+    #vqa.load_weights("./checkpoints/attention_model.08-0.39.h5")
     #vqa.save(".test")
     # tf.keras.models.load_model(".test/")
     #tf.config.experimental_run_functions_eagerly(True)

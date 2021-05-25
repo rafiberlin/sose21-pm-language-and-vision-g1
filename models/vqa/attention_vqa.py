@@ -195,3 +195,4 @@ if __name__ == "__main__":
     # tf.keras.models.load_model(".test/")
     #tf.config.experimental_run_functions_eagerly(True)
     vqa.fit(train_dataset, epochs = 20, validation_data = val_dataset, callbacks = cb)
+

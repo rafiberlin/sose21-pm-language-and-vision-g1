@@ -3,6 +3,9 @@ import os
 import json
 from tqdm import tqdm
 import pandas as pd
+import random
+import jsonlines
+
 
 def read_ade20k_object_annotations():
     conf = get_config()
@@ -23,6 +26,7 @@ def read_ade20k_object_annotations():
 
     return object_annotations, image_annotations, rel_annotations
 
+
 def extract_ade20k_classes(object_annotations):
     cols = object_annotations["columns"]
     data = object_annotations["data"]
@@ -31,7 +35,7 @@ def extract_ade20k_classes(object_annotations):
     synset_col_id = cols.index("synset")
     attr_col_id = cols.index("attr")
 
-    label_set =  set()
+    label_set = set()
     synset_set = set()
     attr_set = set()
 
@@ -52,21 +56,65 @@ def extract_ade20k_classes(object_annotations):
     return label_set, synset_set, attr_set
 
 
-def create_ADE20K_dataset():
-    object_annotations, image_annotations, rel_annotations  = read_ade20k_object_annotations()
+def create_ADE20K_dataset(min_questions=3):
+    conf = get_config()
+    ADE20K = conf["ade20k_dir"]
+    VQA_FILE_NAME = conf["ade20k_vqa_file"]
+
+    object_annotations, image_annotations, rel_annotations = read_ade20k_object_annotations()
     label_set, synset_set, attr_set = extract_ade20k_classes(object_annotations)
+    label_list = list(label_set)
     obj_df = pd.DataFrame(object_annotations["data"], columns=object_annotations["columns"])
     obj_df['image_id'] = obj_df['image_id'].astype('str')
     image_df = pd.DataFrame(image_annotations["data"], columns=image_annotations["columns"])
     image_df['image_id'] = image_df['image_id'].astype('str')
-    #retrieves each filepath
+    # retrieves each filepath
     merged = obj_df.merge(image_df[['image_id', 'filename', "split"]], how="left", on=["image_id", "split"])
     merged["synset"] = merged["synset"].copy().apply(lambda x: x.split(","))
     merged["attr"] = merged["attr"].copy().apply(lambda x: x.split(","))
-    pass
+    image_list = {f: set() for f in list(set(merged["filename"]))}
+    for i, row in tqdm(merged.iterrows()):
+        filename, label = row["filename"], row["label"]
+        image_list[filename].add(label)
+
+    # make results reproducible
+    random.seed(0)
+
+    question_templates = ["Is there a {} ?", "Can you see a {} ?", "Is it a {} or a {} ?", "What is it?"]
+
+    jsonline_path = os.path.join(ADE20K, VQA_FILE_NAME)
+
+    with jsonlines.open(jsonline_path, 'w') as f_out:
+        for key in tqdm(image_list.keys()):
+            val = list(image_list[key])
+            if len(val) >= min_questions:
+                positive_examples = random.choices(val, k=min_questions)
+                negative_examples = random.choices([s for s in label_list if s not in val], k=min_questions)
+                questions = []
+                answers = []
+                for p in positive_examples:
+                    questions.append(question_templates[0].format(p))
+                    answers.append("yes")
+                    questions.append(question_templates[1].format(p))
+                    answers.append("yes")
+                    n = random.choice(negative_examples)
+                    questions.append(question_templates[2].format(p, n))
+                    answers.append(p)
+                    questions.append(question_templates[3])
+                    answers.append(p)
+                for p in negative_examples:
+                    questions.append(question_templates[0].format(p))
+                    answers.append("no")
+                    questions.append(question_templates[1].format(p))
+                    answers.append("no")
+                    # n = random.choices(negative_examples, 2)
+                    # questions.append(question_templates[2].format(n[0], n[1]))
+                    # answers.append("none")
+                    # questions.append(question_templates[3])
+                    # answers.append(p)
+                for q, a, in zip(questions, answers):
+                    f_out.write({"image_path": key, "question": q, "answer": a})
 
 
 if __name__ == "__main__":
-
     create_ADE20K_dataset()
-

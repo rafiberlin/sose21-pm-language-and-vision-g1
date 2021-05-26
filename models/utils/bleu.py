@@ -3,7 +3,6 @@ import pandas as pd
 import os
 from models.captioning.evaluate import get_eval_captioning_model
 from pycocoevalcap.bleu.bleu import Bleu
-from nltk.tokenize import word_tokenize
 from tqdm import tqdm
 import json
 import collections

@@ -48,6 +48,9 @@ def run_official_vqa_metrics():
     for i, (question, image, answers) in tqdm(enumerate(zip(questions, image_paths_val, answers))):
         prediction = vqa.infer(("file://"+image, question))
         total += min(sum([ 1 for answer in answers if answer["answer"] == prediction])/3, 1)
+        epoch = i+ 1
+        if epoch % 1000 == 0:
+            print("epoch", epoch,"Acc", total/ epoch)
     acc = total / len(questions)
     print("VQA Accuracy", acc)
 

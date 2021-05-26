@@ -5,10 +5,7 @@ import json
 import pickle
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 import random as rn
-import models.utils.util as util
-from PIL import Image
 
 #Beware : VQA uses pictures from MS COCO 2014 => some pictures disapeared in MS COCO 2017...
 
@@ -87,7 +84,7 @@ def get_image_tensor(img, ques):
     #img_tensor = np.load(path)
     img_tensor = np.load(img.decode('utf-8')+'.npy')
     # quick fix: the feature maps were saved as 8*8*256 => the model expects only to dimensions as input for the images...
-    return img_tensor.reshape((64, -1)), ques
+    return img_tensor.reshape((FEAT_MAP_WIDTH*FEAT_MAP_WIDTH, -1)), ques
 
 def create_dataset(image_paths, question_vector, answer_vector, batch_size=8):
     # WHen enumerate is called, it return a tuple. in the element, there is another tuple of img, question
@@ -132,6 +129,8 @@ def build_co_attention_model(image_embedding, feature_maps, number_of_answers, q
 #must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py)
 if __name__ == "__main__":
     BATCH_SIZE = 128
+    IMG_EMBED_SIZE = 256
+    FEAT_MAP_WIDTH = 8
     config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
     with open(config_file, "r") as read_file:
         conf = json.load(read_file)
@@ -161,7 +160,7 @@ if __name__ == "__main__":
     # 3_Modeling.ipynb from https://github.com/harsha977/Visual-Question-Answering-With-Hierarchical-Question-Image-Co-Attention
 
 
-    vqa = build_co_attention_model(256, 8, number_of_answers, question_max_length, vocabulary_size)
+    vqa = build_co_attention_model(IMG_EMBED_SIZE, FEAT_MAP_WIDTH, number_of_answers, question_max_length, vocabulary_size)
 
 
 

@@ -2,26 +2,10 @@ from models.utils.util import get_config
 import os
 import json
 from models.vqa.attention_vqa import load_preprocessed_data
-from models.vqa.attention_vqa import create_dataset
 from models.vqa.evaluate_attention_vqa import  get_eval_vqa_model
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
 from tqdm import tqdm
-def read_ade20k_object_annotations():
-    conf = get_config()
-    ADE20K = conf["ad20k_dir"]
-    # as found on the jarvis server under data/ImageCorpora/ADE20K_2016_07_26/preprocessed_dfs
-    # with unzipped files (3 json files as a result)
-    ADE20K_OBJECT_ANNOTATIONS = os.path.join(ADE20K, "preprocessed_dfs", "obj_df.json")
-    with open(ADE20K_OBJECT_ANNOTATIONS, "r") as read_file:
-        object_annotations = json.load(read_file)
 
-    return object_annotations
-
-def run_basic_vqa_on_ade20k():
-    object_annotations = read_ade20k_object_annotations()
-
-
-    pass
 
 def run_official_vqa_metrics():
     """
@@ -53,11 +37,6 @@ def run_official_vqa_metrics():
             print("epoch", epoch,"Acc", total/ epoch)
     acc = total / len(questions)
     print("VQA Accuracy", acc)
-
-    keras_cache = os.path.join(os.path.expanduser("~/"), ".keras/datasets")
-    filelist = [f for f in os.listdir(keras_cache)]
-    for f in filelist:
-        os.remove(os.path.join(keras_cache, f))
 
 
     return acc

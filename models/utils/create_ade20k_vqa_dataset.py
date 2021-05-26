@@ -8,6 +8,11 @@ import jsonlines
 
 
 def read_ade20k_object_annotations():
+    """
+    Returns the annoations
+    :return:object_annotations, image_annotations, rel_annotations
+    """
+
     conf = get_config()
     ADE20K = conf["ade20k_dir"]
     # as found on the jarvis server under data/ImageCorpora/ADE20K_2016_07_26/preprocessed_dfs
@@ -28,6 +33,13 @@ def read_ade20k_object_annotations():
 
 
 def extract_ade20k_classes(object_annotations):
+    """
+    attr contains the attributes of the current label
+    and synset contains all synset synonyms of the current label
+    :param object_annotations:
+    :return: label_set, synset_set, attr_set
+    """
+
     cols = object_annotations["columns"]
     data = object_annotations["data"]
 
@@ -56,7 +68,14 @@ def extract_ade20k_classes(object_annotations):
     return label_set, synset_set, attr_set
 
 
-def create_ADE20K_dataset(min_questions=3):
+def create_ADE20K_dataset(min_labels=3):
+    """
+    To create questions, there must be a minimum amount of objects / labels avalaible in the picture.
+    The picture will be skipped if the minimum amount is not reached
+    :param min_labels:
+    :return:
+    """
+
     conf = get_config()
     ADE20K = conf["ade20k_dir"]
     VQA_FILE_NAME = conf["ade20k_vqa_file"]
@@ -87,9 +106,9 @@ def create_ADE20K_dataset(min_questions=3):
     with jsonlines.open(jsonline_path, 'w') as f_out:
         for key in tqdm(image_list.keys()):
             val = list(image_list[key])
-            if len(val) >= min_questions:
-                positive_examples = random.choices(val, k=min_questions)
-                negative_examples = random.choices([s for s in label_list if s not in val], k=min_questions)
+            if len(val) >= min_labels:
+                positive_examples = random.choices(val, k=min_labels)
+                negative_examples = random.choices([s for s in label_list if s not in val], k=min_labels)
                 questions = []
                 answers = []
                 for p in positive_examples:

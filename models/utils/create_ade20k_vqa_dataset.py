@@ -2,6 +2,7 @@ from models.utils.util import get_config
 import os
 import json
 from tqdm import tqdm
+import pandas as pd
 
 def read_ade20k_object_annotations():
     conf = get_config()
@@ -49,14 +50,23 @@ def extract_ade20k_classes(object_annotations):
             attr_set.update(shards)
 
     return label_set, synset_set, attr_set
-def run_basic_vqa_on_ade20k():
+
+
+def create_ADE20K_dataset():
     object_annotations, image_annotations, rel_annotations  = read_ade20k_object_annotations()
     label_set, synset_set, attr_set = extract_ade20k_classes(object_annotations)
-
+    obj_df = pd.DataFrame(object_annotations["data"], columns=object_annotations["columns"])
+    obj_df['image_id'] = obj_df['image_id'].astype('str')
+    image_df = pd.DataFrame(image_annotations["data"], columns=image_annotations["columns"])
+    image_df['image_id'] = image_df['image_id'].astype('str')
+    #retrieves each filepath
+    merged = obj_df.merge(image_df[['image_id', 'filename', "split"]], how="left", on=["image_id", "split"])
+    merged["synset"] = merged["synset"].copy().apply(lambda x: x.split(","))
+    merged["attr"] = merged["attr"].copy().apply(lambda x: x.split(","))
     pass
 
 
 if __name__ == "__main__":
 
-    run_basic_vqa_on_ade20k()
+    create_ADE20K_dataset()
 

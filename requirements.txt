@@ -2,6 +2,7 @@
 
 # sose21-pm-language-and-vision-g1/models/captioning/visual_attention_simple.py: 17
 # sose21-pm-language-and-vision-g1/models/utils/util.py: 3
+# sose21-pm-language-and-vision-g1/models/vqa/attention_vqa.py: 11
 # sose21-pm-language-and-vision-g1/models/vqa/naive_vqa.py: 11
 Pillow == 8.2.0
 
@@ -37,13 +38,21 @@ networkx == 2.5
 # sose21-pm-language-and-vision-g1/models/captioning/evaluate.py: 7
 # sose21-pm-language-and-vision-g1/models/captioning/visual_attention_simple.py: 13
 # sose21-pm-language-and-vision-g1/models/utils/util.py: 2
-# sose21-pm-language-and-vision-g1/models/vqa/evaluate_vqa.py: 6
+# sose21-pm-language-and-vision-g1/models/vqa/attention_vqa.py: 6
+# sose21-pm-language-and-vision-g1/models/vqa/create_preprocessed_questions.py: 12
+# sose21-pm-language-and-vision-g1/models/vqa/evaluate_attention_vqa.py: 7
+# sose21-pm-language-and-vision-g1/models/vqa/evaluate_vqa.py: 7
 # sose21-pm-language-and-vision-g1/models/vqa/naive_vqa.py: 6
 numpy == 1.19.5
 
+# sose21-pm-language-and-vision-g1/models/utils/bleu.py: 2
+# sose21-pm-language-and-vision-g1/models/vqa/attention_vqa.py: 7
 # sose21-pm-language-and-vision-g1/models/vqa/create_preprocessed_questions.py: 1
 # sose21-pm-language-and-vision-g1/models/vqa/naive_vqa.py: 7
 pandas == 1.2.4
+
+# sose21-pm-language-and-vision-g1/models/utils/bleu.py: 5
+pycocoevalcap == 1.2
 
 # sose21-pm-language-and-vision-g1/avatar/game_master_standalone.py: 4
 # sose21-pm-language-and-vision-g1/avatar/scripts/standalone/game_master_cli.py: 6
@@ -75,24 +84,27 @@ setuptools == 56.1.0
 # sose21-pm-language-and-vision-g1/build/lib/avatar/scripts/slurk/game_setup_cli.py: 7
 socketIO_client == 0.7.2
 
-# sose21-pm-language-and-vision-g1/avatar/game_avatar_custom.py: 4
+# sose21-pm-language-and-vision-g1/avatar/game_avatar_custom.py: 5
 # sose21-pm-language-and-vision-g1/models/captioning/evaluate.py: 5
+# sose21-pm-language-and-vision-g1/models/captioning/test.py: 1
 # sose21-pm-language-and-vision-g1/models/captioning/visual_attention_simple.py: 5
 # sose21-pm-language-and-vision-g1/models/model.py: 1
+# sose21-pm-language-and-vision-g1/models/utils/bleu.py: 11
 # sose21-pm-language-and-vision-g1/models/utils/util.py: 1
+# sose21-pm-language-and-vision-g1/models/vqa/attention_vqa.py: 1
 # sose21-pm-language-and-vision-g1/models/vqa/create_preprocessed_questions.py: 3
+# sose21-pm-language-and-vision-g1/models/vqa/evaluate_attention_vqa.py: 1,2
 # sose21-pm-language-and-vision-g1/models/vqa/evaluate_vqa.py: 1,2
 # sose21-pm-language-and-vision-g1/models/vqa/naive_vqa.py: 1
 tensorflow == 2.4.1
 
 # sose21-pm-language-and-vision-g1/models/captioning/visual_attention_simple.py: 128
+# sose21-pm-language-and-vision-g1/models/utils/bleu.py: 6
+# sose21-pm-language-and-vision-g1/models/vqa/attention_vqa.py: 8
+# sose21-pm-language-and-vision-g1/models/vqa/create_preprocessed_questions.py: 11
 # sose21-pm-language-and-vision-g1/models/vqa/naive_vqa.py: 8
 tqdm == 4.49.0
 
 # sose21-pm-language-and-vision-g1/avatar/mapworld/mapworld.py: 6
 # sose21-pm-language-and-vision-g1/build/lib/avatar/mapworld/mapworld.py: 6
 transitions == 0.8.7
-
-
-pycocotools
-pycocoevalcap

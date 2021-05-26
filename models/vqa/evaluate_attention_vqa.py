@@ -29,8 +29,14 @@ class TrainedVQA:
 
     def __process_image(self, image_url):
         last_char_index = image_url.rfind("/")
-        image_name = image_url[last_char_index + 1:]
-        image_path = tf.keras.utils.get_file(image_name, origin=image_url)
+        # Can now handle file on the computer without downloading them from a url...
+        url_shards = image_url.split("://")
+        image_path = None
+        if len(url_shards) == 2:
+            image_path = url_shards[1]
+        if not os.path.isfile(image_path) and not os.path.isfile(image_url):
+            image_name = image_url[last_char_index + 1:]
+            image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
         image = tf.expand_dims(util.load_image(image_path)[0], 0)
         image = self.inception_v3(image)

@@ -94,8 +94,13 @@ if __name__ == "__main__":
     image_url = 'https://tensorflow.org/images/surf.jpg'
     # image_url = 'http://localhost:8000/a/atrium/home/ADE_train_00001860.jpg'
     last_char_index = image_url.rfind("/")
-    image_name = image_url[last_char_index + 1:]
-    image_path = tf.keras.utils.get_file(image_name, origin=image_url)
+    url_shards = image_url.split("://")
+    image_path = None
+    if len(url_shards) == 2:
+        image_path = url_shards[1]
+    if not os.path.isfile(image_path) and not os.path.isfile(image_url):
+        image_name = image_url[last_char_index + 1:]
+        image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
     result, _ = model(image_path)
 

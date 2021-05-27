@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from models.model import CNN_Encoder
 import os
 import json
+import jsonlines
 
 def get_config():
     """
@@ -16,6 +17,21 @@ def get_config():
         conf = json.load(read_file)
 
     return conf
+
+def get_ade20_vqa_data():
+    """
+    Get the general project config
+    :return:
+    """
+    conf = get_config()
+    vqa_file = conf["ade20k_dir"]
+    file = os.path.join(vqa_file,"ade20k_vqa.jsonl")
+
+    with jsonlines.open(file) as reader:
+        data = [ i for i in iter(reader)]
+    return data
+
+
 def load_image(image_path):
     img = tf.io.read_file(image_path)
     img = tf.image.decode_jpeg(img, channels=3)

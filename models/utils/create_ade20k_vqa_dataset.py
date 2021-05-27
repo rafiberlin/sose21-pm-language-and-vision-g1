@@ -99,7 +99,7 @@ def create_ADE20K_dataset(min_labels=3):
     # make results reproducible
     random.seed(0)
 
-    question_templates = ["Is there a {} ?", "Can you see a {} ?", "Is it a {} or a {} ?", "What is it?"]
+    question_templates = ["Is there a {} ?", "Can you see a {} ?", "Is it a {} or a {} ?", "What is it?", "What is missing {} or {} ?"]
 
     jsonline_path = os.path.join(ADE20K, VQA_FILE_NAME)
 
@@ -107,8 +107,8 @@ def create_ADE20K_dataset(min_labels=3):
         for key in tqdm(image_list.keys()):
             val = list(image_list[key])
             if len(val) >= min_labels:
-                positive_examples = random.choices(val, k=min_labels)
-                negative_examples = random.choices([s for s in label_list if s not in val], k=min_labels)
+                positive_examples = random.sample(val, k=min_labels)
+                negative_examples = random.sample([s for s in label_list if s not in val], k=min_labels)
                 questions = []
                 answers = []
                 for p in positive_examples:
@@ -121,16 +121,17 @@ def create_ADE20K_dataset(min_labels=3):
                     answers.append(p)
                     questions.append(question_templates[3])
                     answers.append(p)
-                for p in negative_examples:
-                    questions.append(question_templates[0].format(p))
+                for neg in negative_examples:
+                    questions.append(question_templates[0].format(neg))
                     answers.append("no")
-                    questions.append(question_templates[1].format(p))
+                    questions.append(question_templates[1].format(neg))
                     answers.append("no")
-                    # n = random.choices(negative_examples, 2)
-                    # questions.append(question_templates[2].format(n[0], n[1]))
-                    # answers.append("none")
-                    # questions.append(question_templates[3])
-                    # answers.append(p)
+                    n = random.sample(negative_examples, k=2)
+                    questions.append(question_templates[2].format(n[0], n[1]))
+                    answers.append("none")
+                    pos = random.sample(positive_examples, k=1)
+                    questions.append(question_templates[4].format(pos[0], neg))
+                    answers.append(neg)
                 for q, a, in zip(questions, answers):
                     f_out.write({"image_path": key, "question": q, "answer": a})
 

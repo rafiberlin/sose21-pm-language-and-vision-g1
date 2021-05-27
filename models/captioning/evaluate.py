@@ -95,7 +95,7 @@ if __name__ == "__main__":
     # image_url = 'http://localhost:8000/a/atrium/home/ADE_train_00001860.jpg'
     last_char_index = image_url.rfind("/")
     url_shards = image_url.split("://")
-    image_path = None
+    image_path = image_url
     if len(url_shards) == 2:
         image_path = url_shards[1]
     if not os.path.isfile(image_path) and not os.path.isfile(image_url):

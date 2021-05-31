@@ -10,8 +10,6 @@ import models.utils.util as util
 from models.model import RNN_Decoder, CNN_Encoder
 
 
-
-
 def get_eval_captioning_model():
     # Choose the top 5000 words from the vocabulary
     VOCAB_SIZE = 5000
@@ -47,8 +45,6 @@ def get_eval_captioning_model():
         print("WARNING : no model loaded!")
     image_features_extract_model = util.get_image_feature_extractor()
 
-
-
     def evaluate(image):
 
         BEAM_SIZE = 3
@@ -59,26 +55,25 @@ def get_eval_captioning_model():
 
         temp_input = tf.expand_dims(util.load_image(image)[0], 0)
         img_tensor_val = image_features_extract_model(temp_input)
-        img_tensor_val = tf.stack([ tf.reshape(img_tensor_val, (
-                                                     -1,
-                                                     img_tensor_val.shape[3])) for i in range(BEAM_SIZE)])
+        img_tensor_val = tf.stack([tf.reshape(img_tensor_val, (
+            -1,
+            img_tensor_val.shape[3])) for i in range(BEAM_SIZE)])
 
         features = encoder(img_tensor_val)
         END_IDX = tokenizer.word_index['<end>']
-        start_tensor = tf.stack([ [tokenizer.word_index['<start>']] for i in range(BEAM_SIZE)])
+        start_tensor = tf.stack([[tokenizer.word_index['<start>']] for i in range(BEAM_SIZE)])
         predictions, hidden, _ = decoder(start_tensor,
-                                                         features,
-                                                         hidden)
+                                         features,
+                                         hidden)
         predictions = tf.nn.log_softmax(predictions)
-
 
         candidates_log_prob, candidate_indices = tf.math.top_k(predictions, k=BEAM_SIZE)
 
-        input_list = [ [candidate_indices[0][i]] for i in range(BEAM_SIZE)]
-        previous_predictions = tf.stack([ [candidates_log_prob[0][i]] for i in range(BEAM_SIZE)])
-        preds = { i:np.zeros(max_length, dtype=int) for i in range (BEAM_SIZE)}
+        input_list = [[candidate_indices[0][i]] for i in range(BEAM_SIZE)]
+        previous_predictions = tf.stack([[candidates_log_prob[0][i]] for i in range(BEAM_SIZE)])
+        preds = {i: np.zeros(max_length, dtype=int) for i in range(BEAM_SIZE)}
         for i in range(BEAM_SIZE):
-            preds[i][0]= candidate_indices[0][i]
+            preds[i][0] = candidate_indices[0][i]
 
         dec_input = tf.stack(input_list)
 
@@ -86,28 +81,27 @@ def get_eval_captioning_model():
 
         for step in range(1, max_length):
 
-
             predictions, hidden, _ = decoder(dec_input,
-                                                             features,
-                                                             hidden)
+                                             features,
+                                             hidden)
 
             predictions = tf.nn.log_softmax(predictions)
 
-            candidates_log_prob , candidate_indices = tf.math.top_k(predictions, k=BEAM_SIZE)
-            candidate_indices = tf.reshape( candidate_indices,-1)
-            #Calculates the likelihood of all candidates so far
-            candidates_log_prob = tf.reshape(candidates_log_prob+previous_predictions, -1)
-            current_top_candidates, current_top_candidates_idx =  tf.math.top_k(candidates_log_prob, k=BEAM_SIZE)
+            candidates_log_prob, candidate_indices = tf.math.top_k(predictions, k=BEAM_SIZE)
+            candidate_indices = tf.reshape(candidate_indices, -1)
+            # Calculates the likelihood of all candidates so far
+            candidates_log_prob = tf.reshape(candidates_log_prob + previous_predictions, -1)
+            current_top_candidates, current_top_candidates_idx = tf.math.top_k(candidates_log_prob, k=BEAM_SIZE)
 
             # Do the mapping best candidate and "source" of the best candidates
             k_idx = tf.gather(candidate_indices, current_top_candidates_idx)
             prev_idx = tf.cast(tf.math.floor(current_top_candidates_idx / BEAM_SIZE), tf.int32)
 
-            #Modify the hidden states accordingly
+            # Modify the hidden states accordingly
             hidden = tf.gather(hidden, prev_idx, axis=0)
 
-            #Overwrite the previous predictions due to the new best candidates
-            preds = {i:preds[prev_idx.numpy()[i]].copy() for i in range(prev_idx.shape[0])}
+            # Overwrite the previous predictions due to the new best candidates
+            preds = {i: preds[prev_idx.numpy()[i]].copy() for i in range(prev_idx.shape[0])}
             stop_idx = []
             for i in range(k_idx.shape[0]):
                 preds[i][step] = k_idx[i]
@@ -119,27 +113,26 @@ def get_eval_captioning_model():
                 for i in reversed(sorted(stop_idx)):
                     candidate = preds.pop(i)
                     loss = current_top_candidates[i]
-                    length = int(tf.where(candidate==END_IDX)) + 1
-                    normalized_loss = loss /float(length)
+                    length = int(tf.where(candidate == END_IDX)) + 1
+                    normalized_loss = loss / float(length)
                     candidates.append((candidate, normalized_loss))
                 BEAM_SIZE = BEAM_SIZE - len(stop_idx)
                 if BEAM_SIZE > 0:
-                    left_idx = tf.convert_to_tensor([ i for i in range(k_idx.shape[0]) if i not in stop_idx])
+                    left_idx = tf.convert_to_tensor([i for i in range(k_idx.shape[0]) if i not in stop_idx])
                     k_idx = tf.convert_to_tensor([k_idx[i] for i in range(k_idx.shape[0]) if i not in stop_idx])
-                    current_top_candidates = tf.convert_to_tensor([ current_top_candidates[i] for i in range(current_top_candidates.shape[0]) if i not in stop_idx])
+                    current_top_candidates = tf.convert_to_tensor(
+                        [current_top_candidates[i] for i in range(current_top_candidates.shape[0]) if
+                         i not in stop_idx])
                     hidden = tf.gather(hidden, left_idx)
                     features = tf.gather(features, left_idx)
-                    #now that the finished sentences have been removed, we need to update the predictions dict accordingly
+                    # now that the finished sentences have been removed, we need to update the predictions dict accordingly
                     for i, key in enumerate(sorted(preds.keys())):
                         preds[i] = preds.pop(key)
                 else:
-                    break # No sequences unfinished
+                    break  # No sequences unfinished
 
-            dec_input = tf.expand_dims(tf.identity(k_idx),axis=1)
-            previous_predictions = tf.expand_dims(current_top_candidates,axis=1)
-
-
-
+            dec_input = tf.expand_dims(tf.identity(k_idx), axis=1)
+            previous_predictions = tf.expand_dims(current_top_candidates, axis=1)
 
         if len(candidates) > 0:
             result, _ = max(candidates, key=lambda c: c[1])
@@ -149,7 +142,6 @@ def get_eval_captioning_model():
         result = [tokenizer.index_word[i] for i in result if i != 0]
         # Returning None is ugly but it allows not to break the existing code...
         return result, None
-
 
     # def evaluate(image):
     #     attention_plot = np.zeros((max_length, attention_features_shape))
@@ -187,7 +179,6 @@ def get_eval_captioning_model():
     #     attention_plot = attention_plot[:len(result), :]
     #     print(result_id)
     #     return result, attention_plot
-
 
     return evaluate
 

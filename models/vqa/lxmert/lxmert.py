@@ -1,16 +1,16 @@
 from IPython.display import clear_output, Image, display
 import PIL.Image
 import sys
-sys.path.append("/home/kev/sose21-pm-language-and-vision-g1/models/vqa/lxmert/")
+#sys.path.append("/home/kev/sose21-pm-language-and-vision-g1/models/vqa/lxmert/")
 import io
 import json
 import torch
 import numpy as np
-from processing_image import Preprocess
-from visualizing_image import SingleImageViz
-from modeling_frcnn import GeneralizedRCNN
-from utils import Config
-import utils
+from .processing_image import Preprocess
+from .visualizing_image import SingleImageViz
+from .modeling_frcnn import GeneralizedRCNN
+from .utils import Config, get_data
+
 from transformers import LxmertForQuestionAnswering, LxmertTokenizer
 import wget
 import pickle
@@ -35,10 +35,10 @@ def infer_lxmert_vqa (URL, test_question):
         display(Image(data=f.getvalue()))
     """
     # load object, attribute, and answer labels
-    objids = utils.get_data(OBJ_URL)
-    attrids = utils.get_data(ATTR_URL)
+    objids = get_data(OBJ_URL)
+    attrids = get_data(ATTR_URL)
     #gqa_answers = utils.get_data(GQA_URL)
-    vqa_answers = utils.get_data(VQA_URL)
+    vqa_answers = get_data(VQA_URL)
 
     # load models and model components
     frcnn_cfg = Config.from_pretrained("unc-nlp/frcnn-vg-finetuned")

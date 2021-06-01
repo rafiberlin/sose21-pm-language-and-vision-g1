@@ -2,7 +2,7 @@ from tensorflow import keras
 import tensorflow as tf
 import os
 import sys
-sys.path.append("/home/kev/sose21-pm-language-and-vision-g1"):W
+sys.path.append("/home/kev/sose21-pm-language-and-vision-g1")
 import sys
 sys.path.append("/home/kev/sose21-pm-language-and-vision-g1")
 import models.utils.util as util

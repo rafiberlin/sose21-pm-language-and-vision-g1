@@ -1,9 +1,10 @@
 from avatar.game_avatar import Avatar
 from models.captioning.evaluate import get_eval_captioning_model
-from models.vqa.evaluate_vqa import get_eval_vqa_model
+# from models.vqa.evaluate_vqa import get_eval_vqa_model
+from models.vqa.evaluate_attention_vqa import get_eval_vqa_model
 import tensorflow as tf
-import json
-import os
+from models.utils.util import get_config
+
 
 
 """
@@ -17,7 +18,7 @@ DIRECTION_TO_WORD = {
     "s": "south"
 }
 
-ADE20K_URL = "http://localhost:8000/"
+
 
 def direction_to_word(direction: str):
     if direction in DIRECTION_TO_WORD:
@@ -44,9 +45,9 @@ class CustomAvatar(Avatar):
         self.observation = None
         self.caption_expert = get_eval_captioning_model()
         self.vqa_expert = get_eval_vqa_model()
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config.json")
-        with open(config_file, "r") as read_file:
-            conf = json.load(read_file)["image_server"]
+
+        conf = get_config()
+        conf = conf["image_server"]
         self.ADE20K_URL = f"http://{conf['host']}:{conf['port']}/"
 
     def step(self, observation: dict) -> dict:
@@ -73,12 +74,11 @@ class CustomAvatar(Avatar):
         image_url = None
         if self.observation:
             image_url = self.ADE20K_URL + self.observation["image"]
-            image_url = self.ADE20K_URL + self.observation["image"]
             last_char_index = image_url.rfind("/")
             image_name = image_url[last_char_index + 1:]
             image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
-        if message.startswith("what"):
+        if message.startswith("describe"):
             if self.observation:
                 caption, _ = self.caption_expert(image_path)
 

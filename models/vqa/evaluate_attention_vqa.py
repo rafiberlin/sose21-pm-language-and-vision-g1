@@ -1,12 +1,8 @@
 from tensorflow import keras
 import tensorflow as tf
 import os
-import sys
-sys.path.append("/home/kev/sose21-pm-language-and-vision-g1")
-import sys
-sys.path.append("/home/kev/sose21-pm-language-and-vision-g1")
 import models.utils.util as util
-from models.vqa.naive_vqa import build_naive_vqa_model
+from models.vqa.attention_vqa import build_co_attention_model
 import pickle
 import numpy as np
 from models.vqa.create_preprocessed_questions import preprocess_english, preprocess_english_add_tokens
@@ -16,9 +12,11 @@ class TrainedVQA:
 
     def __init__(self, model_path, tokenizer_path, label_encoder_path):
         #self.model = keras.models.load_model(model_path)
-        self.model = build_naive_vqa_model(256, 8, 1000, 24, 11952)
+        #self.model = build_co_attention_model(256, 8, 1000, 24, 11953)
+        #https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
+        self.model = build_co_attention_model(256, 8, 2000, 24, 12147)
         self.model.load_weights(model_path)
-
+        #self.model.save_weights("attention_model_best.tf")
         self.inception_v3 = util.get_image_feature_extractor()
         self.image_caption_processing = util.get_pretrained_image_encoder()
         with open(tokenizer_path, 'rb') as handle:
@@ -31,14 +29,20 @@ class TrainedVQA:
 
     def __process_image(self, image_url):
         last_char_index = image_url.rfind("/")
-        image_name = image_url[last_char_index + 1:]
-        image_path = tf.keras.utils.get_file(image_name, origin=image_url)
+        # Can now handle file on the computer without downloading them from a url...
+        url_shards = image_url.split("://")
+        image_path = image_url
+        if len(url_shards) == 2:
+            image_path = url_shards[1]
+        if not os.path.isfile(image_path) and not os.path.isfile(image_url):
+            image_name = image_url[last_char_index + 1:]
+            image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
         image = tf.expand_dims(util.load_image(image_path)[0], 0)
         image = self.inception_v3(image)
         image = self.image_caption_processing(image)
-
-        return image
+        # reshape to 1 image * feature maps (squared) * image dimensions
+        return tf.reshape(image, (1 , 64 ,-1))
     def __process_question(self, question):
         preprocessed_question = preprocess_english_add_tokens(preprocess_english(question))
         question_seq = self.tokenizer.texts_to_sequences([preprocessed_question])
@@ -70,7 +74,7 @@ def get_eval_vqa_model():
                                         "checkpoints/tokenizer.pickle")
 
     model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "checkpoints/model_best.h5")
+                 "checkpoints/attention_model_best.h5")
 
     label_encoder_serialized =  os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         "checkpoints/label_encoder.pickle")
@@ -80,14 +84,19 @@ def get_eval_vqa_model():
     return vqa
 
 # The preprocessed vqa data and model can be downloaded from:
-#https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
-#must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
+# https://drive.google.com/file/d/1qNIb24KBYJZs6AJOEkuq4TNJXSRVV-fa/view?usp=sharing
+# must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py
+
+# If the h5 file can t be loaded, here is  a file to the weights as tensorflow format (tf)
+# https://drive.google.com/file/d/1Sr7dTPV54LQW0UZGJZTqLUtLzBIrRfuy/view?usp=sharing
 if __name__ == "__main__":
 
     image_url = 'https://tensorflow.org/images/surf.jpg'
-    #question = "What do you see?" # answer: waves
-    #question = "What is it?"  # answer: surfer
-    question = "Is there a man?" # answer: no
+    #question = "What do you see?" # answer: surfboard
+    #question = "What is it?"  # answer: surfboard
+    #question = "Who is it?"  # answer: surfer
+    #question = "Is there a man?" # answer: yes
+    question = "Is this a man or a dog?"  # answer: man
     vqa = get_eval_vqa_model()
     label = vqa.infer((image_url, question))
     print("question: ", question)

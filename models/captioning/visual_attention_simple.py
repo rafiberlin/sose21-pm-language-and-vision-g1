@@ -123,7 +123,7 @@ Image.open(img_name_vector[0])
 
 image_features_extract_model = util.get_image_feature_extractor()
 
-BATCH_SIZE = 8
+BATCH_SIZE = 128
 
 from tqdm import tqdm
 
@@ -194,8 +194,9 @@ for img, cap in zip(img_name_vector, cap_vector):
 img_keys = list(img_to_cap_vector.keys())
 random.shuffle(img_keys)
 
-slice_index = int(len(img_keys) * 0.8)
-img_name_train_keys, img_name_val_keys = img_keys[:slice_index], img_keys[slice_index:]
+# slice_index = int(len(img_keys) * 0.8)
+# img_name_train_keys, img_name_val_keys = img_keys[:slice_index], img_keys[slice_index:]
+img_name_train_keys = img_keys
 
 img_name_train = []
 cap_train = []
@@ -204,17 +205,20 @@ for imgt in img_name_train_keys:
     img_name_train.extend([imgt] * capt_len)
     cap_train.extend(img_to_cap_vector[imgt])
 
-img_name_val = []
-cap_val = []
-for imgv in img_name_val_keys:
-    capv_len = len(img_to_cap_vector[imgv])
-    img_name_val.extend([imgv] * capv_len)
-    cap_val.extend(img_to_cap_vector[imgv])
+# img_name_val = []
+# cap_val = []
+# for imgv in img_name_val_keys:
+#     capv_len = len(img_to_cap_vector[imgv])
+#     img_name_val.extend([imgv] * capv_len)
+#     cap_val.extend(img_to_cap_vector[imgv])
 
 # In[19]:
 
+zipped = list(zip(img_name_train, cap_train))
+random.shuffle(zipped)
+img_name_train, cap_train = zip(*zipped)
 
-len(img_name_train), len(cap_train), len(img_name_val), len(cap_val)
+# len(img_name_train), len(cap_train), len(img_name_val), len(cap_val)
 
 # ## Create a tf.data dataset for training
 #
@@ -227,7 +231,7 @@ len(img_name_train), len(cap_train), len(img_name_val), len(cap_val)
 # Feel free to change these parameters according to your system's configuration
 
 
-BUFFER_SIZE = 1000
+BUFFER_SIZE = 29952
 embedding_dim = 256
 units = 512
 vocab_size = VOCAB_SIZE + 1
@@ -236,7 +240,8 @@ num_steps = len(img_name_train) // BATCH_SIZE
 # These two variables represent that vector shape
 features_shape = 2048
 attention_features_shape = 64
-
+LR=0.0005
+CLIP=0.0005
 
 # In[21]:
 
@@ -249,7 +254,8 @@ def map_func(img_name, cap):
 
 # In[22]:
 
-
+img_name_train = tf.convert_to_tensor(img_name_train)
+cap_train = tf.convert_to_tensor(cap_train)
 dataset = tf.data.Dataset.from_tensor_slices((img_name_train, cap_train))
 
 # Use map to load the numpy files in parallel
@@ -283,7 +289,7 @@ decoder = RNN_Decoder(embedding_dim, units, vocab_size)
 # In[27]:
 
 
-optimizer = tf.keras.optimizers.Adam()
+optimizer = tf.keras.optimizers.Adam(learning_rate=LR,clipnorm=CLIP)
 loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
     from_logits=True, reduction='none')
 
@@ -307,7 +313,7 @@ checkpoint_path = "./checkpoints/train"
 ckpt = tf.train.Checkpoint(encoder=encoder,
                            decoder=decoder,
                            optimizer=optimizer)
-ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=5)
+ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=20)
 
 # In[29]:
 
@@ -392,8 +398,10 @@ for epoch in tqdm(range(start_epoch, EPOCHS)):
     # storing the epoch end loss value to plot later
     loss_plot.append(total_loss / num_steps)
 
-    if epoch % 5 == 0:
-      ckpt_manager.save()
+    # if epoch % 5 == 0:
+    ckpt_manager.save()
 
     print(f'Epoch {epoch+1} Loss {total_loss/num_steps:.6f}')
     print(f'Time taken for 1 epoch {time.time()-start:.2f} sec\n')
+    for i, l in enumerate(loss_plot):
+        print("losses_", start_epoch+i, l)

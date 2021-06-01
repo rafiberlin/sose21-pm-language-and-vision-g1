@@ -1,14 +1,11 @@
 import tensorflow as tf
-from models.model import CNN_Encoder, BahdanauAttention
+from models.model import CoattentionModel
 import os
 import json
 import pickle
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 import random as rn
-import models.utils.util as util
-from PIL import Image
 
 #Beware : VQA uses pictures from MS COCO 2014 => some pictures disapeared in MS COCO 2017...
 
@@ -86,7 +83,8 @@ def get_image_tensor(img, ques):
     #path = img.decode('utf-8').replace(imageDirectory,imageNumpyDirectory).replace('.jpg',"") +'.npy'
     #img_tensor = np.load(path)
     img_tensor = np.load(img.decode('utf-8')+'.npy')
-    return img_tensor, ques
+    # quick fix: the feature maps were saved as 8*8*256 => the model expects only to dimensions as input for the images...
+    return img_tensor.reshape((FEAT_MAP_WIDTH*FEAT_MAP_WIDTH, -1)), ques
 
 def create_dataset(image_paths, question_vector, answer_vector, batch_size=8):
     # WHen enumerate is called, it return a tuple. in the element, there is another tuple of img, question
@@ -110,84 +108,29 @@ def create_dataset(image_paths, question_vector, answer_vector, batch_size=8):
 
     return dataset
 
+def build_co_attention_model(image_embedding, feature_maps, number_of_answers, question_max_length, vocabulary_size):
+    image_input = tf.keras.layers.Input(shape = (feature_maps*feature_maps, image_embedding))
 
-def build_naive_vqa_model(image_embed_size, feature_map_number, answer_number, question_max_length, vocab_size):
-    image_input = tf.keras.layers.Input(shape=(feature_map_number, feature_map_number, image_embed_size))
     question_input = tf.keras.layers.Input(shape=(question_max_length,))
 
-    image_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=8, strides=1, padding="valid",
-                                               activation='relu',
-                                               kernel_initializer=tf.keras.initializers.he_normal(seed=45))(image_input)
+    output = CoattentionModel(number_of_answers, vocabulary_size, image_embedding)(image_input,question_input)#num_embeddings = len(ques_vocab), num_classes = len(ans_vocab), embed_dim = 512
 
-    image_flatten = tf.keras.layers.Flatten()(image_conv_layer1)
+    model = tf.keras.models.Model(inputs = [image_input, question_input], outputs = output)
 
-    image_dense_1 = tf.keras.layers.Dense(4096, activation=tf.nn.relu,
-                                          kernel_initializer=tf.keras.initializers.he_uniform(seed=54))(image_flatten)
-
-    image_dense_2 = tf.keras.layers.Dense(1024, activation=tf.nn.relu,
-                                          kernel_initializer=tf.keras.initializers.he_uniform(seed=32))(image_dense_1)
-
-    # Input 2 Pathway
-    question_emb = tf.keras.layers.Embedding(input_dim=vocab_size + 1, output_dim=300,
-                                             name="Embedding_Layer",
-                                             embeddings_initializer=tf.keras.initializers.RandomNormal(mean=0, stddev=1,
-                                                                                                       seed=23))(
-        question_input)
-
-    question_lstm = tf.keras.layers.LSTM(1024,
-                                         kernel_initializer=tf.keras.initializers.glorot_uniform(seed=26),
-                                         recurrent_initializer=tf.keras.initializers.orthogonal(seed=54),
-                                         bias_initializer=tf.keras.initializers.zeros())(question_emb)
-
-    question_flatten = tf.keras.layers.Flatten(name="Flatten_lstm")(question_lstm)
-
-    image_question = tf.keras.layers.Multiply()([image_dense_2, question_flatten])
-
-    image_question_dense_1 = tf.keras.layers.Dense(1000, activation=tf.nn.relu,
-                                                   kernel_initializer=tf.keras.initializers.he_uniform(seed=19))(
-        image_question)
-
-    image_question_dense_2 = tf.keras.layers.Dense(1000, activation=tf.nn.relu,
-                                                   kernel_initializer=tf.keras.initializers.he_uniform(seed=28))(
-        image_question_dense_1)
-
-    output = tf.keras.layers.Dense(answer_number, activation=tf.nn.softmax,
-                                   kernel_initializer=tf.keras.initializers.glorot_normal(seed=15))(
-        image_question_dense_2)
-
-    # Create Model
-    model = tf.keras.models.Model(inputs=[image_input, question_input], outputs=output)
-    # Compile
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001), loss = 'categorical_crossentropy', metrics = ['accuracy'])
     return model
 
 
 
 
 
-def cache_vqa_images(image_paths_train):
-
-    image_encoder = util.get_pretrained_image_encoder()
-
-
-    def cache_vqa_image_feature(img_name, vqa_dir="vqa_cache"):
-        img_tensor =  np.load(img_name + '.npy')
-        img_tensor = image_encoder(img_tensor)
-        img_tensor = tf.reshape(img_tensor, (8, 8 , -1))
-        last_char_index = img_name.rfind(os.path.sep)
-        coco_train = img_name[:last_char_index]
-        name = img_name[last_char_index + 1:]
-        save_path = os.path.join(coco_train, vqa_dir, name)
-        np.save(save_path, img_tensor.numpy())
-
-    for i , path in tqdm(enumerate(image_paths_train)):
-        cache_vqa_image_feature(path)
-
 # The preprocessed vqa data and model can be downloaded from:
 #https://drive.google.com/file/d/1jF_bPICe490BMaWyTpoy9kEH9PWdX77l/view?usp=sharing
 #must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py)
 if __name__ == "__main__":
-
+    BATCH_SIZE = 128
+    IMG_EMBED_SIZE = 256
+    FEAT_MAP_WIDTH = 8
     config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
     with open(config_file, "r") as read_file:
         conf = json.load(read_file)
@@ -207,24 +150,19 @@ if __name__ == "__main__":
     vocabulary_size = len(tokenizer.word_index)
     ans_vocab = {l: i for i, l in enumerate(label_encoder.classes_)}
     number_of_answers = len(ans_vocab)
-
     answer_vector_train = label_encoder.fit_transform(X_train['multiple_choice_answer'].apply(lambda x: x).values)
     answer_vector_val = label_encoder.transform(X_val['multiple_choice_answer'].apply(lambda x: x).values)
 
-    #Just apply it once and comment out
-    if not os.path.exists(coco_train_cache):
-        os.makedirs(coco_train_cache)
-    #cache_vqa_images(image_paths_train)
-    #cache_vqa_images(image_paths_val)
+
 
 
     #TODO Finish the implementation of the naive model based on
     # 3_Modeling.ipynb from https://github.com/harsha977/Visual-Question-Answering-With-Hierarchical-Question-Image-Co-Attention
 
 
-    vqa = build_naive_vqa_model(256, 8, number_of_answers, question_max_length, vocabulary_size)
+    vqa = build_co_attention_model(IMG_EMBED_SIZE, FEAT_MAP_WIDTH, number_of_answers, question_max_length, vocabulary_size)
 
-    BATCH_SIZE = 64
+
 
     train_dataset = create_dataset(image_paths_train_cache, question_vector_train, answer_vector_train, BATCH_SIZE)
     val_dataset = create_dataset(image_paths_val_cache, question_vector_val, answer_vector_val, BATCH_SIZE)
@@ -247,9 +185,13 @@ if __name__ == "__main__":
         os.makedirs("./logs")
 
     cb = [
-        tf.keras.callbacks.EarlyStopping(patience=4),
-        tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints2/model.{epoch:02d}-{val_loss:.2f}.h5'),
+        tf.keras.callbacks.EarlyStopping(patience=4, monitor='val_accuracy'),
+        tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints/attention_model.{epoch:02d}-{val_accuracy:.3f}.h5'),
         tf.keras.callbacks.TensorBoard(log_dir='./logs'),
     ]
-
+    #vqa.load_weights("./checkpoints/attention_model.08-0.39.h5")
+    #vqa.save(".test")
+    # tf.keras.models.load_model(".test/")
+    #tf.config.experimental_run_functions_eagerly(True)
     vqa.fit(train_dataset, epochs = 20, validation_data = val_dataset, callbacks = cb)
+

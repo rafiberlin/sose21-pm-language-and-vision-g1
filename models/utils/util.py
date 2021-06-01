@@ -4,11 +4,40 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from models.model import CNN_Encoder
 import os
+import json
+import jsonlines
+
+def get_config():
+    """
+    Get the general project config
+    :return:
+    """
+    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
+    with open(config_file, "r") as read_file:
+        conf = json.load(read_file)
+
+    return conf
+
+def get_ade20_vqa_data():
+    """
+    Get the general project config
+    :return:
+    """
+    conf = get_config()
+    vqa_file = conf["ade20k_dir"]
+    file = os.path.join(vqa_file,"ade20k_vqa.jsonl")
+
+    with jsonlines.open(file) as reader:
+        data = [ i for i in iter(reader)]
+    return data
+
 
 def load_image(image_path):
     img = tf.io.read_file(image_path)
     img = tf.image.decode_jpeg(img, channels=3)
     img = tf.image.resize(img, (299, 299))
+    #avoids distortions
+    #img = tf.image.resize_with_pad(img, (299, 299))
     img = tf.keras.applications.inception_v3.preprocess_input(img)
     return img, image_path
 
@@ -51,6 +80,7 @@ def get_pretrained_image_encoder():
     if ckpt_manager.latest_checkpoint:
         # restoring the latest checkpoint in checkpoint_path
         ckpt.restore(ckpt_manager.latest_checkpoint).expect_partial()
+        print("Restoring:", ckpt_manager.latest_checkpoint)
     else:
         print("Not able to restore pretrained Image Encoder")
 

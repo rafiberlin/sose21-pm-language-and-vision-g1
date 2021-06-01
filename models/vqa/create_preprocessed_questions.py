@@ -6,6 +6,10 @@ from sklearn.preprocessing import LabelBinarizer
 import heapq
 import pickle
 from sklearn.model_selection import train_test_split
+from models.utils.util import get_config
+from models.utils import util
+from tqdm import tqdm
+import numpy as np
 
 contractions = {
     "ain't": "am not", "aren't": "are not", "can't": "cannot", "can't've": "cannot have", "'cause": "because",
@@ -67,14 +71,39 @@ def preprocess_english_add_tokens(text):
     return new_text.replace("'s", '')
 
 
+def cache_vqa_images(image_paths_train):
+
+    inception_v3 = util.get_image_feature_extractor()
+    image_encoder = util.get_pretrained_image_encoder()
+
+    image_dataset = tf.data.Dataset.from_tensor_slices(image_paths_train)
+    image_dataset = image_dataset.map(
+        util.load_image, num_parallel_calls=tf.data.AUTOTUNE).batch(BATCH_SIZE)
+
+
+    for img, path in tqdm(image_dataset):
+        batch_features = inception_v3(img)
+        batch_features = image_encoder(batch_features)
+
+        for bf, p in zip(batch_features, path):
+            path_of_feature = p.numpy().decode("utf-8")
+            last_char_index = path_of_feature.rfind(os.path.sep)
+            coco_train = path_of_feature[:last_char_index]
+            name = path_of_feature[last_char_index + 1:]
+            save_path = os.path.join(coco_train, "vqa_cache", name)
+            np.save(save_path, bf.numpy())
+
 if __name__ == "__main__":
     # CReates training and validations sets as pandas frameworks (saved as csv under /checkpoints)
     # label encoder (which encodes as category the best 1000 questions) and the tokenizer and all processed questions as pickle data
 
     # Beware : VQA uses pictures from MS COCO 2014 => some pictures disapeared in MS COCO 2017...
-    VQA_ANNOTATIONS_DIR = "/home/rafi/_datasets/VQA/"
-    MS_COCO_DIR = '/home/rafi/_datasets/MSCOCO/'
-
+    conf = get_config()
+    VQA_ANNOTATIONS_DIR = conf["vqa_dir"]
+    MS_COCO_DIR = conf["ms_coco_dir"]
+    VQA_TOP_ANSWERS = conf["vqa_top_answers"]
+    CACHE_IMAGES = conf["vqa_cache_images"]
+    BATCH_SIZE = 128
     annotation_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_mscoco_train2014_annotations.json")
     question_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_OpenEnded_mscoco_train2014_questions.json")
 
@@ -128,7 +157,7 @@ if __name__ == "__main__":
         else:
             class_frequency[_cls] = 1
 
-    common_tags = heapq.nlargest(1000, class_frequency, key=class_frequency.get)
+    common_tags = heapq.nlargest(VQA_TOP_ANSWERS, class_frequency, key=class_frequency.get)
     X_train['multiple_choice_answer'] = X_train['multiple_choice_answer'].apply(lambda x: x if x in common_tags else '')
 
     # removing question which has empty tags
@@ -197,3 +226,12 @@ if __name__ == "__main__":
     with open(serialized_question_vector_val, 'wb') as handle:
         pickle.dump(question_vector_val, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
+    if CACHE_IMAGES:
+        coco_train_cache = os.path.join(MS_COCO_DIR, "train2017", "vqa_cache")
+        if not os.path.exists(coco_train_cache):
+            os.makedirs(coco_train_cache)
+        print("Cache images, that might take a while!")
+        image_paths_train = X_train['image_id'].apply(lambda x:  os.path.join(coco_train, '%012d.jpg' % (x))).values
+        image_paths_val = X_val['image_id'].apply(lambda x:  os.path.join(coco_train, '%012d.jpg' % (x))).values
+        cache_vqa_images(list(set(image_paths_train)))
+        cache_vqa_images(list(set(image_paths_val)))

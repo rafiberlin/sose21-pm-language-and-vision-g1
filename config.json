@@ -2,5 +2,13 @@
   "image_server": {
     "host": "localhost",
     "port": 8000
-  }
+  },
+
+  "ms_coco_dir" : "/home/rafi/_datasets/MSCOCO/",
+  "vqa_dir" : "/home/rafi/_datasets/VQA/",
+  "vqa_top_answers" : 2000,
+  "vqa_cache_images" : true,
+  "ade20k_dir" : "/home/rafi/_datasets/ADE20K/",
+  "ade20k_vqa_file" : "ade20k_vqa.jsonl",
+  "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/"
 }

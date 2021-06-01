@@ -115,8 +115,9 @@ class LXMERTAvatar(Avatar):
             return "s"
         return "nowhere"
 
-#URL = "https://vignette.wikia.nocookie.net/spongebob/images/2/20/SpongeBob's_pineapple_house_in_Season_7-4.png/revision/latest/scale-to-width-down/639?cb=20151213202515"
-URL =  "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ffeedinspiration.com%2Fwp-content%2Fuploads%2F2016%2F03%2FTransitional-Kitchen-Cabinets-Ideas.jpg&f=1&nofb=1"
-test_question = "what is this?"
-vqa_answer = infer_lxmert_vqa(URL, test_question)
-print(vqa_answer)
+if __name__ == "__main__":
+    #URL = "https://vignette.wikia.nocookie.net/spongebob/images/2/20/SpongeBob's_pineapple_house_in_Season_7-4.png/revision/latest/scale-to-width-down/639?cb=20151213202515"
+    URL =  "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ffeedinspiration.com%2Fwp-content%2Fuploads%2F2016%2F03%2FTransitional-Kitchen-Cabinets-Ideas.jpg&f=1&nofb=1"
+    test_question = "what is this?"
+    vqa_answer = infer_lxmert_vqa(URL, test_question)
+    print(vqa_answer)

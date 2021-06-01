@@ -26,7 +26,7 @@ import torch
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 import cv2
-from .utils import img_tensorize
+from models.vqa.lxmert.utils import img_tensorize
 
 
 _SMALL_OBJ = 1000

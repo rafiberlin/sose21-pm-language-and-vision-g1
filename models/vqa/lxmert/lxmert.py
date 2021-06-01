@@ -6,10 +6,10 @@ import io
 import json
 import torch
 import numpy as np
-from .processing_image import Preprocess
-from .visualizing_image import SingleImageViz
-from .modeling_frcnn import GeneralizedRCNN
-from .utils import Config, get_data
+from models.vqa.lxmert.processing_image import Preprocess
+from models.vqa.lxmert.visualizing_image import SingleImageViz
+from models.vqa.lxmert.modeling_frcnn import GeneralizedRCNN
+from models.vqa.lxmert.utils import Config, get_data
 
 from transformers import LxmertForQuestionAnswering, LxmertTokenizer
 import wget
@@ -117,9 +117,9 @@ def infer_lxmert_vqa (URL, test_question):
 #    print("prediction from LXMERT VQA:", vqa_answers[pred_vqa])
     print(vqa_answers[pred_vqa])
     return vqa_answers[pred_vqa]
-
-#URL = "https://www.wallpapers13.com/wp-content/uploads/2015/12/Nature-Lake-Bled.-Desktop-background-image.jpg"
-#URL = "https://vignette.wikia.nocookie.net/spongebob/images/2/20/SpongeBob's_pineapple_house_in_Season_7-4.png/revision/latest/scale-to-width-down/639?cb=20151213202515"
-URL = "https://www.quizible.com/sites/quiz/files/imagecache/question/quiz/pictures/2012/06/14/q40716.jpg"
-test_question = "which animal is this?"
-infer_lxmert_vqa(URL, test_question)
+if __name__ == "__main__":
+    #URL = "https://www.wallpapers13.com/wp-content/uploads/2015/12/Nature-Lake-Bled.-Desktop-background-image.jpg"
+    #URL = "https://vignette.wikia.nocookie.net/spongebob/images/2/20/SpongeBob's_pineapple_house_in_Season_7-4.png/revision/latest/scale-to-width-down/639?cb=20151213202515"
+    URL = "https://www.quizible.com/sites/quiz/files/imagecache/question/quiz/pictures/2012/06/14/q40716.jpg"
+    test_question = "which animal is this?"
+    infer_lxmert_vqa(URL, test_question)

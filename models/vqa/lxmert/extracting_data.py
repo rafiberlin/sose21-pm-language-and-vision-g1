@@ -10,9 +10,9 @@ import datasets
 import numpy as np
 import torch
 
-from modeling_frcnn import GeneralizedRCNN
-from processing_image import Preprocess
-from utils import Config
+from models.vqa.lxmert.modeling_frcnn import GeneralizedRCNN
+from models.vqa.lxmert.processing_image import Preprocess
+from models.vqa.lxmert.utils import Config
 
 
 """

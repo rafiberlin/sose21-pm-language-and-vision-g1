@@ -10,5 +10,7 @@
   "vqa_cache_images" : true,
   "ade20k_dir" : "/home/rafi/_datasets/ADE20K/",
   "ade20k_vqa_file" : "ade20k_vqa.jsonl",
-  "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/"
+  "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/",
+  "glove_embeddings" : "pretrained/gloves/glove.6B.300d.txt",
+  "captioning_pretrained" : "pretrained/captioning/attention/"
 }

@@ -1,6 +1,6 @@
 from avatar.game_avatar import Avatar
 from models.captioning.evaluate import get_eval_captioning_model
-from models.vqa.lxmert.lxmert import get_lxmert_model
+from models.vqa.lxmert.lxmert import LXMERTInference
 import tensorflow as tf
 from models.utils.util import get_config
 
@@ -41,7 +41,7 @@ class LXMERTAvatar(Avatar):
         self.observation = None
         self.caption_expert = get_eval_captioning_model()
         #self.vqa_expert = get_eval_vqa_model()
-        self.vqa_expert = get_lxmert_model()
+        self.vqa_expert = LXMERTInference()
         conf = get_config()
         conf = conf["image_server"]
         self.ADE20K_URL = f"http://{conf['host']}:{conf['port']}/"
@@ -90,7 +90,7 @@ class LXMERTAvatar(Avatar):
 
         if message.endswith("?"):
             if self.observation:
-                answer = self.vqa_expert(image_path, message)
+                answer = self.vqa_expert.infer(image_path, message)
                 return answer
                 # return "It has maybe something to do with " + self.observation["image"]
             else:
@@ -113,6 +113,6 @@ if __name__ == "__main__":
     #URL = "https://vignette.wikia.nocookie.net/spongebob/images/2/20/SpongeBob's_pineapple_house_in_Season_7-4.png/revision/latest/scale-to-width-down/639?cb=20151213202515"
     URL =  "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ffeedinspiration.com%2Fwp-content%2Fuploads%2F2016%2F03%2FTransitional-Kitchen-Cabinets-Ideas.jpg&f=1&nofb=1"
     test_question = "what is this?"
-    vqa_model = get_lxmert_model()
-    vqa_answer = vqa_model(URL, test_question)
+    vqa_model = LXMERTInference()
+    vqa_answer = vqa_model.infer(URL, test_question)
     print(vqa_answer)

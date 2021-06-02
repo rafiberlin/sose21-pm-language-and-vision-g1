@@ -72,7 +72,8 @@ If the installations works correctly, all dependencies and weights will be downl
 use.
 
 In the configuration file ./config.json, under the keys "vqa" / "lxmert", you can change the maximum length of the 
-question and switch between "vqa" or "gqa" models. 
+question and switch between "vqa" or "gqa" models. You can also assign directly a GPU with cuda_device, e.g "cuda:0" 
+for the first GPU, "cuda:1" for the second GPU or none / "cpu" if no GPUs are available.
 
 To see an example how to run an inference, run models/vqa/lxmert/lxmert_eval.py
 
@@ -89,6 +90,11 @@ We do not need the pretrained model from this archive, only the pre-processed Qu
 These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluation for any model.
 
 # Installation
+
+Important: if you face errors concerning the import of modules, please export this project to you python path:
+`export PYTHONPATH="${PYTHONPATH}:/path/to/your/project/sose21-pm-language-and-vision-g1/"`
+
+
 
 You can install the scripts to be available from the shell (where the python environment is accessible).
 

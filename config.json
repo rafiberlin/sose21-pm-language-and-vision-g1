@@ -18,8 +18,9 @@
     }
     ,
     "lxmert" : {
-    "question_length": 24,
-    "model" : "vqa"
+      "question_length": 24,
+      "model" : "vqa",
+      "cuda_device" : "cpu"
     }
   },
 

@@ -15,12 +15,27 @@ def get_config():
     config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
     with open(config_file, "r") as read_file:
         conf = json.load(read_file)
+    conf["glove_embeddings"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", conf["glove_embeddings"] )
+    if not os.path.exists(conf["glove_embeddings"]):
+        os.makedirs(conf["glove_embeddings"])
+        print("Created directory:", conf["glove_embeddings"])
 
+
+    conf["captioning"]["pretrained_dir"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../",
+                                            conf["captioning"]["pretrained_dir"])
+    pretrained_dir = conf["captioning"]["pretrained_dir"]
+    if not os.path.exists(pretrained_dir):
+        os.makedirs(pretrained_dir)
+        print("Created directory:", pretrained_dir)
+    checkpoints_dir = os.path.join(pretrained_dir, "checkpoints")
+    if not os.path.exists(checkpoints_dir):
+        os.makedirs(checkpoints_dir)
+        print("Created directory:", checkpoints_dir)
     return conf
 
 def get_ade20_vqa_data():
     """
-    Get the general project config
+    Get the general project configpretrained_dir = conf["captioning"]["pretrained_dir"]
     :return:
     """
     conf = get_config()
@@ -38,6 +53,15 @@ def load_image(image_path):
     img = tf.image.resize(img, (299, 299))
     #avoids distortions
     #img = tf.image.resize_with_pad(img, (299, 299))
+    img = tf.keras.applications.inception_v3.preprocess_input(img)
+    return img, image_path
+
+def load_image_with_pad(image_path):
+    img = tf.io.read_file(image_path)
+    img = tf.image.decode_jpeg(img, channels=3)
+    # img = tf.image.resize(img, (299, 299))
+    #avoids distortions
+    img = tf.image.resize_with_pad(img, 299, 299)
     img = tf.keras.applications.inception_v3.preprocess_input(img)
     return img, image_path
 

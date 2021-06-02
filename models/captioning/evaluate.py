@@ -8,30 +8,35 @@ import numpy as np
 import os
 import models.utils.util as util
 from models.model import RNN_Decoder, CNN_Encoder
-
+from models.utils.util import get_config
 
 def get_eval_captioning_model():
     # Choose the top 5000 words from the vocabulary
-    VOCAB_SIZE = 5000
-    serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/train/tokenizer.pickle")
+
+    conf = get_config()
+    captioning_conf = conf["captioning"]
+    VOCAB_SIZE = captioning_conf["vocab_size"]
+    EMBEDDING_DIM = captioning_conf["embedding_dim"]
+    PRETRAINED_DIR = captioning_conf["pretrained_dir"]
+    BEAM_SIZE = captioning_conf["beam_size"]
+
+    serialized_tokenizer = os.path.join(PRETRAINED_DIR,
+                                        "tokenizer.pickle")
     with open(serialized_tokenizer, 'rb') as handle:
         tokenizer = pickle.load(handle)
         max_length = tokenizer.max_length
 
-    embedding_dim = 256
-    units = 512
+    units = EMBEDDING_DIM*2
     vocab_size = VOCAB_SIZE + 1
-    attention_features_shape = 64
 
-    encoder = CNN_Encoder(embedding_dim)
-    decoder = RNN_Decoder(embedding_dim, units, vocab_size)
+    encoder = CNN_Encoder(EMBEDDING_DIM)
+    decoder = RNN_Decoder(EMBEDDING_DIM, units, vocab_size)
 
     optimizer = tf.keras.optimizers.Adam()
 
     # checkpoint_path = "./checkpoints/train"
 
-    checkpoint_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "checkpoints/train/")
+    checkpoint_path = os.path.join(PRETRAINED_DIR, "checkpoints")
     ckpt = tf.train.Checkpoint(encoder=encoder,
                                decoder=decoder,
                                optimizer=optimizer)
@@ -47,32 +52,29 @@ def get_eval_captioning_model():
 
     def evaluate(image):
 
-        BEAM_SIZE = 3
+        beam_size = BEAM_SIZE
 
-        attention_plot = np.zeros((max_length, attention_features_shape))
-
-        hidden = decoder.reset_state(batch_size=BEAM_SIZE)
-
+        hidden = decoder.reset_state(batch_size=beam_size)
         temp_input = tf.expand_dims(util.load_image(image)[0], 0)
         img_tensor_val = image_features_extract_model(temp_input)
         img_tensor_val = tf.stack([tf.reshape(img_tensor_val, (
             -1,
-            img_tensor_val.shape[3])) for i in range(BEAM_SIZE)])
+            img_tensor_val.shape[3])) for i in range(beam_size)])
 
         features = encoder(img_tensor_val)
         END_IDX = tokenizer.word_index['<end>']
-        start_tensor = tf.stack([[tokenizer.word_index['<start>']] for i in range(BEAM_SIZE)])
+        start_tensor = tf.stack([[tokenizer.word_index['<start>']] for i in range(beam_size)])
         predictions, hidden, _ = decoder(start_tensor,
                                          features,
                                          hidden)
         predictions = tf.nn.log_softmax(predictions)
 
-        candidates_log_prob, candidate_indices = tf.math.top_k(predictions, k=BEAM_SIZE)
+        candidates_log_prob, candidate_indices = tf.math.top_k(predictions, k=beam_size)
 
-        input_list = [[candidate_indices[0][i]] for i in range(BEAM_SIZE)]
-        previous_predictions = tf.stack([[candidates_log_prob[0][i]] for i in range(BEAM_SIZE)])
-        preds = {i: np.zeros(max_length, dtype=int) for i in range(BEAM_SIZE)}
-        for i in range(BEAM_SIZE):
+        input_list = [[candidate_indices[0][i]] for i in range(beam_size)]
+        previous_predictions = tf.stack([[candidates_log_prob[0][i]] for i in range(beam_size)])
+        preds = {i: np.zeros(max_length, dtype=int) for i in range(beam_size)}
+        for i in range(beam_size):
             preds[i][0] = candidate_indices[0][i]
 
         dec_input = tf.stack(input_list)
@@ -116,8 +118,8 @@ def get_eval_captioning_model():
                     length = int(tf.where(candidate == END_IDX)) + 1
                     normalized_loss = loss / float(length)
                     candidates.append((candidate, normalized_loss))
-                BEAM_SIZE = BEAM_SIZE - len(stop_idx)
-                if BEAM_SIZE > 0:
+                beam_size = beam_size - len(stop_idx)
+                if beam_size > 0:
                     left_idx = tf.convert_to_tensor([i for i in range(k_idx.shape[0]) if i not in stop_idx])
                     k_idx = tf.convert_to_tensor([k_idx[i] for i in range(k_idx.shape[0]) if i not in stop_idx])
                     current_top_candidates = tf.convert_to_tensor(
@@ -144,6 +146,7 @@ def get_eval_captioning_model():
         return result, None
 
     # def evaluate(image):
+    #     attention_features_shape = 64
     #     attention_plot = np.zeros((max_length, attention_features_shape))
     #
     #     hidden = decoder.reset_state(batch_size=1)

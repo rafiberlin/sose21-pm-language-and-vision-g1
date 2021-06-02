@@ -74,6 +74,8 @@ use.
 In the configuration file ./config.json, under the keys "vqa" / "lxmert", you can change the maximum length of the 
 question and switch between "vqa" or "gqa" models. 
 
+To see an example how to run an inference, run models/vqa/lxmert/lxmert_eval.py
+
 ### Evaluation on the official VQA metrics
 
 https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing

@@ -1,9 +1,5 @@
-#!/usr/bin/env python3
-import sys
-sys.path.append("/home/kev/sose21-pm-language-and-vision-g1")
 from avatar.game_avatar import Avatar
 from models.captioning.evaluate import get_eval_captioning_model
-#from models.vqa.evaluate_vqa import get_eval_vqa_model
 from models.vqa.lxmert.lxmert import infer_lxmert_vqa
 import tensorflow as tf
 import json
@@ -46,7 +42,7 @@ class LXMERTAvatar(Avatar):
         self.observation = None
         self.caption_expert = get_eval_captioning_model()
         #self.vqa_expert = get_eval_vqa_model()
-        self.vqa_expert = infer_lxmert_vqa()
+        self.vqa_expert = infer_lxmert_vqa
         config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config.json")
         with open(config_file, "r") as read_file:
             conf = json.load(read_file)["image_server"]

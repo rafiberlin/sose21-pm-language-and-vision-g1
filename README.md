@@ -4,13 +4,66 @@
 
 ## Captioning
 
+### MSCOCO Dataset
+
+In the configuration file ./config.json, the key "ms_coco_dir" indicates the location of the MSCOCO dataset,
+which is required to train the captioning model.
+
+Let's call the directory defined for the key "ms_coco_dir" [MS_COCO_DIR]
+
+Download the following files and unzip them under [MS_COCO_DIR]:
+
+http://images.cocodataset.org/zips/train2017.zip
+
+http://images.cocodataset.org/zips/val2017.zip
+
+http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+
+This would result in 3 new directories containing images and annotations:
+
+[MS_COCO_DIR]/train2017
+[MS_COCO_DIR]/val2017
+[MS_COCO_DIR]/annotations
+
+### Gloves embedding (optional)
+
+The gloves embeddings can be used.
+
+Download the files from http://nlp.stanford.edu/data/glove.6B.zip
+
+Unzip the content under ./pretrained/gloves
+
+The location for the downloaded Glove embeddings can be changed, the key "glove_embeddings" in ./config.json
+must be changed accordingly.
+
+### Training
+
+In the configuration file ./config.json, the key "captioning" contains all relevant parameters for training 
+and hyperparameters to train the captioning model.
+
+Execute the script ./models/captioning/preprocessing.py to cache features for training,
+
+It is important, to use the same configuration in ./config.json under the key "captioning" for both preprocessing
+and training.
+
+The training can be started by running ./models/captioning/visual_attention_simple.py
+
+
+### Evaluation
+
+First download the pretrained model from:
+
+
+TODO UPDATE THE LINK!
+
 https://drive.google.com/file/d/1OHMokofF4mgjSzRcdcKEqqkpb3TLIx1P/view?usp=sharing
 
-Unpack under ./models/captioning
+Unpack under ./
 
-You should end up with all files under ./models/captioning/checkpoints/train
+You should end up with training files under ./pretrained/captioning/ (the most important file being the tokenizer,pickle)
+and the saved model files  under ./pretrained/captioning/checkpoints
 
-
+Run the script `models/captioning/evaluate.py` to verify that the model can be loaded correctly.
 
 
 ## VQA 

@@ -22,9 +22,11 @@ def get_lxmert_model():
     if model_type.lower() == "gqa":
         print("Loading GQA Model for LXMERT")
         MODEL_URL = "https://raw.githubusercontent.com/airsplay/lxmert/master/data/gqa/trainval_label2ans.json"
+        vqa = LxmertForQuestionAnswering.from_pretrained("unc-nlp/lxmert-gqa-uncased")
     else:
         print("Loading default VQA Model for LXMERT")
         MODEL_URL = "https://raw.githubusercontent.com/airsplay/lxmert/master/data/vqa/trainval_label2ans.json"
+        vqa = LxmertForQuestionAnswering.from_pretrained("unc-nlp/lxmert-vqa-uncased")
 
     QUESTION_LENGTH = lxmert_conf["question_length"]
     """
@@ -44,14 +46,20 @@ def get_lxmert_model():
     # load models and model components
     frcnn_cfg = Config.from_pretrained("unc-nlp/frcnn-vg-finetuned")
 
+    if torch.cuda.is_available():
+        frcnn_cfg.model.device = 'cuda:0'
+
     frcnn = GeneralizedRCNN.from_pretrained("unc-nlp/frcnn-vg-finetuned", config=frcnn_cfg)
 
     image_preprocess = Preprocess(frcnn_cfg)
 
     lxmert_tokenizer = LxmertTokenizer.from_pretrained("unc-nlp/lxmert-base-uncased")
-    # lxmert_gqa = LxmertForQuestionAnswering.from_pretrained("unc-nlp/lxmert-gqa-uncased")
-    lxmert_vqa = LxmertForQuestionAnswering.from_pretrained("unc-nlp/lxmert-vqa-uncased")
 
+    # if torch.cuda.is_available():
+    #     vqa.cuda()
+    #     frcnn.cuda()
+    #     image_preprocess.device = vqa.device
+    #     frcnn_cfg.model.device = vqa.device
 
     # run frcnn
     def infer_lxmert_vqa(URL, test_question):
@@ -106,7 +114,7 @@ def get_lxmert_model():
             )
 
         """
-        output_vqa = lxmert_vqa(
+        output_vqa = vqa(
             input_ids=inputs.input_ids,
             attention_mask=inputs.attention_mask,
             visual_feats=features,

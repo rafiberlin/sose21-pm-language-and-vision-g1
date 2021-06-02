@@ -148,7 +148,7 @@ torchvision == 0.9.1
 tqdm == 4.48.2
 
 # sose21-pm-language-and-vision-g1/models/vqa/lxmert/lxmert.py: 5
-transformers @ git+https://github.com/huggingface/transformers.git@996a315e76f6c972c854990e6114226a91bc0a90
+transformers == 4.6.1
 
 # sose21-pm-language-and-vision-g1/avatar/mapworld/mapworld.py: 6
 # sose21-pm-language-and-vision-g1/build/lib/avatar/mapworld/mapworld.py: 6

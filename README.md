@@ -25,9 +25,9 @@ This would result in 3 new directories containing images and annotations:
 [MS_COCO_DIR]/val2017
 [MS_COCO_DIR]/annotations
 
-### Gloves embedding (optional)
+### Glove embeddings (optional)
 
-The gloves embeddings can be used.
+The glove embeddings can be used.
 
 Download the files from http://nlp.stanford.edu/data/glove.6B.zip
 
@@ -64,17 +64,27 @@ and the saved model files  under ./pretrained/captioning/checkpoints
 Run the script `models/captioning/evaluate.py` to verify that the model can be loaded correctly.
 
 
-## VQA 
+## VQA
+
+### LXMERT (Huggingface)
+
+If the installations works correctly, all dependencies and weights will be downloaded automatically after the first 
+use.
+
+In the configuration file ./config.json, under the keys "vqa" / "lxmert", you can change the maximum length of the 
+question and switch between "vqa" or "gqa" models. 
+
+### Evaluation on the official VQA metrics
 
 https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
 
-Unpack under ./models/vqa
+Unpack under ./
 
-You should end up with all files under ./models/vqa/checkpoints (I know, not consistent with captioning...)
+You should end up with all files under ./models/vqa/attentions/
 
-If you have a problem with the weights, change the path in evaluate_attention_vqa.py
+We do not need the pretrained model from this archive, only the pre-processed Questions / Answers from the VQA dataset.
 
-from checkpoints/attention_model_best.h5 to checkpoints/attention_model_best.tf
+These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluation for any model.
 
 # Installation
 

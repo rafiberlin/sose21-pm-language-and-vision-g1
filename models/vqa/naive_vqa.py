@@ -1,5 +1,4 @@
 import tensorflow as tf
-from models.model import CNN_Encoder, BahdanauAttention
 import os
 import json
 import pickle
@@ -8,35 +7,9 @@ import pandas as pd
 from tqdm import tqdm
 import random as rn
 import models.utils.util as util
-from PIL import Image
+from models.utils.util import get_config, create_directory_structure, load_preprocessed_vqa_data
 
 #Beware : VQA uses pictures from MS COCO 2014 => some pictures disapeared in MS COCO 2017...
-
-
-
-
-# encoder = get_pretrained_image_encoder()
-#
-# annotation_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_mscoco_train2014_annotations.json")
-# question_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_OpenEnded_mscoco_train2014_questions.json")
-#
-# with open(annotation_file, 'r') as f:
-#     annotations = json.load(f)["annotations"]
-#
-# with open(question_file, 'r') as f:
-#     questions = json.load(f)["questions"]
-#
-# #Get the first image
-# image_id = annotations[0]["image_id"]
-# coco_train = os.path.join(MS_COCO_DIR, "train2017")
-# image_path = os.path.join( coco_train, '%012d.jpg' % (image_id))
-
-# I have to check that but I think each line in questions matches the corresponding lines in annotations (answers)
-
-
-#img = Image.open(image_path)
-#img.show()
-
 
 # Lets try to make this implementation work: https://medium.com/@harshareddykancharla/visual-question-answering-with-hierarchical-question-image-co-attention-c5836684a180
 # https://github.com/harsha977/Visual-Question-Answering-With-Hierarchical-Question-Image-Co-Attention
@@ -44,43 +17,6 @@ from PIL import Image
 
 
 
-def load_preprocessed_data ():
-
-    serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/tokenizer.pickle")
-    with open(serialized_tokenizer, 'rb') as handle:
-        tokenizer = pickle.load(handle)
-
-
-    label_encoder_serialized =  os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/label_encoder.pickle")
-
-    with open(label_encoder_serialized, 'rb') as handle:
-        label_encoder = pickle.load(handle)
-
-
-    serialized_question_vector_train = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/question_vector_train.pickle")
-
-    with open(serialized_question_vector_train, 'rb') as handle:
-        question_vector_train = pickle.load(handle)
-
-    serialized_question_vector_val = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/question_vector_val.pickle")
-
-    with open(serialized_question_vector_val, 'rb') as handle:
-        question_vector_val  = pickle.load(handle)
-
-    x_train_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/X_train.csv")
-    x_val_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/X_val.csv")
-
-
-    X_train = pd.read_csv(x_train_path)
-    X_val = pd.read_csv(x_val_path)
-
-    return X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val
 
 def get_image_tensor(img, ques):
     #path = img.decode('utf-8').replace(imageDirectory,imageNumpyDirectory).replace('.jpg',"") +'.npy'
@@ -188,16 +124,17 @@ def cache_vqa_images(image_paths_train):
 #must be unzipped at this level (a directory named checkpoinst will be at the same lvel as naive_vqa.py)
 if __name__ == "__main__":
 
-    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
-    with open(config_file, "r") as read_file:
-        conf = json.load(read_file)
-
+    conf = get_config()
+    vqa_conf = conf["vqa"]["naive"]
+    pretrained_dir = vqa_conf["pretrained_dir"]
     VQA_ANNOTATIONS_DIR = conf["vqa_dir"]
     MS_COCO_DIR = conf["ms_coco_dir"]
 
-    X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val = load_preprocessed_data()
+    X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val = load_preprocessed_vqa_data()
     coco_train = os.path.join(MS_COCO_DIR, "train2017")
     coco_train_cache = os.path.join(MS_COCO_DIR, "train2017", "vqa_cache")
+    create_directory_structure(coco_train_cache)
+
     image_paths_train = X_train['image_id'].apply(lambda x:  os.path.join(coco_train, '%012d.jpg' % (x))).values
     image_paths_train_cache  =X_train['image_id'].apply(lambda x: os.path.join(coco_train_cache, '%012d.jpg' % (x))).values
     image_paths_val = X_val['image_id'].apply(lambda x:  os.path.join(coco_train, '%012d.jpg' % (x))).values
@@ -242,14 +179,10 @@ if __name__ == "__main__":
     ##python RS
     rn.seed(12)
 
-    #Just apply it once and comment out
-    if not os.path.exists("./logs"):
-        os.makedirs("./logs")
-
     cb = [
         tf.keras.callbacks.EarlyStopping(patience=4),
-        tf.keras.callbacks.ModelCheckpoint(filepath='./checkpoints2/model.{epoch:02d}-{val_loss:.2f}.h5'),
-        tf.keras.callbacks.TensorBoard(log_dir='./logs'),
+        tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(pretrained_dir, 'checkpoints/model.{epoch:02d}-{val_loss:.2f}.h5')),
+        tf.keras.callbacks.TensorBoard(log_dir=os.path.join(pretrained_dir,'logs')),
     ]
 
     vqa.fit(train_dataset, epochs = 20, validation_data = val_dataset, callbacks = cb)

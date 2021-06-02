@@ -6,16 +6,23 @@
 
   "ms_coco_dir" : "/home/rafi/_datasets/MSCOCO/",
   "vqa_dir" : "/home/rafi/_datasets/VQA/",
-  "vqa_top_answers" : 2000,
-  "vqa_cache_images" : true,
   "ade20k_dir" : "/home/rafi/_datasets/ADE20K/",
   "ade20k_vqa_file" : "ade20k_vqa.jsonl",
   "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/",
   "glove_embeddings" : "pretrained/gloves/glove.6B.300d.txt",
-  "lxmert" : {
+  "vqa" : {
+    "attention" : {
+      "pretrained_dir": "pretrained/vqa/attention/",
+      "vqa_top_answers" : 2000,
+      "vqa_cache_images" : true
+    }
+    ,
+    "lxmert" : {
     "question_length": 24,
     "model" : "vqa"
+    }
   },
+
   "captioning": {
     "pretrained_dir": "pretrained/captioning/attention/",
     "batch_size": 128,
@@ -29,6 +36,5 @@
     "beam_size": 3,
     "horizontal_flip": true,
     "pad_images": true
-  },
-  "vqa" : {}
+  }
 }

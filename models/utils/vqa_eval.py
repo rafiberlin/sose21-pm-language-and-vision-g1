@@ -1,8 +1,5 @@
-from models.utils.util import get_config, get_ade20_vqa_data
+from models.utils.util import get_config, get_ade20_vqa_data, load_preprocessed_vqa_data
 import os
-import json
-from models.vqa.attention_vqa import load_preprocessed_data
-from models.vqa.evaluate_attention_vqa import get_eval_vqa_model
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
 from tqdm import tqdm
 import pandas as pd
@@ -20,7 +17,7 @@ def run_official_vqa_metrics(vqa):
 
     MS_COCO_DIR = conf["ms_coco_dir"]
 
-    _, X_val, tokenizer, label_encoder, _, question_vector_val = load_preprocessed_data()
+    _, X_val, tokenizer, label_encoder, _, question_vector_val = load_preprocessed_vqa_data()
     coco_train = os.path.join(MS_COCO_DIR, "train2017")
     # removing first and lasttoken <start>, <end>
     questions = X_val["question"].apply(lambda x: " ".join(text_to_word_sequence(x)[1:-1]))
@@ -41,14 +38,11 @@ def run_official_vqa_metrics(vqa):
 
     return acc
 
-def run_ade20k_vqa_metrics():
-    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
-    with open(config_file, "r") as read_file:
-        conf = json.load(read_file)
-
+def run_ade20k_vqa_metrics(vqa, num_questions=None):
+    conf = get_config()
     ADE20K_DIR = conf["ade20k_dir"]
 
-    _, X_val, tokenizer, label_encoder, _, question_vector_val = load_preprocessed_data()
+    _, X_val, tokenizer, label_encoder, _, question_vector_val = load_preprocessed_vqa_data()
 
     data = get_ade20_vqa_data()
 
@@ -58,24 +52,26 @@ def run_ade20k_vqa_metrics():
     answers = df["answer"]
     image_paths_val = df["image_path"].apply(lambda x: os.path.join(ADE20K_DIR, "images",x))
     total = 0
-    vqa = get_eval_vqa_model()
+
 
     for i, (question, image, answer) in tqdm(enumerate(zip(questions, image_paths_val, answers))):
-        prediction = vqa.infer((image, question))
+        prediction = vqa.infer(image, question)
         if prediction[0] == answer:
             total += 1
         epoch = i + 1
-        if epoch % 1000 == 0:
+        if epoch % 2000 == 0:
             print("epoch", epoch, "Acc", total / epoch)
-    acc = total / len(questions)
+        if i == num_questions:
+            break  # the LXMERT is really slow at processing, it would take ages...
+    acc = total / (i + 1)
     print("ADE20K VQA Accuracy", acc)
     return acc
 
 
 if __name__ == "__main__":
-    #run_ade20k_vqa_metrics()
-
     #Naive VQA implementation
     #vqa = get_eval_vqa_model()
     vqa = LXMERTInference()
+    run_ade20k_vqa_metrics(vqa, 2000)
     run_official_vqa_metrics(vqa)
+

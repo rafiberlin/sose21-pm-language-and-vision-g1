@@ -20,7 +20,7 @@ class LXMERTInference():
         self.ATTR_URL = "https://raw.githubusercontent.com/airsplay/py-bottom-up-attention/master/demo/data/genome/1600-400-20/attributes_vocab.txt"
 
         conf = get_config()
-        lxmert_conf = conf["lxmert"]
+        lxmert_conf = conf["vqa"]["lxmert"]
         self.model_type = lxmert_conf["model"]
 
         if self.model_type.lower() == "gqa":

@@ -56,7 +56,7 @@ def run_ade20k_vqa_metrics(vqa, num_questions=None):
 
     for i, (question, image, answer) in tqdm(enumerate(zip(questions, image_paths_val, answers))):
         prediction = vqa.infer(image, question)
-        if prediction[0] == answer:
+        if prediction == answer:
             total += 1
         epoch = i + 1
         if epoch % 100 == 0:

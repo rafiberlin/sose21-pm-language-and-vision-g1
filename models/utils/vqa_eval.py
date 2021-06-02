@@ -6,7 +6,7 @@ from models.vqa.evaluate_attention_vqa import get_eval_vqa_model
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
 from tqdm import tqdm
 import pandas as pd
-from models.vqa.lxmert.lxmert import get_lxmert_model
+from models.vqa.lxmert.lxmert import LXMERTInference
 
 
 def run_official_vqa_metrics(vqa):
@@ -31,7 +31,7 @@ def run_official_vqa_metrics(vqa):
 
     total = 0
     for i, (question, image, _answers) in tqdm(enumerate(zip(questions, image_paths_val, answers))):
-        prediction = vqa(image, question)
+        prediction = vqa.infer(image, question)
         total += min(sum([1 for answer in _answers if answer["answer"] == prediction]) / 3, 1)
         epoch = i + 1
         if epoch % 1000 == 0:
@@ -77,5 +77,5 @@ if __name__ == "__main__":
 
     #Naive VQA implementation
     #vqa = get_eval_vqa_model()
-    vqa = get_lxmert_model()
+    vqa = LXMERTInference()
     run_official_vqa_metrics(vqa)

@@ -2,9 +2,6 @@ from tensorflow import keras
 import tensorflow as tf
 import os
 import sys
-sys.path.append("/home/kev/sose21-pm-language-and-vision-g1")
-import sys
-sys.path.append("/home/kev/sose21-pm-language-and-vision-g1")
 import models.utils.util as util
 from models.vqa.naive_vqa import build_naive_vqa_model
 import pickle
@@ -49,8 +46,8 @@ class TrainedVQA:
                                                                                 padding='post')
         return vectorized_question_seq
 
-    def infer(self, tuple_input):
-        image_url, question_string = tuple_input
+    def infer(self, image_url, question_string):
+
         vector_question = self.__process_question(question_string)
         processed_image = self.__process_image(image_url)
         input = (processed_image, vector_question)
@@ -89,7 +86,7 @@ if __name__ == "__main__":
     #question = "What is it?"  # answer: surfer
     question = "Is there a man?" # answer: no
     vqa = get_eval_vqa_model()
-    label = vqa.infer((image_url, question))
+    label = vqa.infer(image_url, question)
     print("question: ", question)
     print("answer: ", label[0])
 

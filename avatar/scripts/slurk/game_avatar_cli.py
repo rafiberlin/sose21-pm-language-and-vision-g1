@@ -13,7 +13,7 @@ import socketIO_client
 
 
 #from avatar.game_avatar_custom import CustomAvatar
-from avatar.game_avatar_custom import LXMERTAvatar
+from avatar.game_avatar_lxmert import LXMERTAvatar
 from avatar.game_avatar import SimpleAvatar
 from avatar.game_avatar_slurk import AvatarBot
 

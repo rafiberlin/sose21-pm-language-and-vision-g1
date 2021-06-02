@@ -1,9 +1,8 @@
 from avatar.game_avatar import Avatar
 from models.captioning.evaluate import get_eval_captioning_model
-from models.vqa.lxmert.lxmert import infer_lxmert_vqa
+from models.vqa.lxmert.lxmert import get_lxmert_model
 import tensorflow as tf
-import json
-import os
+from models.utils.util import get_config
 
 
 """
@@ -42,10 +41,9 @@ class LXMERTAvatar(Avatar):
         self.observation = None
         self.caption_expert = get_eval_captioning_model()
         #self.vqa_expert = get_eval_vqa_model()
-        self.vqa_expert = infer_lxmert_vqa
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config.json")
-        with open(config_file, "r") as read_file:
-            conf = json.load(read_file)["image_server"]
+        self.vqa_expert = get_lxmert_model()
+        conf = get_config()
+        conf = conf["image_server"]
         self.ADE20K_URL = f"http://{conf['host']}:{conf['port']}/"
 
     def step(self, observation: dict) -> dict:
@@ -76,7 +74,7 @@ class LXMERTAvatar(Avatar):
             image_name = image_url[last_char_index + 1:]
             image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
-        if message.startswith("what"):
+        if message.startswith("describe"):
             if self.observation:
                 caption, _ = self.caption_expert(image_path)
 
@@ -115,5 +113,6 @@ if __name__ == "__main__":
     #URL = "https://vignette.wikia.nocookie.net/spongebob/images/2/20/SpongeBob's_pineapple_house_in_Season_7-4.png/revision/latest/scale-to-width-down/639?cb=20151213202515"
     URL =  "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ffeedinspiration.com%2Fwp-content%2Fuploads%2F2016%2F03%2FTransitional-Kitchen-Cabinets-Ideas.jpg&f=1&nofb=1"
     test_question = "what is this?"
-    vqa_answer = infer_lxmert_vqa(URL, test_question)
+    vqa_model = get_lxmert_model()
+    vqa_answer = vqa_model(URL, test_question)
     print(vqa_answer)

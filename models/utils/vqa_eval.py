@@ -59,11 +59,11 @@ def run_ade20k_vqa_metrics(vqa, num_questions=None):
         if prediction[0] == answer:
             total += 1
         epoch = i + 1
-        if epoch % 2000 == 0:
+        if epoch % 100 == 0:
             print("epoch", epoch, "Acc", total / epoch)
         if i == num_questions:
             break  # the LXMERT is really slow at processing, it would take ages...
-    acc = total / (i + 1)
+    acc = total / epoch
     print("ADE20K VQA Accuracy", acc)
     return acc
 

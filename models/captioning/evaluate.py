@@ -19,6 +19,7 @@ def get_eval_captioning_model():
     EMBEDDING_DIM = captioning_conf["embedding_dim"]
     PRETRAINED_DIR = captioning_conf["pretrained_dir"]
     BEAM_SIZE = captioning_conf["beam_size"]
+    PAD_IMAGES = captioning_conf["pad_images"]
 
     serialized_tokenizer = os.path.join(PRETRAINED_DIR,
                                         "tokenizer.pickle")
@@ -55,7 +56,10 @@ def get_eval_captioning_model():
         beam_size = BEAM_SIZE
 
         hidden = decoder.reset_state(batch_size=beam_size)
-        temp_input = tf.expand_dims(util.load_image(image)[0], 0)
+        if PAD_IMAGES:
+            temp_input = tf.expand_dims(util.load_image_with_pad(image)[0], 0)
+        else:
+            temp_input = tf.expand_dims(util.load_image(image)[0], 0)
         img_tensor_val = image_features_extract_model(temp_input)
         img_tensor_val = tf.stack([tf.reshape(img_tensor_val, (
             -1,
@@ -89,15 +93,15 @@ def get_eval_captioning_model():
 
             predictions = tf.nn.log_softmax(predictions)
 
-            candidates_log_prob, candidate_indices = tf.math.top_k(predictions, k=BEAM_SIZE)
+            candidates_log_prob, candidate_indices = tf.math.top_k(predictions, k=beam_size)
             candidate_indices = tf.reshape(candidate_indices, -1)
             # Calculates the likelihood of all candidates so far
             candidates_log_prob = tf.reshape(candidates_log_prob + previous_predictions, -1)
-            current_top_candidates, current_top_candidates_idx = tf.math.top_k(candidates_log_prob, k=BEAM_SIZE)
+            current_top_candidates, current_top_candidates_idx = tf.math.top_k(candidates_log_prob, k=beam_size)
 
             # Do the mapping best candidate and "source" of the best candidates
             k_idx = tf.gather(candidate_indices, current_top_candidates_idx)
-            prev_idx = tf.cast(tf.math.floor(current_top_candidates_idx / BEAM_SIZE), tf.int32)
+            prev_idx = tf.cast(tf.math.floor(current_top_candidates_idx / beam_size), tf.int32)
 
             # Modify the hidden states accordingly
             hidden = tf.gather(hidden, prev_idx, axis=0)

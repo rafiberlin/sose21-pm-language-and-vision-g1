@@ -54,9 +54,7 @@ The training can be started by running ./models/captioning/visual_attention_simp
 First download the pretrained model from:
 
 
-TODO UPDATE THE LINK!
-
-https://drive.google.com/file/d/1OHMokofF4mgjSzRcdcKEqqkpb3TLIx1P/view?usp=sharing
+https://drive.google.com/file/d/1ZcCXm9F6T8AbqCGBpDcom4rbDgQyXNr6/view?usp=sharing
 
 Unpack under ./
 

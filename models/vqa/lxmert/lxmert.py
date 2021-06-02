@@ -51,7 +51,9 @@ class LXMERTInference():
         self.frcnn_cfg = Config.from_pretrained("unc-nlp/frcnn-vg-finetuned")
 
         if torch.cuda.is_available():
-            self.frcnn_cfg.model.device = 'cuda:0'
+            device = 'cuda:0'
+            print("Enabling CUDA for LXMERT", device)
+            self.frcnn_cfg.model.device = device
 
 
         self.frcnn = GeneralizedRCNN.from_pretrained("unc-nlp/frcnn-vg-finetuned", config=self.frcnn_cfg)
@@ -59,12 +61,6 @@ class LXMERTInference():
         self.image_preprocess = Preprocess(self.frcnn_cfg)
 
         self.lxmert_tokenizer = LxmertTokenizer.from_pretrained("unc-nlp/lxmert-base-uncased")
-
-    # if torch.cuda.is_available():
-    #     vqa.cuda()
-    #     frcnn.cuda()
-    #     image_preprocess.device = vqa.device
-    #     frcnn_cfg.model.device = vqa.device
 
     # run frcnn
     def infer(self, URL, test_question ):

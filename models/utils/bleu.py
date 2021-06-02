@@ -1,7 +1,7 @@
 from models.utils.util import get_config
 import pandas as pd
 import os
-from models.captioning.evaluate_glove import get_eval_captioning_model
+from models.captioning.evaluate import get_eval_captioning_model
 from pycocoevalcap.bleu.bleu import Bleu
 from tqdm import tqdm
 import json

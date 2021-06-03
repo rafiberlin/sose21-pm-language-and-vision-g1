@@ -45,6 +45,7 @@ class LXMERTAvatar(Avatar):
         conf = get_config()
         conf = conf["image_server"]
         self.ADE20K_URL = f"http://{conf['host']}:{conf['port']}/"
+        self.debug = conf["debug"]
 
     def step(self, observation: dict) -> dict:
         print(observation)  # for debugging
@@ -77,8 +78,11 @@ class LXMERTAvatar(Avatar):
         if message.startswith("describe"):
             if self.observation:
                 caption, _ = self.caption_expert(image_path)
+                debug_msg = ""
+                if self.debug:
+                    debug_msg = f'("+ {image_url}+")'
+                return f"I see {debug_msg}: " + ' '.join(caption[:-1])
 
-                return "I see ("+ image_url+"): " + ' '.join(caption[:-1])
             else:
                 return "I dont know"
 

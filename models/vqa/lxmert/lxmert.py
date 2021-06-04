@@ -50,9 +50,10 @@ class LXMERTInference():
         # load models and model components
         self.frcnn_cfg = Config.from_pretrained("unc-nlp/frcnn-vg-finetuned")
         device = conf["vqa"]["lxmert"]["cuda_device"]
-        if torch.cuda.is_available() and device is not None and device != "cpu":
+        if torch.cuda.is_available() and device is not None and device.startswith("cuda"):
             print("Enabling CUDA for LXMERT", device)
             self.frcnn_cfg.model.device = device
+
 
 
         self.frcnn = GeneralizedRCNN.from_pretrained("unc-nlp/frcnn-vg-finetuned", config=self.frcnn_cfg)

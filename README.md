@@ -93,8 +93,6 @@ These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluati
 
 Important: if you face errors concerning the import of modules, please export this project to you python path:
 `export PYTHONPATH="${PYTHONPATH}:/path/to/your/project/sose21-pm-language-and-vision-g1/"`
-But normally, if you execute `python setup.py install` or `pip install .` after adding new Avatar classes, that should 
-solve any issues.
 
 
 You can install the scripts to be available from the shell (where the python environment is accessible).

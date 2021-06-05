@@ -3,6 +3,7 @@
 # sose21-pm-language-and-vision-g1/models/utils/util.py: 3
 # sose21-pm-language-and-vision-g1/models/vqa/lxmert/processing_image.py: 24
 # sose21-pm-language-and-vision-g1/models/vqa/lxmert/utils.py: 38
+
 Pillow == 8.2.0
 
 # sose21-pm-language-and-vision-g1/models/vqa/lxmert/utils.py: 45
@@ -71,6 +72,7 @@ opencv_python == 4.4.0.42
 # sose21-pm-language-and-vision-g1/models/utils/create_ade20k_vqa_dataset.py: 5
 # sose21-pm-language-and-vision-g1/models/utils/util.py: 10
 # sose21-pm-language-and-vision-g1/models/utils/vqa_eval.py: 5
+
 # sose21-pm-language-and-vision-g1/models/vqa/attention_vqa.py: 7
 # sose21-pm-language-and-vision-g1/models/vqa/create_preprocessed_questions.py: 1
 # sose21-pm-language-and-vision-g1/models/vqa/naive_vqa.py: 6
@@ -119,6 +121,7 @@ socketIO_client == 0.7.2
 # sose21-pm-language-and-vision-g1/models/utils/bleu.py: 11
 # sose21-pm-language-and-vision-g1/models/utils/util.py: 1
 # sose21-pm-language-and-vision-g1/models/utils/vqa_eval.py: 3
+
 # sose21-pm-language-and-vision-g1/models/vqa/attention_vqa.py: 1
 # sose21-pm-language-and-vision-g1/models/vqa/create_preprocessed_questions.py: 3
 # sose21-pm-language-and-vision-g1/models/vqa/evaluate_attention_vqa.py: 1,2
@@ -150,9 +153,11 @@ tqdm == 4.48.2
 # sose21-pm-language-and-vision-g1/models/vqa/lxmert/lxmert.py: 5
 transformers == 4.6.1
 
+
 # sose21-pm-language-and-vision-g1/avatar/mapworld/mapworld.py: 6
 # sose21-pm-language-and-vision-g1/build/lib/avatar/mapworld/mapworld.py: 6
 transitions == 0.8.7
 
 # sose21-pm-language-and-vision-g1/models/vqa/lxmert/utils.py: 43
 wget == 3.2
+

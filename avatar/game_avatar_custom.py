@@ -1,4 +1,11 @@
 from avatar.game_avatar import Avatar
+from models.captioning.evaluate import get_eval_captioning_model
+# from models.vqa.evaluate_vqa import get_eval_vqa_model
+from models.vqa.evaluate_attention_vqa import get_eval_vqa_model
+import tensorflow as tf
+from models.utils.util import get_config
+
+
 
 """
     Avatar action routines
@@ -10,6 +17,7 @@ DIRECTION_TO_WORD = {
     "w": "west",
     "s": "south"
 }
+
 
 
 def direction_to_word(direction: str):
@@ -35,6 +43,12 @@ class CustomAvatar(Avatar):
     def __init__(self, image_directory):
         self.image_directory = image_directory
         self.observation = None
+        self.caption_expert = get_eval_captioning_model()
+        self.vqa_expert = get_eval_vqa_model()
+
+        conf = get_config()
+        conf = conf["image_server"]
+        self.ADE20K_URL = f"http://{conf['host']}:{conf['port']}/"
 
     def step(self, observation: dict) -> dict:
         print(observation)  # for debugging
@@ -56,10 +70,19 @@ class CustomAvatar(Avatar):
 
     def __generate_response(self, message: str) -> str:
         message = message.lower()
+        image_path = None
+        image_url = None
+        if self.observation:
+            image_url = self.ADE20K_URL + self.observation["image"]
+            last_char_index = image_url.rfind("/")
+            image_name = image_url[last_char_index + 1:]
+            image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
-        if message.startswith("what"):
+        if message.startswith("describe"):
             if self.observation:
-                return "I see " + self.observation["image"]
+                caption, _ = self.caption_expert(image_path)
+
+                return "I see ("+ image_url+"): " + ' '.join(caption[:-1])
             else:
                 return "I dont know"
 
@@ -71,7 +94,9 @@ class CustomAvatar(Avatar):
 
         if message.endswith("?"):
             if self.observation:
-                return "It has maybe something to do with " + self.observation["image"]
+                answer = self.vqa_expert.infer((image_path, message))
+                return answer[0]
+                # return "It has maybe something to do with " + self.observation["image"]
             else:
                 return "I dont know"
 

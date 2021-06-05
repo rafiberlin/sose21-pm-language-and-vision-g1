@@ -1,5 +1,30 @@
 # A MapWorld Avatar Game (SoSe21 PM Vision)
 
+# Pretrained Models
+
+## Captioning
+
+https://drive.google.com/file/d/1OHMokofF4mgjSzRcdcKEqqkpb3TLIx1P/view?usp=sharing
+
+Unpack under ./models/captioning
+
+You should end up with all files under ./models/captioning/checkpoints/train
+
+
+
+
+## VQA 
+
+https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
+
+Unpack under ./models/vqa
+
+You should end up with all files under ./models/vqa/checkpoints (I know, not consistent with captioning...)
+
+If you have a problem with the weights, change the path in evaluate_attention_vqa.py
+
+from checkpoints/attention_model_best.h5 to checkpoints/attention_model_best.tf
+
 # Installation
 
 You can install the scripts to be available from the shell (where the python environment is accessible).

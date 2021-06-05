@@ -3,6 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# IDE specific rules (PyCharm)
+.idea
+
+# Exclude Tensorflow checkpoints
+
+*checkpoint*
+*ckpt*
+
 # C extensions
 *.so
 

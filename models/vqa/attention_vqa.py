@@ -1,7 +1,8 @@
 import tensorflow as tf
 from models.model import CoattentionModel
 import os
-from models.utils.util import get_config,create_directory_structure, load_preprocessed_vqa_data
+from config.util import get_config,create_directory_structure
+from models.utils.util import load_preprocessed_vqa_data
 import pickle
 import numpy as np
 import pandas as pd

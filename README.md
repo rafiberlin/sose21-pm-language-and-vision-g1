@@ -38,12 +38,12 @@ must be changed accordingly.
 
 ### Training
 
-In the configuration file ./config.json, the key "captioning" contains all relevant parameters for training 
+In the configuration file ./config/config.json, the key "captioning" contains all relevant parameters for training 
 and hyperparameters to train the captioning model.
 
 Execute the script ./models/captioning/preprocessing.py to cache features for training,
 
-It is important, to use the same configuration in ./config.json under the key "captioning" for both preprocessing
+It is important, to use the same configuration in ./config/config.json under the key "captioning" for both preprocessing
 and training.
 
 The training can be started by running ./models/captioning/visual_attention_simple.py
@@ -71,7 +71,7 @@ Run the script `models/captioning/evaluate.py` to verify that the model can be l
 If the installations works correctly, all dependencies and weights will be downloaded automatically after the first 
 use.
 
-In the configuration file ./config.json, under the keys "vqa" / "lxmert", you can change the maximum length of the 
+In the configuration file ./config/config.json, under the keys "vqa" / "lxmert", you can change the maximum length of the 
 question and switch between "vqa" or "gqa" models. You can also assign directly a GPU with cuda_device, e.g "cuda:0" 
 for the first GPU, "cuda:1" for the second GPU or none / "cpu" if no GPUs are available.
 

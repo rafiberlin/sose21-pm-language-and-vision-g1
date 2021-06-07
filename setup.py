@@ -78,6 +78,7 @@ setup(
     # have to be included in MANIFEST.in as well.
     package_data={
         'avatar': ["resources/*.json"],
+        'config': ["*.json"]
     },
 
     # data_files=[('project/configuration', ['project/configuration/configuration.ini.template'])],

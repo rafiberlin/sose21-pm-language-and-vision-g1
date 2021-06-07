@@ -102,6 +102,48 @@ install the app into the currently activate python environment. Also perform `pi
 additional dependencies. After installation, you can use the `game-setup`
 , `game-master` and `game-avatar` cli commands (where the python environment is accessible).
 
+**Installation on the Jarvis Remote Server**
+
+Install for your own user (no sudo)
+
+`pip install virtualenv`
+
+Check out the project from github and execute 
+`cd sose21-pm-language-and-vision-g1`
+
+Create a virtual environmen named venv
+
+`virtualenv venv`
+
+Active the created environment:
+
+`source venv/bin/activate`
+
+Install the pytorch matching the remote server CUDA version, in this case:
+
+`pip install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html`
+
+Install the remaining libraries with 
+
+`pip install -r requirements_server.txt`
+
+Install the avatar with:
+
+`pip install .` or `python setup.py install`
+
+To install the latest update from the github repo, just type:
+
+`git pull`
+`pip install .` or `python setup.py install`
+
+You can simply deactivate the environment by typing:
+
+`deactivate`
+
+To check that Tensorflow and Pytorch are installed with GPU support, just run:
+
+`python check_gpu.py`
+
 **Installation for developers on remote machines**
 Run `update.sh` to install the project on a machine. This shell script simply pulls the latest changes and performs the
 install from above. As a result, the script will install the python project as an egg

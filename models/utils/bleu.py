@@ -94,8 +94,13 @@ def perform_bleu_score_on_mscoco(data_type="val2017", shuffle=False, image_numbe
     captions  = get_ms_coco_captions(data_type=data_type, shuffle=shuffle, image_number=image_number)
     caption_expert = get_eval_captioning_model()
 
-    serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "../captioning/checkpoints/train/tokenizer.pickle")
+    conf = get_config()
+    captioning_conf = conf["captioning"]
+    PRETRAINED_DIR = captioning_conf["pretrained_dir"]
+
+    serialized_tokenizer = os.path.join(PRETRAINED_DIR,
+                                        "tokenizer.pickle")
+
     with open(serialized_tokenizer, 'rb') as handle:
         tokenizer = pickle.load(handle)
 

@@ -5,6 +5,52 @@ import matplotlib.pyplot as plt
 from models.model import CNN_Encoder
 import os
 import json
+import jsonlines
+import pickle
+import pandas as pd
+
+
+def load_preprocessed_vqa_data ():
+
+    conf = get_config()
+    vqa_conf = conf["vqa"]["attention"]
+    pretrained_dir = vqa_conf["pretrained_dir"]
+
+    serialized_tokenizer = os.path.join(pretrained_dir,
+                                        "tokenizer.pickle")
+    with open(serialized_tokenizer, 'rb') as handle:
+        tokenizer = pickle.load(handle)
+
+
+    label_encoder_serialized =  os.path.join(pretrained_dir,
+                                        "label_encoder.pickle")
+
+    with open(label_encoder_serialized, 'rb') as handle:
+        label_encoder = pickle.load(handle)
+
+
+    serialized_question_vector_train = os.path.join(pretrained_dir,
+                                        "question_vector_train.pickle")
+
+    with open(serialized_question_vector_train, 'rb') as handle:
+        question_vector_train = pickle.load(handle)
+
+    serialized_question_vector_val = os.path.join(pretrained_dir,
+                                        "question_vector_val.pickle")
+
+    with open(serialized_question_vector_val, 'rb') as handle:
+        question_vector_val  = pickle.load(handle)
+
+    x_train_path = os.path.join(pretrained_dir,
+                                        "X_train.csv")
+    x_val_path = os.path.join(pretrained_dir,
+                                        "X_val.csv")
+
+
+    X_train = pd.read_csv(x_train_path)
+    X_val = pd.read_csv(x_val_path)
+
+    return X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val
 
 def get_config():
     """
@@ -14,14 +60,72 @@ def get_config():
     config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", "config.json")
     with open(config_file, "r") as read_file:
         conf = json.load(read_file)
+    conf["glove_embeddings"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../", conf["glove_embeddings"] )
+    if not os.path.exists(conf["glove_embeddings"]):
+        os.makedirs(conf["glove_embeddings"])
+        print("Created directory:", conf["glove_embeddings"])
+
+
+    conf["captioning"]["pretrained_dir"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../",
+                                            conf["captioning"]["pretrained_dir"])
+
+    conf["vqa"]["attention"]["pretrained_dir"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../",
+                                            conf["vqa"]["attention"]["pretrained_dir"])
+
+    captioning_pretrained_dir = conf["captioning"]["pretrained_dir"]
+    vqa_pretrained_dir = conf["vqa"]["attention"]["pretrained_dir"]
+
+    if not os.path.exists(captioning_pretrained_dir):
+        os.makedirs(captioning_pretrained_dir)
+        print("Created directory:", captioning_pretrained_dir)
+    if not os.path.exists(vqa_pretrained_dir):
+        os.makedirs(vqa_pretrained_dir)
+        print("Created directory:", vqa_pretrained_dir)
+    checkpoints_dir = os.path.join(captioning_pretrained_dir, "checkpoints")
+    create_directory_structure(checkpoints_dir)
+
+    checkpoints_dir = os.path.join(vqa_pretrained_dir, "checkpoints")
+    create_directory_structure(checkpoints_dir)
+
+    checkpoints_dir = os.path.join(vqa_pretrained_dir, "logs")
+    create_directory_structure(checkpoints_dir)
 
     return conf
+
+def create_directory_structure(struct):
+    if not os.path.exists(struct):
+        os.makedirs(struct)
+        print("Created directory:", struct)
+
+def get_ade20_vqa_data():
+    """
+    Get the general project configpretrained_dir = conf["captioning"]["pretrained_dir"]
+    :return:
+    """
+    conf = get_config()
+    vqa_file = conf["ade20k_dir"]
+    file = os.path.join(vqa_file,"ade20k_vqa.jsonl")
+
+    with jsonlines.open(file) as reader:
+        data = [ i for i in iter(reader)]
+    return data
+
+
 def load_image(image_path):
     img = tf.io.read_file(image_path)
     img = tf.image.decode_jpeg(img, channels=3)
     img = tf.image.resize(img, (299, 299))
     #avoids distortions
     #img = tf.image.resize_with_pad(img, (299, 299))
+    img = tf.keras.applications.inception_v3.preprocess_input(img)
+    return img, image_path
+
+def load_image_with_pad(image_path):
+    img = tf.io.read_file(image_path)
+    img = tf.image.decode_jpeg(img, channels=3)
+    # img = tf.image.resize(img, (299, 299))
+    #avoids distortions
+    img = tf.image.resize_with_pad(img, 299, 299)
     img = tf.keras.applications.inception_v3.preprocess_input(img)
     return img, image_path
 

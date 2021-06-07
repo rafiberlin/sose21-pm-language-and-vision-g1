@@ -11,6 +11,9 @@ __pycache__/
 *checkpoint*
 *ckpt*
 
+# Exclude the pretained models
+pretrained/
+
 # C extensions
 *.so
 

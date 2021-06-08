@@ -14,7 +14,18 @@ def get_eval_captioning_model():
     # Choose the top 5000 words from the vocabulary
 
     conf = get_config()
+
     captioning_conf = conf["captioning"]
+    tf_gpu = captioning_conf["tensorflow_gpu_name"]
+    physical_devices = tf.config.list_physical_devices('GPU')
+    print(physical_devices)
+    if type(tf_gpu) is str and tf_gpu.startswith("/physical_device:GPU:"):
+        tf.config.set_visible_devices([ d for d in physical_devices if d[0] == tf_gpu], 'GPU')
+        print("Tensorflow GPU Name Supported", tf_gpu)
+    else:
+        tf.config.set_visible_devices([], 'GPU')
+        print("No GPU Support for Tensorflow")
+
     VOCAB_SIZE = captioning_conf["vocab_size"]
     EMBEDDING_DIM = captioning_conf["embedding_dim"]
     PRETRAINED_DIR = captioning_conf["pretrained_dir"]

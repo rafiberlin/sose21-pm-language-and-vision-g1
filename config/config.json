@@ -38,6 +38,7 @@
     "clip": 0.0005,
     "beam_size": 3,
     "horizontal_flip": true,
-    "pad_images": true
+    "pad_images": true,
+    "tensorflow_gpu_name": "/physical_device:GPU:0"
   }
 }

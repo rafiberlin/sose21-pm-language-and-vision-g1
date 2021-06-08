@@ -8,10 +8,10 @@ from config.util import get_config
 import jsonlines
 import pickle
 import pandas as pd
+import json
 
 
-def load_preprocessed_vqa_data ():
-
+def load_preprocessed_vqa_data():
     conf = get_config()
     vqa_conf = conf["vqa"]["attention"]
     pretrained_dir = vqa_conf["pretrained_dir"]
@@ -21,37 +21,33 @@ def load_preprocessed_vqa_data ():
     with open(serialized_tokenizer, 'rb') as handle:
         tokenizer = pickle.load(handle)
 
-
-    label_encoder_serialized =  os.path.join(pretrained_dir,
-                                        "label_encoder.pickle")
+    label_encoder_serialized = os.path.join(pretrained_dir,
+                                            "label_encoder.pickle")
 
     with open(label_encoder_serialized, 'rb') as handle:
         label_encoder = pickle.load(handle)
 
-
     serialized_question_vector_train = os.path.join(pretrained_dir,
-                                        "question_vector_train.pickle")
+                                                    "question_vector_train.pickle")
 
     with open(serialized_question_vector_train, 'rb') as handle:
         question_vector_train = pickle.load(handle)
 
     serialized_question_vector_val = os.path.join(pretrained_dir,
-                                        "question_vector_val.pickle")
+                                                  "question_vector_val.pickle")
 
     with open(serialized_question_vector_val, 'rb') as handle:
-        question_vector_val  = pickle.load(handle)
+        question_vector_val = pickle.load(handle)
 
     x_train_path = os.path.join(pretrained_dir,
-                                        "X_train.csv")
+                                "X_train.csv")
     x_val_path = os.path.join(pretrained_dir,
-                                        "X_val.csv")
-
+                              "X_val.csv")
 
     X_train = pd.read_csv(x_train_path)
     X_val = pd.read_csv(x_val_path)
 
     return X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val
-
 
 
 def get_ade20_vqa_data():
@@ -61,10 +57,10 @@ def get_ade20_vqa_data():
     """
     conf = get_config()
     vqa_file = conf["ade20k_dir"]
-    file = os.path.join(vqa_file,"ade20k_vqa.jsonl")
+    file = os.path.join(vqa_file, "ade20k_vqa.jsonl")
 
     with jsonlines.open(file) as reader:
-        data = [ i for i in iter(reader)]
+        data = [i for i in iter(reader)]
     return data
 
 
@@ -72,22 +68,23 @@ def load_image(image_path):
     img = tf.io.read_file(image_path)
     img = tf.image.decode_jpeg(img, channels=3)
     img = tf.image.resize(img, (299, 299))
-    #avoids distortions
-    #img = tf.image.resize_with_pad(img, (299, 299))
+    # avoids distortions
+    # img = tf.image.resize_with_pad(img, (299, 299))
     img = tf.keras.applications.inception_v3.preprocess_input(img)
     return img, image_path
+
 
 def load_image_with_pad(image_path):
     img = tf.io.read_file(image_path)
     img = tf.image.decode_jpeg(img, channels=3)
     # img = tf.image.resize(img, (299, 299))
-    #avoids distortions
+    # avoids distortions
     img = tf.image.resize_with_pad(img, 299, 299)
     img = tf.keras.applications.inception_v3.preprocess_input(img)
     return img, image_path
 
-def get_image_feature_extractor():
 
+def get_image_feature_extractor():
     image_model = tf.keras.applications.InceptionV3(include_top=False,
                                                     weights='imagenet')
     new_input = image_model.input
@@ -113,6 +110,7 @@ def plot_attention(image, result, attention_plot):
     plt.tight_layout()
     plt.show()
 
+
 def get_pretrained_image_encoder():
     # Get the Image Encoder trained on captioning with frozen weights
 
@@ -132,3 +130,10 @@ def get_pretrained_image_encoder():
     for l in encoder.layers:
         l.trainable = False
     return encoder
+
+
+
+
+if __name__ == "__main__":
+
+    pass

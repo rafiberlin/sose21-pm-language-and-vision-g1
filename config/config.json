@@ -12,6 +12,7 @@
   "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/",
   "pretrained_root" : "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/pretrained/",
   "glove_embeddings" : "gloves/glove.6B.300d.txt",
+  "game_logs_dir":  "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/data/game_logs/",
   "vqa" : {
     "attention" : {
       "pretrained_dir": "vqa/attention/",
@@ -25,7 +26,6 @@
       "cuda_device" : "cpu"
     }
   },
-
   "captioning": {
     "pretrained_dir": "captioning/attention/",
     "batch_size": 128,

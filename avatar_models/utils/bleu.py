@@ -9,7 +9,7 @@ import collections
 import random
 import pickle
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
-
+from avatar_models.captioning.catr.predict import CATRInference
 
 def get_ade20k_caption_annotations():
     """
@@ -70,7 +70,6 @@ def get_ms_coco_captions(data_type="val2017", shuffle=False, image_number=None):
     # In[4]:
     with open(annotation_file, 'r') as f:
         annotations = json.load(f)
-
     # In[5]:
 
     # Group all captions together having the same image ID.
@@ -119,6 +118,24 @@ def perform_bleu_score_on_mscoco(data_type="val2017", shuffle=False, image_numbe
     print("MS COCO", scores)
     return scores
 
+def perform_bleu_score_on_mscoco_catr(data_type="val2017", shuffle=False, image_number=None):
+
+    captions  = get_ms_coco_captions(data_type=data_type, shuffle=shuffle, image_number=image_number)
+    caption_expert = CATRInference()
+
+
+    references = {}
+    hypothesis = {}
+
+    for image_path in tqdm(captions):
+        predicted_caption = caption_expert.infer(image_path)
+
+        references[image_path]= captions[image_path]
+        hypothesis[image_path] = [predicted_caption]
+    scores = calc_scores(references, hypothesis)
+    print("MS COCO", scores)
+    return scores
+
 def perform_bleu_score_on_ade20k():
     captions = get_ade20k_caption_annotations()
     caption_expert = get_eval_captioning_model()
@@ -148,4 +165,5 @@ def perform_bleu_score_on_ade20k():
 if __name__ == "__main__":
 
     #perform_bleu_score_on_ade20k()
-    perform_bleu_score_on_mscoco()
+    #perform_bleu_score_on_mscoco()
+    perform_bleu_score_on_mscoco_catr()

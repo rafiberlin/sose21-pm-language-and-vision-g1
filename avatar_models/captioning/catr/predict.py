@@ -5,6 +5,7 @@ from PIL import Image
 
 from avatar_models.captioning.catr.datasets import coco, utils
 from avatar_models.captioning.catr.configuration import Config
+from config.util import get_config
 import os
 
 """
@@ -39,15 +40,19 @@ else:
 """
 
 class CATRInference():
-    def __init__(self, image_path):
-        self.image_path = image_path
+    def __init__(self):
         self.config = Config()
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         self.max_length = self.config.max_position_embeddings
         self.start_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._cls_token)
         self.end_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._sep_token)
         self.model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
-
+        self.cuda_device = get_config()["captioning"]["catr"]["cuda_device"]
+        if type(self.cuda_device) is str and self.cuda_device.startswith("cuda"):
+            print("Use CATR Model with GPU", self.cuda_device)
+            self.model.cuda(self.cuda_device)
+        else:
+            print("Use CATR Model with CPU")
 
     def create_caption_and_mask(self):
 
@@ -62,14 +67,17 @@ class CATRInference():
         return self.caption_template, self.mask_template
 
     @torch.no_grad()
-    def infer(self):
+    def infer(self, image_path):
 
         image = Image.open(image_path)
         image = coco.val_transform(image)
         image = image.unsqueeze(0)
 
         caption, cap_mask = self.create_caption_and_mask()
-
+        if self.cuda_device.startswith("cuda"):
+            image = image.cuda(self.cuda_device)
+            caption = caption.cuda(self.cuda_device)
+            cap_mask = cap_mask.cuda(self.cuda_device)
         #model.eval()
         for i in range(self.config.max_position_embeddings - 1):
             predictions = self.model(image, caption, cap_mask)
@@ -87,8 +95,8 @@ class CATRInference():
 
 if __name__ == "__main__":
     image_path = "/home/rafi/_datasets/ADE20K/images/training/u/utility_room/ADE_train_00019432.jpg"
-    catr = CATRInference(image_path)
-    output = catr.infer()
+    catr = CATRInference()
+    output = catr.infer(image_path)
     result = catr.tokenizer.decode(output[0].tolist(), skip_special_tokens=True)
     #result = tokenizer.decode(output[0], skip_special_tokens=True)
     print(result.capitalize())

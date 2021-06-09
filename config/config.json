@@ -26,7 +26,7 @@
       "cuda_device" : "cpu"
     }
   },
-  "captioning": {
+  "captioning": { "attention": {
     "pretrained_dir": "captioning/attention/",
     "batch_size": 128,
     "vocab_size": 5000,
@@ -40,5 +40,9 @@
     "horizontal_flip": true,
     "pad_images": true,
     "tensorflow_gpu_name": "/physical_device:GPU:0"
+  },
+    "catr" : {
+      "cuda_device" : "cuda:0"
+    }
   }
 }

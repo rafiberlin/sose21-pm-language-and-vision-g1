@@ -15,7 +15,7 @@ def get_eval_captioning_model():
 
     conf = get_config()
 
-    captioning_conf = conf["captioning"]
+    captioning_conf = conf["captioning"]["attention"]
     tf_gpu = captioning_conf["tensorflow_gpu_name"]
     physical_devices = tf.config.list_physical_devices('GPU')
     print(physical_devices)

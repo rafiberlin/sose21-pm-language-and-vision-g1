@@ -1,5 +1,6 @@
 from avatar.game_avatar import Avatar
 from avatar_models.captioning.evaluate import get_eval_captioning_model
+from avatar_models.captioning.catr.predict import CATRInference
 from avatar_models.vqa.lxmert.lxmert import LXMERTInference
 import tensorflow as tf
 from config.util import get_config
@@ -39,7 +40,8 @@ class LXMERTAvatar(Avatar):
     def __init__(self, image_directory):
         self.image_directory = image_directory
         self.observation = None
-        self.caption_expert = get_eval_captioning_model()
+        #self.caption_expert = get_eval_captioning_model()
+        self.caption_expert = CATRInference()
         #self.vqa_expert = get_eval_vqa_model()
         self.vqa_expert = LXMERTInference()
         conf = get_config()
@@ -77,7 +79,7 @@ class LXMERTAvatar(Avatar):
 
         if message.startswith("describe"):
             if self.observation:
-                caption, _ = self.caption_expert(image_path)
+                caption, _ = self.caption_expert.infer(image_path)
                 debug_msg = ""
                 if self.debug:
                     debug_msg = f'("+ {image_url}+")'

@@ -63,6 +63,7 @@ class LXMERTInference():
         self.lxmert_tokenizer = LxmertTokenizer.from_pretrained("unc-nlp/lxmert-base-uncased")
 
     # run frcnn
+    @torch.no_grad()
     def infer(self, URL, test_question ):
         # URL = "https://raw.githubusercontent.com/airsplay/py-bottom-up-attention/master/demo/data/images/input.jpg",
         # URL = "https://vqa.cloudcv.org/media/test2014/COCO_test2014_000000262567.jpg"

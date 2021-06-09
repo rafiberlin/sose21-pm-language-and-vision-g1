@@ -16,13 +16,13 @@ def get_config():
         print("Created directory:", conf["glove_embeddings"])
 
 
-    conf["captioning"]["pretrained_dir"] = os.path.join(pretrained_root,
-                                            conf["captioning"]["pretrained_dir"])
+    conf["captioning"]["attention"]["pretrained_dir"] = os.path.join(pretrained_root,
+                                            conf["captioning"]["attention"]["pretrained_dir"])
 
     conf["vqa"]["attention"]["pretrained_dir"] = os.path.join(pretrained_root,
                                             conf["vqa"]["attention"]["pretrained_dir"])
 
-    captioning_pretrained_dir = conf["captioning"]["pretrained_dir"]
+    captioning_pretrained_dir = conf["captioning"]["attention"]["pretrained_dir"]
     vqa_pretrained_dir = conf["vqa"]["attention"]["pretrained_dir"]
 
     if not os.path.exists(captioning_pretrained_dir):

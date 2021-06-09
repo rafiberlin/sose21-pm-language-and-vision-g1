@@ -1,6 +1,6 @@
 from avatar.game_avatar import Avatar
-from models.captioning.evaluate import get_eval_captioning_model
-from models.vqa.lxmert.lxmert import LXMERTInference
+from avatar_models.captioning.evaluate import get_eval_captioning_model
+from avatar_models.vqa.lxmert.lxmert import LXMERTInference
 import tensorflow as tf
 from config.util import get_config
 

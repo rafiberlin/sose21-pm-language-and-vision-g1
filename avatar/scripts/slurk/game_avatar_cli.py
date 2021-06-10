@@ -13,11 +13,12 @@ import socketIO_client
 
 
 #from avatar.game_avatar_custom import CustomAvatar
-from avatar.game_avatar_lxmert_attention import LXMERTAttentionAvatar
-from avatar.game_avatar_lxmert_catr import LXMERTCATRAvatar
+from avatar_models.captioning.evaluate import CaptionWithAttention
+from avatar.game_avatar_custom import CustomAvatar
 from avatar.game_avatar import SimpleAvatar
 from avatar.game_avatar_slurk import AvatarBot
-
+from avatar_models.captioning.catr.predict import CATRInference
+from avatar_models.vqa.lxmert.lxmert import LXMERTInference
 
 def build_url(host, context=None, port=None, base_url=None, auth=None):
     uri = "http://"
@@ -61,9 +62,10 @@ def start_and_wait(token, slurk_host, slurk_context, slurk_port, image_directory
     socket_url = build_url(slurk_host, slurk_context)
     sio = socketIO_client.SocketIO(socket_url, slurk_port, headers=custom_headers, Namespace=AvatarBot)
     # NOTE: YOU SHOULD REFERENCE YOUR MODEL HERE
-    # CATR is not better than our own captioning for the moment
-    # avatar_model = LXMERTCATRAvatar(image_directory)
-    avatar_model = LXMERTAttentionAvatar(image_directory)
+    # caption_expert = CaptionWithAttention()
+    vqa_expert = LXMERTInference()
+    caption_expert  = CATRInference()
+    avatar_model = CustomAvatar(image_directory, caption_expert, vqa_expert)
     #avatar_model = Avatar(image_directory)
     sio.get_namespace().set_agent(avatar_model)
     sio.wait()

@@ -10,76 +10,78 @@ import avatar_models.utils.util as util
 from avatar_models.model import RNN_Decoder, CNN_Encoder
 from config.util import get_config
 
-def get_eval_captioning_model():
-    # Choose the top 5000 words from the vocabulary
+class CaptionWithAttention():
 
-    conf = get_config()
+    def __init__(self):
+        # Choose the top 5000 words from the vocabulary
 
-    captioning_conf = conf["captioning"]["attention"]
-    tf_gpu = captioning_conf["tensorflow_gpu_name"]
-    physical_devices = tf.config.list_physical_devices('GPU')
-    print(physical_devices)
-    if type(tf_gpu) is str and tf_gpu.startswith("/physical_device:GPU:"):
-        tf.config.set_visible_devices([ d for d in physical_devices if d[0] == tf_gpu], 'GPU')
-        print("Tensorflow GPU Name Supported", tf_gpu)
-    else:
-        tf.config.set_visible_devices([], 'GPU')
-        print("No GPU Support for Tensorflow")
+        conf = get_config()
 
-    VOCAB_SIZE = captioning_conf["vocab_size"]
-    EMBEDDING_DIM = captioning_conf["embedding_dim"]
-    PRETRAINED_DIR = captioning_conf["pretrained_dir"]
-    BEAM_SIZE = captioning_conf["beam_size"]
-    PAD_IMAGES = captioning_conf["pad_images"]
+        captioning_conf = conf["captioning"]["attention"]
+        tf_gpu = captioning_conf["tensorflow_gpu_name"]
+        physical_devices = tf.config.list_physical_devices('GPU')
+        print(physical_devices)
+        if type(tf_gpu) is str and tf_gpu.startswith("/physical_device:GPU:"):
+            tf.config.set_visible_devices([ d for d in physical_devices if d[0] == tf_gpu], 'GPU')
+            print("Tensorflow GPU Name Supported", tf_gpu)
+        else:
+            tf.config.set_visible_devices([], 'GPU')
+            print("No GPU Support for Tensorflow")
 
-    serialized_tokenizer = os.path.join(PRETRAINED_DIR,
-                                        "tokenizer.pickle")
-    with open(serialized_tokenizer, 'rb') as handle:
-        tokenizer = pickle.load(handle)
-        max_length = tokenizer.max_length
+        VOCAB_SIZE = captioning_conf["vocab_size"]
+        EMBEDDING_DIM = captioning_conf["embedding_dim"]
+        PRETRAINED_DIR = captioning_conf["pretrained_dir"]
+        self.BEAM_SIZE = captioning_conf["beam_size"]
+        self.PAD_IMAGES = captioning_conf["pad_images"]
 
-    units = EMBEDDING_DIM*2
-    vocab_size = VOCAB_SIZE + 1
+        serialized_tokenizer = os.path.join(PRETRAINED_DIR,
+                                            "tokenizer.pickle")
+        with open(serialized_tokenizer, 'rb') as handle:
+            self.tokenizer = pickle.load(handle)
+            self.max_length = self.tokenizer.max_length
 
-    encoder = CNN_Encoder(EMBEDDING_DIM)
-    decoder = RNN_Decoder(EMBEDDING_DIM, units, vocab_size)
+        units = EMBEDDING_DIM*2
+        vocab_size = VOCAB_SIZE + 1
 
-    optimizer = tf.keras.optimizers.Adam()
+        self.encoder = CNN_Encoder(EMBEDDING_DIM)
+        self.decoder = RNN_Decoder(EMBEDDING_DIM, units, vocab_size)
 
-    # checkpoint_path = "./checkpoints/train"
+        optimizer = tf.keras.optimizers.Adam()
 
-    checkpoint_path = os.path.join(PRETRAINED_DIR, "checkpoints")
-    ckpt = tf.train.Checkpoint(encoder=encoder,
-                               decoder=decoder,
-                               optimizer=optimizer)
-    ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=5)
+        # checkpoint_path = "./checkpoints/train"
 
-    if ckpt_manager.latest_checkpoint:
-        # restoring the latest checkpoint in checkpoint_path
-        ckpt.restore(ckpt_manager.latest_checkpoint).expect_partial()
-        print("Restore :", ckpt_manager.latest_checkpoint)
-    else:
-        print("WARNING : no model loaded!")
-    image_features_extract_model = util.get_image_feature_extractor()
+        checkpoint_path = os.path.join(PRETRAINED_DIR, "checkpoints")
+        ckpt = tf.train.Checkpoint(encoder=self.encoder,
+                                   decoder=self.decoder,
+                                   optimizer=optimizer)
+        ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=5)
 
-    def evaluate(image):
+        if ckpt_manager.latest_checkpoint:
+            # restoring the latest checkpoint in checkpoint_path
+            ckpt.restore(ckpt_manager.latest_checkpoint).expect_partial()
+            print("Restore :", ckpt_manager.latest_checkpoint)
+        else:
+            print("WARNING : no model loaded!")
+        self.image_features_extract_model = util.get_image_feature_extractor()
 
-        beam_size = BEAM_SIZE
+    def infer(self, image):
 
-        hidden = decoder.reset_state(batch_size=beam_size)
-        if PAD_IMAGES:
+        beam_size = self.BEAM_SIZE
+
+        hidden = self.decoder.reset_state(batch_size=beam_size)
+        if self.PAD_IMAGES:
             temp_input = tf.expand_dims(util.load_image_with_pad(image)[0], 0)
         else:
             temp_input = tf.expand_dims(util.load_image(image)[0], 0)
-        img_tensor_val = image_features_extract_model(temp_input)
+        img_tensor_val = self.image_features_extract_model(temp_input)
         img_tensor_val = tf.stack([tf.reshape(img_tensor_val, (
             -1,
             img_tensor_val.shape[3])) for i in range(beam_size)])
 
-        features = encoder(img_tensor_val)
-        END_IDX = tokenizer.word_index['<end>']
-        start_tensor = tf.stack([[tokenizer.word_index['<start>']] for i in range(beam_size)])
-        predictions, hidden, _ = decoder(start_tensor,
+        features = self.encoder(img_tensor_val)
+        END_IDX = self.tokenizer.word_index['<end>']
+        start_tensor = tf.stack([[self.tokenizer.word_index['<start>']] for i in range(beam_size)])
+        predictions, hidden, _ = self.decoder(start_tensor,
                                          features,
                                          hidden)
         predictions = tf.nn.log_softmax(predictions)
@@ -88,7 +90,7 @@ def get_eval_captioning_model():
 
         input_list = [[candidate_indices[0][i]] for i in range(beam_size)]
         previous_predictions = tf.stack([[candidates_log_prob[0][i]] for i in range(beam_size)])
-        preds = {i: np.zeros(max_length, dtype=int) for i in range(beam_size)}
+        preds = {i: np.zeros(self.max_length, dtype=int) for i in range(beam_size)}
         for i in range(beam_size):
             preds[i][0] = candidate_indices[0][i]
 
@@ -96,9 +98,9 @@ def get_eval_captioning_model():
 
         candidates = []
 
-        for step in range(1, max_length):
+        for step in range(1, self.max_length):
 
-            predictions, hidden, _ = decoder(dec_input,
+            predictions, hidden, _ = self.decoder(dec_input,
                                              features,
                                              hidden)
 
@@ -156,9 +158,12 @@ def get_eval_captioning_model():
         else:
             result = preds[0]
 
-        result = [tokenizer.index_word[i] for i in result if i != 0]
-        # Returning None is ugly but it allows not to break the existing code...
-        return result, None
+        result = [self.tokenizer.index_word[i] for i in result if i != 0]
+        if result[-1] == "<end>":
+            result = result[:-1]
+
+        caption = ' '.join(result)
+        return caption
 
     # def evaluate(image):
     #     attention_features_shape = 64
@@ -198,15 +203,15 @@ def get_eval_captioning_model():
     #     print(result_id)
     #     return result, attention_plot
 
-    return evaluate
 
 
 # model to unpack at this level:
 # https://drive.google.com/file/d/1d2ZH7699DDStrJt5EOsFneT1XWGgcNRj/view?usp=sharing
 # at the same level as this scrip, you should see directory called checkpoints/
 if __name__ == "__main__":
-    model = get_eval_captioning_model()
 
+
+    model = CaptionWithAttention()
     image_url = 'https://tensorflow.org/images/surf.jpg'
     # image_url = 'http://localhost:8000/a/atrium/home/ADE_train_00001860.jpg'
     last_char_index = image_url.rfind("/")
@@ -218,6 +223,7 @@ if __name__ == "__main__":
         image_name = image_url[last_char_index + 1:]
         image_path = tf.keras.utils.get_file(image_name, origin=image_url)
 
-    result, _ = model(image_path)
+    result = model.infer(image_path)
 
-    print('Prediction Caption:', ' '.join(result))
+    print('Prediction Caption:', result)
+

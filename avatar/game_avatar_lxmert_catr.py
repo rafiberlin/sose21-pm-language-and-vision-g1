@@ -1,5 +1,4 @@
 from avatar.game_avatar import Avatar
-from avatar_models.captioning.evaluate import get_eval_captioning_model
 from avatar_models.captioning.catr.predict import CATRInference
 from avatar_models.vqa.lxmert.lxmert import LXMERTInference
 import tensorflow as tf

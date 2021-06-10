@@ -1,5 +1,5 @@
 from avatar.game_avatar import Avatar
-from avatar_models.captioning.evaluate import get_eval_captioning_model
+from avatar_models.captioning.evaluate import CaptionWithAttention
 from avatar_models.vqa.lxmert.lxmert import LXMERTInference
 import tensorflow as tf
 from config.util import get_config
@@ -39,7 +39,7 @@ class LXMERTAttentionAvatar(Avatar):
     def __init__(self, image_directory):
         self.image_directory = image_directory
         self.observation = None
-        self.caption_expert = get_eval_captioning_model()
+        self.caption_expert = CaptionWithAttention()
         #self.vqa_expert = get_eval_vqa_model()
         self.vqa_expert = LXMERTInference()
         conf = get_config()
@@ -52,6 +52,9 @@ class LXMERTAttentionAvatar(Avatar):
         actions = dict()
         if observation["image"]:
             self.__update_observation(observation)
+            actions["response"] = self.__get_caption_expert_answer(observation)
+
+
         if observation["message"]:
             self.__update_actions(actions, observation["message"])
         return actions
@@ -67,21 +70,15 @@ class LXMERTAttentionAvatar(Avatar):
 
     def __generate_response(self, message: str) -> str:
         message = message.lower()
-        image_path = None
+        image_path= None
         image_url = None
         if self.observation:
-            image_url = self.ADE20K_URL + self.observation["image"]
-            last_char_index = image_url.rfind("/")
-            image_name = image_url[last_char_index + 1:]
-            image_path = tf.keras.utils.get_file(image_name, origin=image_url)
+            image_path, image_url = self.__get_image_path_and_url(self.observation)
 
         if message.startswith("describe"):
             if self.observation:
-                caption, _ = self.caption_expert(image_path)
-                debug_msg = ""
-                if self.debug:
-                    debug_msg = f'("+ {image_url}+")'
-                return f"I see {debug_msg}: " + ' '.join(caption[:-1])
+                caption = self.caption_expert.infer(image_path)
+                return self.__format_caption_answer(caption, image_url)
 
             else:
                 return "I dont know"
@@ -112,6 +109,28 @@ class LXMERTAttentionAvatar(Avatar):
         if "south" in message:
             return "s"
         return "nowhere"
+    def __get_image_path_and_url(self, observation):
+        image_path = None
+        image_url = None
+        if observation["image"]:
+            if self.observation:
+                image_url = self.ADE20K_URL + self.observation["image"]
+                last_char_index = image_url.rfind("/")
+                image_name = image_url[last_char_index + 1:]
+                image_path = tf.keras.utils.get_file(image_name, origin=image_url)
+        return image_path, image_url
+
+    def __get_caption_expert_answer(self, observation):
+        image_path, image_url = self.__get_image_path_and_url(observation)
+
+        caption = self.caption_expert.infer(image_path)
+        return self.__format_caption_answer(caption, image_url)
+
+    def __format_caption_answer(self, caption, image_url):
+        debug_msg = ""
+        if self.debug:
+            debug_msg = f'("+ {image_url}+")'
+        return f"I see {debug_msg}: " + caption
 
 if __name__ == "__main__":
     #URL = "https://vignette.wikia.nocookie.net/spongebob/images/2/20/SpongeBob's_pineapple_house_in_Season_7-4.png/revision/latest/scale-to-width-down/639?cb=20151213202515"

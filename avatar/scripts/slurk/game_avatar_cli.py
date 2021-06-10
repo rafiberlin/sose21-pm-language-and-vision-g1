@@ -61,8 +61,6 @@ def start_and_wait(token, slurk_host, slurk_context, slurk_port, image_directory
     socket_url = build_url(slurk_host, slurk_context)
     sio = socketIO_client.SocketIO(socket_url, slurk_port, headers=custom_headers, Namespace=AvatarBot)
     # NOTE: YOU SHOULD REFERENCE YOUR MODEL HERE
-    #avatar_model = SimpleAvatar(image_directory)
-    #avatar_model = CustomAvatar(image_directory)
     # CATR is not better than our own captioning for the moment
     # avatar_model = LXMERTCATRAvatar(image_directory)
     avatar_model = LXMERTAttentionAvatar(image_directory)

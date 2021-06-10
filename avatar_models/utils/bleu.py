@@ -124,7 +124,7 @@ def perform_bleu_score_on_mscoco_attention(data_type="val2017", shuffle=False, i
 
 def perform_bleu_score_on_mscoco_catr(data_type="val2017", shuffle=False, image_number=None):
     """
-    This model includes punctuation, so fine with the references
+    Removing punctuation on both prediction and references to compare it to other models
     :param data_type:
     :param shuffle:
     :param image_number:
@@ -135,11 +135,12 @@ def perform_bleu_score_on_mscoco_catr(data_type="val2017", shuffle=False, image_
     caption_expert = CATRInference()
     references = {}
     hypothesis = {}
+    punctuation_filter = '!"#$%&()*+.,-/:;=?@[\]^_`{|}~ '
 
     for image_path in tqdm(captions):
         predicted_caption = caption_expert.infer(image_path)
-
-        references[image_path]= captions[image_path]
+        predicted_caption = " ".join(text_to_word_sequence(predicted_caption, filters=punctuation_filter))
+        references[image_path]= [" ".join(text_to_word_sequence(c, filters=punctuation_filter)) for c in captions[image_path]]
         hypothesis[image_path] = [predicted_caption]
     scores = calc_scores(references, hypothesis)
     print("MS COCO", scores)
@@ -172,5 +173,5 @@ if __name__ == "__main__":
 
     #perform_bleu_score_on_ade20k()
     #perform_bleu_score_on_mscoco()
-    perform_bleu_score_on_mscoco_attention()
+    #perform_bleu_score_on_mscoco_attention()
     perform_bleu_score_on_mscoco_catr()

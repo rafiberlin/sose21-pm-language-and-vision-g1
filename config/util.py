@@ -120,9 +120,26 @@ def read_game_logs(file_path):
     else:
         raise (f"{file_path} is not a correct file path.")
 
+def output_game_metrics(log):
+
+    num_game = len(log)
+    s = 0
+    sq = 0
+    for k in log.keys():
+        sq = sq + log[k]["score"] + log[k]["num_questions"]*-0.01
+        s = s + log[k]["score"]
+
+    print("Average Score", s/num_game)
+    print("Best Game under normal Score", log[max(log.keys(), key=lambda k: log[k]["score"])]["score"], "Game Number", max(log.keys(), key=lambda k: log[k]["score"]))
+    print("Worse Game under normal Score", log[min(log.keys(), key=lambda k: log[k]["score"])]["score"], "Game Number", min(log.keys(), key=lambda k: log[k]["score"]))
+    print("Average Score with questions discount", sq / num_game)
+    print("Best Game under Question Discounted Score", log[max(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1)]["score"], "Game number", max(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1))
+    print("Worse Game under Question Discounted Score", log[min(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1)]["score"], "Game Number", min(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1))
+
+    return (s, sq)
 
 if __name__ == "__main__":
     game_logs_dir = get_config()["game_logs_dir"]
     log_path = os.path.join(game_logs_dir, "rafi_10_games_04_jun_21.txt")
     log = read_game_logs(log_path)
-    print(log)
+    output_game_metrics(log)

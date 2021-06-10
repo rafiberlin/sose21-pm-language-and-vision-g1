@@ -34,7 +34,7 @@ def directions_to_sent(directions: str):
     words = [direction_to_word(d) for d in directions]
     return ", ".join(words[:-1]) + " or " + words[-1]
 
-class LXMERTAvatar(Avatar):
+class LXMERTCATRAvatar(Avatar):
 #        The simple avatar is only repeating the observations.
 
     def __init__(self, image_directory):
@@ -79,11 +79,11 @@ class LXMERTAvatar(Avatar):
 
         if message.startswith("describe"):
             if self.observation:
-                caption, _ = self.caption_expert.infer(image_path)
+                caption = self.caption_expert.infer(image_path)
                 debug_msg = ""
                 if self.debug:
                     debug_msg = f'("+ {image_url}+")'
-                return f"I see {debug_msg}: " + ' '.join(caption[:-1])
+                return f"I see {debug_msg}: {caption}"
 
             else:
                 return "I dont know"

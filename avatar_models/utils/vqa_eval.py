@@ -72,6 +72,6 @@ if __name__ == "__main__":
     #Naive VQA implementation
     #vqa = get_eval_vqa_model()
     vqa = LXMERTInference()
-    run_ade20k_vqa_metrics(vqa, 2000)
+    #run_ade20k_vqa_metrics(vqa, 2000)
     run_official_vqa_metrics(vqa)
 

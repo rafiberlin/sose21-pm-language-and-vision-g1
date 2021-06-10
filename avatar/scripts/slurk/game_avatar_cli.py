@@ -13,7 +13,8 @@ import socketIO_client
 
 
 #from avatar.game_avatar_custom import CustomAvatar
-from avatar.game_avatar_lxmert import LXMERTAvatar
+from avatar.game_avatar_lxmert_attention import LXMERTAttentionAvatar
+from avatar.game_avatar_lxmert_catr import LXMERTCATRAvatar
 from avatar.game_avatar import SimpleAvatar
 from avatar.game_avatar_slurk import AvatarBot
 
@@ -62,7 +63,9 @@ def start_and_wait(token, slurk_host, slurk_context, slurk_port, image_directory
     # NOTE: YOU SHOULD REFERENCE YOUR MODEL HERE
     #avatar_model = SimpleAvatar(image_directory)
     #avatar_model = CustomAvatar(image_directory)
-    avatar_model = LXMERTAvatar(image_directory)
+    # CATR is not better than our own captioning for the moment
+    # avatar_model = LXMERTCATRAvatar(image_directory)
+    avatar_model = LXMERTAttentionAvatar(image_directory)
     #avatar_model = Avatar(image_directory)
     sio.get_namespace().set_agent(avatar_model)
     sio.wait()

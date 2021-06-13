@@ -27,7 +27,9 @@ def get_ade20k_caption_annotations():
     sequences_df = pd.read_csv(sequences_file, sep="\t",header=0)
     sequences_fram = sequences_df[["image_id", "image_path"]]
     captions_df = pd.merge(captions_df, sequences_fram, how='inner', left_on=['image_id'], right_on=['image_id'])
-    captions_df.image_path = captions_df.image_path.map(lambda a: os.path.join(ade20k_dir, "images",a ))
+    captions_df.image_path = captions_df.image_path.map(lambda a: os.path.join( "file://" , ade20k_dir, "images",a ))
+    captions_df.caption = captions_df.caption.map(lambda a: "")
+    captions_df.drop(["Unnamed: 0"], axis=1)
     return captions_df
 
 
@@ -169,9 +171,38 @@ def perform_bleu_score_on_ade20k():
     print("ADE20k", scores)
     return scores
 
+def create_ade20k_caption_annotations_empty(path, server_name="clp-pmvss21-1", user_name="alatif"):
+    """
+    Create a list of ADE20K captions to annotate (from https://github.com/clp-research/image-description-sequences)
+    Login to Jarvis before starting with annotations
+    :param path:
+    :param server_name:
+    :param user_name:
+    :return:
+    """
+    conf = get_config()
+
+    image_root = f"https://jarvis.ling.uni-potsdam.de/{server_name}/jupyter/user/{user_name}/view/data/ImageCorpora/ADE20K_2016_07_26/images"
+
+
+    #ade20k_dir = conf["ade20k_dir"]
+    ade20k_caption_dir = conf["ade20k_caption_dir"]
+    captions_file = os.path.join(ade20k_caption_dir, "captions.csv")
+    sequences_file = os.path.join(ade20k_caption_dir, "sequences.csv")
+    captions_df = pd.read_csv(captions_file, sep="\t",header=0)
+    sequences_df = pd.read_csv(sequences_file, sep="\t",header=0)
+    sequences_fram = sequences_df[["image_id", "image_path"]]
+    captions_df = pd.merge(captions_df, sequences_fram, how='inner', left_on=['image_id'], right_on=['image_id'])
+    captions_df["url"] = captions_df.image_path.map(lambda a: f'=HYPERLINK("{os.path.join(image_root, a )}")')
+    captions_df.caption = captions_df.caption.map(lambda a: "")
+    captions_df = captions_df.drop(["Unnamed: 0"], axis=1)
+    captions_df.to_csv(path, index=False)
+    return captions_df
+
 if __name__ == "__main__":
 
     #perform_bleu_score_on_ade20k()
     #perform_bleu_score_on_mscoco()
     #perform_bleu_score_on_mscoco_attention()
     perform_bleu_score_on_mscoco_catr()
+    # cap = create_ade20k_caption_annotations_empty("/home/rafi/captions_to_annotate.csv")

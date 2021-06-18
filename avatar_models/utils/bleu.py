@@ -199,10 +199,34 @@ def create_ade20k_caption_annotations_empty(path, server_name="clp-pmvss21-1", u
     captions_df.to_csv(path, index=False)
     return captions_df
 
+def merge_annotations(path, outpath, start_id=411):
+    """
+    Create a list of ADE20K captions to annotate (from https://github.com/clp-research/image-description-sequences)
+    Login to Jarvis before starting with annotations
+    :param path:
+    :param server_name:
+    :param user_name:
+    :return:
+    """
+    conf = get_config()
+
+
+    #ade20k_dir = conf["ade20k_dir"]
+    ade20k_caption_dir = conf["ade20k_caption_dir"]
+    captions_file = os.path.join(ade20k_caption_dir, "captions.csv")
+    captions_df = pd.read_csv(captions_file, sep="\t",header=0)
+    captions_new = pd.read_csv(path, sep=",", header=0)
+    captions_new["caption_id"] = captions_new["caption_id"] + start_id
+    captions_df = captions_df.drop(["Unnamed: 0"], axis=1)
+    merged = pd.concat([captions_df, captions_new[["caption_id", "image_id", "caption"]]])
+    merged.reset_index(drop=True, inplace=True)
+    merged.to_csv(outpath, sep="\t")
+    return captions_df
+
 if __name__ == "__main__":
 
     #perform_bleu_score_on_ade20k()
     #perform_bleu_score_on_mscoco()
     #perform_bleu_score_on_mscoco_attention()
     perform_bleu_score_on_mscoco_catr()
-    # cap = create_ade20k_caption_annotations_empty("/home/rafi/captions_to_annotate.csv")
+    # cap = merge_annotations("/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/annotations/captions_fully_annotated.csv", "/home/rafi/merged.csv")

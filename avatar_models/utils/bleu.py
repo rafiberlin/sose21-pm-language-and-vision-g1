@@ -28,10 +28,19 @@ def get_ade20k_caption_annotations():
     sequences_fram = sequences_df[["image_id", "image_path"]]
     captions_df = pd.merge(captions_df, sequences_fram, how='inner', left_on=['image_id'], right_on=['image_id'])
     captions_df.image_path = captions_df.image_path.map(lambda a: os.path.join( "file://" , ade20k_dir, "images",a ))
-    captions_df.caption = captions_df.caption.map(lambda a: "")
     captions_df.drop(["Unnamed: 0"], axis=1)
-    return captions_df
 
+    captions_list = [{"image_id": row["image_id"], "id": row["caption_id"], "caption": row["caption"], "image_path": row["image_path"]} for i, row in captions_df.iterrows()]
+    #{ id: list(captions_df[captions_df["image_id"] == id ]["caption"]) for id in ids  }
+
+    # Group all captions together having the same image ID.
+    image_path_to_caption = collections.defaultdict(list)
+    for val in captions_list:
+        caption = val['caption']
+        image_path = val["image_path"]
+        image_path_to_caption[image_path].append(caption)
+
+    return image_path_to_caption
 
 
 def calc_scores(ref, hypo):
@@ -124,15 +133,13 @@ def perform_bleu_score_on_mscoco_attention(data_type="val2017", shuffle=False, i
     print("MS COCO", scores)
     return scores
 
-def perform_bleu_score_on_mscoco_catr(data_type="val2017", shuffle=False, image_number=None):
+def perform_bleu_score_catr(captions, num_ref=5):
     """
-    Removing punctuation on both prediction and references to compare it to other models
-    :param data_type:
-    :param shuffle:
-    :param image_number:
+    Do not forget to remove the punctuation.
+    :param captions: a dictionary with keys being the path to the images and the value being a list of captions
+    :param num_ref: the number of references to use in the scoring function
     :return:
     """
-    captions  = get_ms_coco_captions(data_type=data_type, shuffle=shuffle, image_number=image_number)
 
     caption_expert = CATRInference()
     references = {}
@@ -142,7 +149,10 @@ def perform_bleu_score_on_mscoco_catr(data_type="val2017", shuffle=False, image_
     for image_path in tqdm(captions):
         predicted_caption = caption_expert.infer(image_path)
         predicted_caption = " ".join(text_to_word_sequence(predicted_caption, filters=punctuation_filter))
-        references[image_path]= [" ".join(text_to_word_sequence(c, filters=punctuation_filter)) for c in captions[image_path]]
+        refs = [" ".join(text_to_word_sequence(c, filters=punctuation_filter)) for c in captions[image_path]]
+        if len(refs) >= num_ref:
+            refs = refs[:num_ref]
+        references[image_path] = refs
         hypothesis[image_path] = [predicted_caption]
     scores = calc_scores(references, hypothesis)
     print("MS COCO", scores)
@@ -225,8 +235,15 @@ def merge_annotations(path, outpath, start_id=411):
 
 if __name__ == "__main__":
 
-    #perform_bleu_score_on_ade20k()
+    #get_ms_coco_captions()
+    # perform_bleu_score_on_ade20k()
     #perform_bleu_score_on_mscoco()
     #perform_bleu_score_on_mscoco_attention()
-    perform_bleu_score_on_mscoco_catr()
+    captions_coco = get_ms_coco_captions()
+    print("Performing the BLEU score with all references on COCO")
+    #perform_bleu_score_catr(captions_coco)
+    print("Performing the BLEU score with only 2 references on COCO")
+    perform_bleu_score_catr(captions_coco, 2)
+    captions_ade20k = get_ade20k_caption_annotations()
+    perform_bleu_score_catr(captions_ade20k)
     # cap = merge_annotations("/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/annotations/captions_fully_annotated.csv", "/home/rafi/merged.csv")

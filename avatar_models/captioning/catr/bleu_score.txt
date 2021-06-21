@@ -6,6 +6,14 @@ Use CATR Model with GPU cuda:0
 ratio: 1.0161188175447708
 MS COCO {'Bleu_1': 0.7270899513450335, 'Bleu_2': 0.5609297382602266, 'Bleu_3': 0.41931051233215355, 'Bleu_4': 0.3117035904333875}
 
+MSCOCO 2 captions
+
+Use CATR Model with GPU cuda:0
+100%|██████████| 5000/5000 [42:02<00:00,  1.98it/s]
+{'testlen': 49700, 'reflen': 49499, 'guess': [49700, 44700, 39700, 34700], 'correct': [28325, 12162, 5186, 2365]}
+ratio: 1.0040606880946887
+MS COCO {'Bleu_1': 0.5699195171026042, 'Bleu_2': 0.39378167581837686, 'Bleu_3': 0.27259486494334506, 'Bleu_4': 0.1927585587458179}
+
 ADE20K 2 captions:
 
 Use CATR Model with GPU cuda:0

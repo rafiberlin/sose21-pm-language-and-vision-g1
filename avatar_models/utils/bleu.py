@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from avatar_models.captioning.evaluate import CaptionWithAttention
 from pycocoevalcap.bleu.bleu import Bleu
+from pycocoevalcap.spice.spice import Spice
 from tqdm import tqdm
 import json
 import collections
@@ -52,7 +53,8 @@ def calc_scores(ref, hypo):
     :return: score, dictionary of BLEU scores
     """
     scorers = [
-        (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"])
+        (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
+        (Spice(), "SPICE")
     ]
     final_scores = {}
     for scorer, method in scorers:
@@ -240,9 +242,9 @@ if __name__ == "__main__":
     #perform_bleu_score_on_mscoco()
     #perform_bleu_score_on_mscoco_attention()
     captions_coco = get_ms_coco_captions()
-    print("Performing the BLEU score with all references on COCO")
+    #print("Performing the BLEU score with all references on COCO")
     #perform_bleu_score_catr(captions_coco)
-    print("Performing the BLEU score with only 2 references on COCO")
+    print("Performing the BLEU score and SPICE socore with only 2 references on COCO")
     perform_bleu_score_catr(captions_coco, 2)
     captions_ade20k = get_ade20k_caption_annotations()
     perform_bleu_score_catr(captions_ade20k)

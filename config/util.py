@@ -16,13 +16,13 @@ def get_config():
         print("Created directory:", conf["glove_embeddings"])
 
 
-    conf["captioning"]["pretrained_dir"] = os.path.join(pretrained_root,
-                                            conf["captioning"]["pretrained_dir"])
+    conf["captioning"]["attention"]["pretrained_dir"] = os.path.join(pretrained_root,
+                                            conf["captioning"]["attention"]["pretrained_dir"])
 
     conf["vqa"]["attention"]["pretrained_dir"] = os.path.join(pretrained_root,
                                             conf["vqa"]["attention"]["pretrained_dir"])
 
-    captioning_pretrained_dir = conf["captioning"]["pretrained_dir"]
+    captioning_pretrained_dir = conf["captioning"]["attention"]["pretrained_dir"]
     vqa_pretrained_dir = conf["vqa"]["attention"]["pretrained_dir"]
 
     if not os.path.exists(captioning_pretrained_dir):
@@ -40,6 +40,11 @@ def get_config():
     checkpoints_dir = os.path.join(vqa_pretrained_dir, "logs")
     create_directory_structure(checkpoints_dir)
 
+    if not os.path.exists(conf["game_logs_dir"]):
+        os.makedirs(conf["game_logs_dir"])
+        print("Created directory:", conf["game_logs_dir"])
+
+
     return conf
 
 def create_directory_structure(struct):
@@ -48,8 +53,93 @@ def create_directory_structure(struct):
         print("Created directory:", struct)
 
 
-if __name__ == "__main__":
+def read_game_logs(file_path):
+    """
+    It returns a dictionary where each key holds information for a particular (finished) game session.
+    General statistics about the game session are provided: score, the number of questions asked by the player,
+    the number of orders and whole messages during the game session
+    :param file_path:
+    :return:
+    """
 
-    #perform_bleu_score_on_ade20k()
-    c = get_config()
-    pass
+    if os.path.isfile(file_path):
+        with open(file_path, "r") as read_file:
+            log = json.load(read_file)
+        # event_type = set([e["event"] for e in log ])
+        # the event types: command, text_message, set_attribute, join
+        # print("event types", event_type)
+
+        # sort all messages chronologically
+        log.sort(key=lambda x: x["date_modified"])
+
+        start = None
+        end = None
+
+        episode_list = []
+        length = len(log)
+        game_finished = False
+        for i, l in enumerate(log):
+            if "command" in l.keys():
+                if  l["command"] == "start":
+                    if start == None:
+                        start = i
+                    elif end == None:
+                        end = i
+                if l["command"] == "done":
+                    game_finished = True
+            if start is not None and end is not None:
+                if game_finished:
+                    episode_list.append(log[start:end])
+                start = end
+                end = None
+                game_finished = False
+
+            if i + 1 == length:
+                if start is not None and end is None:
+                    episode_list.append(log[start:length])
+
+        score_list = {}
+        for i, e in enumerate(episode_list):
+            # the number of answers the avatar utters gives us the number of question asked
+            num_questions = sum(
+                [1 for m in e if m["user"]["name"] == "Avatar" and m["event"] == "text_message"])
+
+            # user id 1 is alway the game master, we are looping here on the messages of the "real" player
+            # when we tell the avatar to change location, we don't get an answer, this is why the substraction gives the number of orders
+            # this does not include the order "done"
+            num_orders = sum(
+                [1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
+                    "event"] == "text_message"]) - num_questions
+
+            score_list[i] = {"score": sum([m["message"]["observation"]["reward"] for m in e if
+                                                              "message" in m.keys() and type(m["message"]) is dict]),
+                             "num_questions": num_questions, "num_orders": num_orders, "game_session": e}
+
+        return score_list
+
+    else:
+        raise (f"{file_path} is not a correct file path.")
+
+def output_game_metrics(log):
+
+    num_game = len(log)
+    s = 0
+    sq = 0
+    for k in log.keys():
+        sq = sq + log[k]["score"] + log[k]["num_questions"]*-0.01
+        s = s + log[k]["score"]
+
+    print("Average Score", s/num_game)
+    print("Best Game under normal Score", log[max(log.keys(), key=lambda k: log[k]["score"])]["score"], "Game Number", max(log.keys(), key=lambda k: log[k]["score"]))
+    print("Worse Game under normal Score", log[min(log.keys(), key=lambda k: log[k]["score"])]["score"], "Game Number", min(log.keys(), key=lambda k: log[k]["score"]))
+    print("Average Score with questions discount", sq / num_game)
+    print("Best Game under Question Discounted Score", log[max(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1)]["score"], "Game number", max(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1))
+    print("Worse Game under Question Discounted Score", log[min(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1)]["score"], "Game Number", min(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1))
+
+    return (s, sq)
+
+if __name__ == "__main__":
+    game_logs_dir = get_config()["game_logs_dir"]
+    log_path = os.path.join(game_logs_dir, "rafi_10_games_04_jun_21.txt")
+    log = read_game_logs(log_path)
+    output_game_metrics(log)

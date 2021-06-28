@@ -5,13 +5,14 @@
     "debug": false
   },
 
-  "ms_coco_dir" : "/home/rafi/_datasets/MSCOCO/",
-  "vqa_dir" : "/home/rafi/_datasets/VQA/",
-  "ade20k_dir" : "/home/rafi/_datasets/ADE20K/",
+  "ms_coco_dir" : "/home/users/acordova/data/ImageCorpora/MSCOCO/",
+  "vqa_dir" : "/home/users/acordova/data/ImageCorpora/VQA/",
+  "ade20k_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/",
   "ade20k_vqa_file" : "ade20k_vqa.jsonl",
-  "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/",
-  "pretrained_root" : "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/pretrained/",
+  "ade20k_caption_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/image-description-sequences/data/",
+  "pretrained_root" : "/home/users/acordova/project/sose21-pm-language-and-vision-g1/pretrained/",
   "glove_embeddings" : "gloves/glove.6B.300d.txt",
+  "game_logs_dir":  "/home/users/acordova/project/sose21-pm-language-and-vision-g1/data/game_logs/",
   "vqa" : {
     "attention" : {
       "pretrained_dir": "vqa/attention/",
@@ -25,8 +26,7 @@
       "cuda_device" : "cpu"
     }
   },
-
-  "captioning": {
+  "captioning": { "attention": {
     "pretrained_dir": "captioning/attention/",
     "batch_size": 128,
     "vocab_size": 5000,
@@ -38,6 +38,12 @@
     "clip": 0.0005,
     "beam_size": 3,
     "horizontal_flip": true,
-    "pad_images": true
+    "pad_images": true,
+    "tensorflow_gpu_name": "/physical_device:GPU:0"
+  },
+    "catr" : {
+      "cuda_device" : "cuda:0",
+      "beam_size": 3
+    }
   }
 }

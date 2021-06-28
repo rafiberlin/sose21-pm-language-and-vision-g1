@@ -16,18 +16,26 @@ class Caption(nn.Module):
         self.transformer = transformer
         self.mlp = MLP(hidden_dim, 512, vocab_size, 3)
 
-    def forward(self, samples, target, target_mask):
+    def init_sample(self, samples):
         if not isinstance(samples, NestedTensor):
             samples = nested_tensor_from_tensor_list(samples)
-
         features, pos = self.backbone(samples)
         src, mask = features[-1].decompose()
 
+        return src, mask, pos
+
+    def infer(self, src, mask, pos, target, target_mask):
         assert mask is not None
 
         hs = self.transformer(self.input_proj(src), mask,
                               pos[-1], target, target_mask)
         out = self.mlp(hs.permute(1, 0, 2))
+        return out
+
+    def forward(self, samples, target, target_mask):
+        src, mask, pos = self.init_sample(samples)
+
+        out = self.infer(src, mask, pos, target, target_mask)
         return out
 
 

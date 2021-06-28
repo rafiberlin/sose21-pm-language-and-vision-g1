@@ -135,7 +135,7 @@ def perform_bleu_score_on_mscoco_attention(data_type="val2017", shuffle=False, i
     print("MS COCO", scores)
     return scores
 
-def perform_bleu_score_catr(captions, num_ref=5):
+def perform_bleu_score(captions, caption_expert, num_ref=5, punctuation_filter='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ '):
     """
     Do not forget to remove the punctuation.
     :param captions: a dictionary with keys being the path to the images and the value being a list of captions
@@ -143,10 +143,8 @@ def perform_bleu_score_catr(captions, num_ref=5):
     :return:
     """
 
-    caption_expert = CATRInference()
     references = {}
     hypothesis = {}
-    punctuation_filter = '!"#$%&()*+.,-/:;=?@[\]^_`{|}~ '
 
     for image_path in tqdm(captions):
         predicted_caption = caption_expert.infer(image_path)
@@ -237,15 +235,39 @@ def merge_annotations(path, outpath, start_id=411):
 
 if __name__ == "__main__":
 
-    #get_ms_coco_captions()
-    # perform_bleu_score_on_ade20k()
-    #perform_bleu_score_on_mscoco()
-    #perform_bleu_score_on_mscoco_attention()
+
+    caption_expert_attention = CaptionWithAttention()
+
+    conf = get_config()
+    captioning_conf = conf["captioning"]["attention"]
+    PRETRAINED_DIR = captioning_conf["pretrained_dir"]
+
+    serialized_tokenizer = os.path.join(PRETRAINED_DIR,
+                                        "tokenizer.pickle")
+
+    with open(serialized_tokenizer, 'rb') as handle:
+        tokenizer = pickle.load(handle)
+
+    caption_expert = CATRInference()
     captions_coco = get_ms_coco_captions()
-    #print("Performing the BLEU score with all references on COCO")
-    #perform_bleu_score_catr(captions_coco)
-    print("Performing the BLEU score and SPICE socore with only 2 references on COCO")
-    perform_bleu_score_catr(captions_coco, 2)
+    num_ref = 2
+    msg = f"Performing the BLEU score and SPICE score with only {num_ref} references on MSCOCO."
+    msg2 = "Performing the BLEU score and SPICE score on ADE20K"
+    print("Attention Captioning", "Performing the BLEU score and SPICE score on MSCOCO")
+    perform_bleu_score(captions_coco, caption_expert_attention)
+
+    print( "Attention Captioning", msg)
+    perform_bleu_score(captions_coco, caption_expert_attention, num_ref, tokenizer.filters)
     captions_ade20k = get_ade20k_caption_annotations()
-    perform_bleu_score_catr(captions_ade20k)
+    print("Attention Captioning", msg2)
+    perform_bleu_score(captions_ade20k, caption_expert_attention, num_ref, tokenizer.filters)
+
+    print("CATR Captioning", "Performing the BLEU score and SPICE score on MSCOCO")
+    perform_bleu_score(captions_coco, caption_expert)
+
+    print( "CATR Captioning", msg)
+    perform_bleu_score(captions_coco, caption_expert, num_ref)
+    captions_ade20k = get_ade20k_caption_annotations()
+    print("CATR Captioning", msg2)
+    perform_bleu_score(captions_ade20k, caption_expert, num_ref)
     # cap = merge_annotations("/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/annotations/captions_fully_annotated.csv", "/home/rafi/merged.csv")

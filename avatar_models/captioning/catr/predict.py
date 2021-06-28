@@ -200,7 +200,9 @@ class CATRInference():
 
 
 if __name__ == "__main__":
-    image_path = "/home/rafi/_datasets/ADE20K/images/training/u/utility_room/ADE_train_00019432.jpg"
+
+    ade20k = get_config()["ade20k_dir"]
+    image_path = os.path.join(ade20k, "images/training/u/utility_room/ADE_train_00019432.jpg")
     catr = CATRInference()
     output = catr.infer(image_path)
     #result = catr.tokenizer.decode(output[0].tolist(), skip_special_tokens=True)

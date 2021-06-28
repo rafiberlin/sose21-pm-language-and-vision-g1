@@ -8,7 +8,7 @@ import numpy as np
 import os
 import models.utils.util as util
 from models.model import RNN_Decoder, CNN_Encoder
-from models.utils.util import get_config
+from config.util import get_config
 
 def get_eval_captioning_model():
     # Choose the top 5000 words from the vocabulary

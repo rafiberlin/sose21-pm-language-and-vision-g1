@@ -10,10 +10,11 @@
   "ade20k_dir" : "/home/rafi/_datasets/ADE20K/",
   "ade20k_vqa_file" : "ade20k_vqa.jsonl",
   "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/",
-  "glove_embeddings" : "pretrained/gloves/glove.6B.300d.txt",
+  "pretrained_root" : "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/pretrained/",
+  "glove_embeddings" : "gloves/glove.6B.300d.txt",
   "vqa" : {
     "attention" : {
-      "pretrained_dir": "pretrained/vqa/attention/",
+      "pretrained_dir": "vqa/attention/",
       "vqa_top_answers" : 2000,
       "vqa_cache_images" : true
     }
@@ -26,7 +27,7 @@
   },
 
   "captioning": {
-    "pretrained_dir": "pretrained/captioning/attention/",
+    "pretrained_dir": "captioning/attention/",
     "batch_size": 128,
     "vocab_size": 5000,
     "use_glove" : true,

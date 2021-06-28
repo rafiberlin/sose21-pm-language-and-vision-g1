@@ -6,7 +6,7 @@ from models.vqa.attention_vqa import build_co_attention_model
 import pickle
 import numpy as np
 from models.vqa.create_preprocessed_questions import preprocess_english, preprocess_english_add_tokens
-
+from config.util import get_config
 
 class TrainedVQA:
 
@@ -70,14 +70,17 @@ class TrainedVQA:
         return label
 
 def get_eval_vqa_model():
-    serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/tokenizer.pickle")
 
-    model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    conf_vqa  = get_config()["vqa"]["attention"]
+    pretrained_dir = conf_vqa["pretrained_dir"]
+    serialized_tokenizer = os.path.join(pretrained_dir,
+                                        "tokenizer.pickle")
+
+    model_path = os.path.join(pretrained_dir,
                  "checkpoints/attention_model_best.h5")
 
-    label_encoder_serialized =  os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "checkpoints/label_encoder.pickle")
+    label_encoder_serialized =  os.path.join(pretrained_dir,
+                                        "label_encoder.pickle")
 
     vqa = TrainedVQA(model_path, serialized_tokenizer, label_encoder_serialized)
 

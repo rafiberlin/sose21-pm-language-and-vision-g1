@@ -38,12 +38,12 @@ must be changed accordingly.
 
 ### Training
 
-In the configuration file ./config.json, the key "captioning" contains all relevant parameters for training 
+In the configuration file ./config/config.json, the key "captioning" contains all relevant parameters for training 
 and hyperparameters to train the captioning model.
 
 Execute the script ./models/captioning/preprocessing.py to cache features for training,
 
-It is important, to use the same configuration in ./config.json under the key "captioning" for both preprocessing
+It is important, to use the same configuration in ./config/config.json under the key "captioning" for both preprocessing
 and training.
 
 The training can be started by running ./models/captioning/visual_attention_simple.py
@@ -71,7 +71,7 @@ Run the script `models/captioning/evaluate.py` to verify that the model can be l
 If the installations works correctly, all dependencies and weights will be downloaded automatically after the first 
 use.
 
-In the configuration file ./config.json, under the keys "vqa" / "lxmert", you can change the maximum length of the 
+In the configuration file ./config/config.json, under the keys "vqa" / "lxmert", you can change the maximum length of the 
 question and switch between "vqa" or "gqa" models. You can also assign directly a GPU with cuda_device, e.g "cuda:0" 
 for the first GPU, "cuda:1" for the second GPU or none / "cpu" if no GPUs are available.
 
@@ -101,6 +101,48 @@ For this simply checkout this repository and perform `python setup.py install` f
 install the app into the currently activate python environment. Also perform `pip install -r requirements.tx` to install 
 additional dependencies. After installation, you can use the `game-setup`
 , `game-master` and `game-avatar` cli commands (where the python environment is accessible).
+
+**Installation on the Jarvis Remote Server**
+
+Install for your own user (no sudo)
+
+`pip install virtualenv`
+
+Check out the project from github and execute 
+`cd sose21-pm-language-and-vision-g1`
+
+Create a virtual environmen named venv
+
+`virtualenv venv`
+
+Active the created environment:
+
+`source venv/bin/activate`
+
+Install the pytorch matching the remote server CUDA version, in this case:
+
+`pip install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html`
+
+Install the remaining libraries with 
+
+`pip install -r requirements_server.txt`
+
+Install the avatar with:
+
+`pip install .` or `python setup.py install`
+
+To install the latest update from the github repo, just type:
+
+`git pull`
+`pip install .` or `python setup.py install`
+
+You can simply deactivate the environment by typing:
+
+`deactivate`
+
+To check that Tensorflow and Pytorch are installed with GPU support, just run:
+
+`python check_gpu.py`
 
 **Installation for developers on remote machines**
 Run `update.sh` to install the project on a machine. This shell script simply pulls the latest changes and performs the

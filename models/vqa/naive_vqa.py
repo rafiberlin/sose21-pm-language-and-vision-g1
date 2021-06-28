@@ -7,8 +7,8 @@ import pandas as pd
 from tqdm import tqdm
 import random as rn
 import models.utils.util as util
-from models.utils.util import get_config, create_directory_structure, load_preprocessed_vqa_data
-
+from config.util import get_config, create_directory_structure
+from models.utils.util import load_preprocessed_vqa_data
 #Beware : VQA uses pictures from MS COCO 2014 => some pictures disapeared in MS COCO 2017...
 
 # Lets try to make this implementation work: https://medium.com/@harshareddykancharla/visual-question-answering-with-hierarchical-question-image-co-attention-c5836684a180

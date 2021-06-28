@@ -2,7 +2,7 @@ from avatar.game_avatar import Avatar
 from models.captioning.evaluate import get_eval_captioning_model
 from models.vqa.lxmert.lxmert import LXMERTInference
 import tensorflow as tf
-from models.utils.util import get_config
+from config.util import get_config
 
 
 """

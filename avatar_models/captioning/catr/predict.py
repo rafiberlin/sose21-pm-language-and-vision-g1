@@ -71,7 +71,7 @@ class CATRInference():
 
         return self.caption_template, self.mask_template
     @torch.no_grad()
-    def infer_beam(self, image_path):
+    def infer_(self, image_path):
 
         image = Image.open(image_path)
         image = coco.val_transform(image)
@@ -202,7 +202,7 @@ class CATRInference():
 if __name__ == "__main__":
     image_path = "/home/rafi/_datasets/ADE20K/images/training/u/utility_room/ADE_train_00019432.jpg"
     catr = CATRInference()
-    output = catr.infer_beam(image_path)
+    output = catr.infer(image_path)
     #result = catr.tokenizer.decode(output[0].tolist(), skip_special_tokens=True)
     #result = tokenizer.decode(output[0], skip_special_tokens=True)
     print(output)

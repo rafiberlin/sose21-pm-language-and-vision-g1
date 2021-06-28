@@ -3,7 +3,7 @@ import torch.nn.functional
 
 from transformers import BertTokenizer
 from PIL import Image
-
+from avatar_models.captioning.catr.hubconf import v3
 from avatar_models.captioning.catr.datasets import coco, utils
 from avatar_models.captioning.catr.configuration import Config
 from config.util import get_config
@@ -48,7 +48,7 @@ class CATRInference():
         self.max_length = self.config.max_position_embeddings
         self.start_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._cls_token)
         self.end_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._sep_token)
-        self.model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
+        self.model = v3(pretrained=True)#torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
         catr_config = get_config()["captioning"]["catr"]
         self.cuda_device = catr_config["cuda_device"]
         self.beam_size = catr_config["beam_size"]

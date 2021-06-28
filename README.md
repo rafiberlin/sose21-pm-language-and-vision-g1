@@ -4,7 +4,9 @@
 
 ## Captioning
 
-### MSCOCO Dataset
+### Attention Model
+
+#### MSCOCO Dataset
 
 In the configuration file ./config.json, the key "ms_coco_dir" indicates the location of the MSCOCO dataset,
 which is required to train the captioning model.
@@ -25,7 +27,7 @@ This would result in 3 new directories containing images and annotations:
 [MS_COCO_DIR]/val2017
 [MS_COCO_DIR]/annotations
 
-### Glove embeddings (optional)
+#### Glove embeddings (optional)
 
 The glove embeddings can be used.
 
@@ -36,20 +38,23 @@ Unzip the content under ./pretrained/gloves
 The location for the downloaded Glove embeddings can be changed, the key "glove_embeddings" in ./config.json
 must be changed accordingly.
 
-### Training
+#### Training
 
-In the configuration file ./config/config.json, the key "captioning" contains all relevant parameters for training 
+In the configuration file ./config/config.json, under the key "captioning", the "attention" key contains all relevant parameters for training 
 and hyperparameters to train the captioning model.
 
-Execute the script ./models/captioning/preprocessing.py to cache features for training,
+Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
+and so on.
+
+Execute the script ./avatar_models/captioning/preprocessing.py to cache features for training,
 
 It is important, to use the same configuration in ./config/config.json under the key "captioning" for both preprocessing
 and training.
 
-The training can be started by running ./models/captioning/visual_attention_simple.py
+The training can be started by running ./avatar_models/captioning/visual_attention_simple.py
 
 
-### Evaluation
+#### Evaluation
 
 First download the pretrained model from:
 
@@ -61,8 +66,16 @@ Unpack under ./
 You should end up with training files under ./pretrained/captioning/ (the most important file being the tokenizer,pickle)
 and the saved model files  under ./pretrained/captioning/checkpoints
 
-Run the script `models/captioning/evaluate.py` to verify that the model can be loaded correctly.
+Run the script `avatar_models/captioning/evaluate.py` to verify that the model can be loaded correctly.
 
+
+### CATR model
+
+In the configuration file ./config/config.json, under the key "captioning", the "catr" key contains all relevant parameters for training 
+and hyperparameters to train the captioning model.
+
+Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
+and so on.
 
 ## VQA
 
@@ -83,7 +96,7 @@ https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=shari
 
 Unpack under ./
 
-You should end up with all files under ./models/vqa/attentions/
+You should end up with all files under ./avatar_models/vqa/attentions/
 
 We do not need the pretrained model from this archive, only the pre-processed Questions / Answers from the VQA dataset.
 

@@ -4,16 +4,16 @@
     "port": 8000,
     "debug": false
   },
-  "use_dev_config": false,
-  "ms_coco_dir" : "/home/users/acordova/data/ImageCorpora/MSCOCO/",
-  "vqa_dir" : "/home/users/acordova/data/ImageCorpora/VQA/",
-  "ade20k_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/",
+  "use_dev_config": true,
+  "ms_coco_dir" : "/home/rafi/_datasets/MSCOCO/",
+  "vqa_dir" : "/home/rafi/_datasets/VQA/",
+  "ade20k_dir" : "/home/rafi/_datasets/ADE20K/",
   "ade20k_vqa_file" : "ade20k_vqa.jsonl",
+  "ade20k_caption_dir" : "/home/rafi/_datasets/ADE20K/image-description-sequences/data/",
   "ade20k_localized_narratives_train_file": "ade20k_train_captions.jsonl",
-  "ade20k_caption_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/image-description-sequences/data/",
-  "pretrained_root" : "/home/users/acordova/project/sose21-pm-language-and-vision-g1/pretrained/",
+  "pretrained_root" : "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/pretrained/",
   "glove_embeddings" : "gloves/glove.6B.300d.txt",
-  "game_logs_dir":  "/home/users/acordova/project/sose21-pm-language-and-vision-g1/data/game_logs/",
+  "game_logs_dir":  "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/data/game_logs/",
   "vqa" : {
     "attention" : {
       "pretrained_dir": "vqa/attention/",

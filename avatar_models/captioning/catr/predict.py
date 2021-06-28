@@ -52,7 +52,6 @@ class CATRInference():
         catr_config = get_config()["captioning"]["catr"]
         self.cuda_device = catr_config["cuda_device"]
         self.beam_size = catr_config["beam_size"]
-        self.ngram_penalty = catr_config["ngram_penalty"]
 
         if type(self.cuda_device) is str and self.cuda_device.startswith("cuda"):
             print("Use CATR Model with GPU", self.cuda_device)

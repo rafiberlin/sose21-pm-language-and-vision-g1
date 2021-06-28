@@ -9,6 +9,12 @@ def get_config():
     config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),  "config.json")
     with open(config_file, "r") as read_file:
         conf = json.load(read_file)
+
+    if conf["use_dev_config"]:
+        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dev_config.json")
+        with open(config_file, "r") as read_file:
+            conf = json.load(read_file)
+
     pretrained_root = conf["pretrained_root"]
     conf["glove_embeddings"] = os.path.join(pretrained_root,  conf["glove_embeddings"] )
     if not os.path.exists(conf["glove_embeddings"]):

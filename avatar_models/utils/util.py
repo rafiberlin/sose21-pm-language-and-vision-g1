@@ -12,6 +12,16 @@ import json
 
 
 def load_preprocessed_vqa_data():
+    """
+    :return: X_train: VQA Training Data
+            X_val: VQA Validation Data
+            tokenizer: the question tokenizer for our Attention VQA model
+            label_encoder: encodes a question for our Attention VQA model
+            question_vector_train: endcoded questions for training for our Attention VQA model
+            question_vector_val: encoded questions for validation for our Attention VQA model
+    """
+
+
     conf = get_config()
     vqa_conf = conf["vqa"]["attention"]
     pretrained_dir = vqa_conf["pretrained_dir"]

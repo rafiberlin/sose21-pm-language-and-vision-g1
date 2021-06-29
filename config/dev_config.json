@@ -24,7 +24,7 @@
     "lxmert" : {
       "question_length": 24,
       "model" : "vqa",
-      "cuda_device" : "cpu"
+      "cuda_device" : "cuda:0"
     }
   },
   "captioning": { "attention": {

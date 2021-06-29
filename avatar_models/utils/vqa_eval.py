@@ -68,7 +68,7 @@ def run_ade20k_vqa_metrics(vqa, answer_list, num_questions=None):
         if prediction == answer:
             total += 1
         epoch +=  1
-        if epoch % 100 == 0:
+        if epoch % 1000 == 0:
             print("epoch", epoch, "Acc", total / epoch)
         if epoch == num_questions:
             break  # the LXMERT is really slow at processing, it would take ages...
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     print("MSCOCO Dataset")
     run_official_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("ADE20K Dataset")
-    #run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
+    run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")
 
     vqa_lxmert = LXMERTInference()

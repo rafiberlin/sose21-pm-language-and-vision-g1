@@ -8,7 +8,7 @@ from avatar_models.vqa.lxmert.lxmert import LXMERTInference
 import numpy as np
 
 
-def run_official_vqa_metrics(vqa, answer_list):
+def run_official_vqa_metrics(vqa, answer_list, num_questions=None):
     """
     See https://visualqa.org/evaluation.html
     :return:
@@ -33,14 +33,18 @@ def run_official_vqa_metrics(vqa, answer_list):
     print(f"After filtering (keeping only answers in the model vocabulary), test on {len(answers)} questions")
 
     total = 0
+    epoch = 1
     for i, (question, image, _answers) in tqdm(enumerate(zip(questions, image_paths_val, answers))):
         prediction = vqa.infer(image, question)
         total += min(sum([1 for answer in _answers if answer["answer"] == prediction]) / 3, 1)
-        epoch = i + 1
+        epoch = epoch + i
         if epoch % 1000 == 0:
             print("epoch", epoch, "Acc", total / epoch)
-    acc = total / len(questions)
-    print("VQA Accuracy", acc)
+
+        if i == num_questions:
+            break
+    acc = total / epoch
+    print("MSCOCO VQA Accuracy", acc, f"{epoch} questions tested")
 
     return acc
 
@@ -79,8 +83,8 @@ if __name__ == "__main__":
     vqa_attention = get_eval_vqa_model()
     answer_vocab__attention = tokenizer.word_index.keys()
     print("##########  START : Run VQA Test on Attention Model ##########")
-    print("Official Dataset")
-    run_official_vqa_metrics(vqa_attention, answer_vocab__attention)
+    print("MSCOCO Dataset")
+    run_official_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("ADE20K Dataset")
     run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")
@@ -88,8 +92,8 @@ if __name__ == "__main__":
     vqa_lxmert = LXMERTInference()
     answer_vocab_lxmert = vqa_lxmert.get_answers()
     print("##########  START : Run VQA Test on Attention Model ##########")
-    print("Official Dataset")
-    run_official_vqa_metrics(vqa_lxmert, answer_vocab_lxmert)
+    print("MSCOCO Dataset")
+    run_official_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
     print("ADE20K Dataset")
     run_ade20k_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")

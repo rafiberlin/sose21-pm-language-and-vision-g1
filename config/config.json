@@ -4,7 +4,7 @@
     "port": 8000,
     "debug": false
   },
-  "use_dev_config": true,
+  "use_dev_config": false,
   "ms_coco_dir" : "/home/users/acordova/data/ImageCorpora/MSCOCO/",
   "vqa_dir" : "/home/users/acordova/data/ImageCorpora/VQA/",
   "ade20k_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/",

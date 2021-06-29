@@ -37,11 +37,11 @@ def run_official_vqa_metrics(vqa, answer_list, num_questions=None):
     for i, (question, image, _answers) in tqdm(enumerate(zip(questions, image_paths_val, answers))):
         prediction = vqa.infer(image, question)
         total += min(sum([1 for answer in _answers if answer["answer"] == prediction]) / 3, 1)
-        epoch = epoch + i
+        epoch += 1
         if epoch % 1000 == 0:
             print("epoch", epoch, "Acc", total / epoch)
 
-        if i == num_questions:
+        if epoch == num_questions:
             break
     acc = total / epoch
     print("MSCOCO VQA Accuracy", acc, f"{epoch} questions tested")
@@ -67,10 +67,10 @@ def run_ade20k_vqa_metrics(vqa, answer_list, num_questions=None):
         prediction = vqa.infer(image, question)
         if prediction == answer:
             total += 1
-        epoch = epoch + i
+        epoch +=  1
         if epoch % 100 == 0:
             print("epoch", epoch, "Acc", total / epoch)
-        if i == num_questions:
+        if epoch == num_questions:
             break  # the LXMERT is really slow at processing, it would take ages...
     acc = total / epoch
     print("ADE20K VQA Accuracy", acc, f"{epoch} questions tested")
@@ -86,14 +86,14 @@ if __name__ == "__main__":
     print("MSCOCO Dataset")
     run_official_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("ADE20K Dataset")
-    run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
+    #run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")
 
     vqa_lxmert = LXMERTInference()
     answer_vocab_lxmert = vqa_lxmert.get_answers()
     print("##########  START : Run VQA Test on Attention Model ##########")
     print("MSCOCO Dataset")
-    run_official_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
+    #run_official_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
     print("ADE20K Dataset")
-    run_ade20k_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
+    #run_ade20k_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")

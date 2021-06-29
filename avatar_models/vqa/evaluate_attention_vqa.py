@@ -100,9 +100,9 @@ if __name__ == "__main__":
     #question = "Is there a man?" # answer: yes
     question = "Is this a man or a dog?"  # answer: man
     vqa = get_eval_vqa_model()
-    label = vqa.infer((image_url, question))
+    label = vqa.infer(image_url, question)
     print("question: ", question)
-    print("answer: ", label[0])
+    print("answer: ", label)
 
 
 

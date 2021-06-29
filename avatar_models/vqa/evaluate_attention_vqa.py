@@ -53,8 +53,7 @@ class TrainedVQA:
                                                                                 padding='post')
         return vectorized_question_seq
 
-    def infer(self, tuple_input):
-        image_url, question_string = tuple_input
+    def infer(self, image_url, question_string):
         vector_question = self.__process_question(question_string)
         processed_image = self.__process_image(image_url)
         input = (processed_image, vector_question)
@@ -67,7 +66,7 @@ class TrainedVQA:
         one_hot_decision[id] = 1
         label = self.label_encoder.inverse_transform(np.expand_dims(one_hot_decision, 0))
 
-        return label
+        return label[0]
 
 def get_eval_vqa_model():
 

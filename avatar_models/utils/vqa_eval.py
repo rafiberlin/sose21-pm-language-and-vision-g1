@@ -48,8 +48,8 @@ def run_official_vqa_metrics(vqa, answer_list):
 def run_ade20k_vqa_metrics(vqa, answer_list, num_questions=None):
     conf = get_config()
     ADE20K_DIR = conf["ade20k_dir"]
-
-    data = get_ade20_vqa_data()
+    VQA_FILE = conf["ade20k_vqa_file"]
+    data = get_ade20_vqa_data(VQA_FILE)
 
     filtered_data = [d for i, d in tqdm(enumerate(data)) if d["answer"] in answer_list]
     df = pd.DataFrame(filtered_data)
@@ -69,23 +69,23 @@ def run_ade20k_vqa_metrics(vqa, answer_list, num_questions=None):
         if i == num_questions:
             break  # the LXMERT is really slow at processing, it would take ages...
     acc = total / epoch
-    print("ADE20K VQA Accuracy", acc)
+    print("ADE20K VQA Accuracy", acc, f"{epoch} questions tested")
     return acc
 
 
 if __name__ == "__main__":
     _, _, tokenizer, _, _, _ = load_preprocessed_vqa_data()
-
+    max_questions = get_config()["ade20k_vqa_max_questions"]
     vqa_attention = get_eval_vqa_model()
     answer_vocab__attention = tokenizer.word_index.keys()
     print("##########  START : Run VQA Test on Attention Model ##########")
     run_official_vqa_metrics(vqa_attention, answer_vocab__attention)
-    run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention)
+    run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")
 
     vqa_lxmert = LXMERTInference()
     answer_vocab_lxmert = vqa_lxmert.get_answers()
     print("##########  START : Run VQA Test on Attention Model ##########")
     run_official_vqa_metrics(vqa_lxmert, answer_vocab_lxmert)
-    run_ade20k_vqa_metrics(vqa_lxmert, answer_vocab_lxmert)
+    run_ade20k_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")

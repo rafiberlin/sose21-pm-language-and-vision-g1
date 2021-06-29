@@ -102,6 +102,8 @@ We do not need the pretrained model from this archive, only the pre-processed Qu
 
 These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluation for any model.
 
+TODO: Explain where to unpack sose21-pm-language-and-vision-g1/data/ade20k_vqa/merged_synthetic_vqa.tar.gz
+to make the evaluation work.
 # Installation
 
 Important: if you face errors concerning the import of modules, please export this project to you python path:

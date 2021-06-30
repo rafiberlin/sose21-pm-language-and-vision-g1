@@ -11,9 +11,12 @@ def get_config():
         conf = json.load(read_file)
 
     if conf["use_dev_config"]:
+        print("Dev Setup: dev_config.json will be used")
         config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dev_config.json")
         with open(config_file, "r") as read_file:
             conf = json.load(read_file)
+    else:
+        print("Server Setup: config.json will be used")
 
     pretrained_root = conf["pretrained_root"]
     conf["glove_embeddings"] = os.path.join(pretrained_root,  conf["glove_embeddings"] )

@@ -62,9 +62,24 @@ class LXMERTInference():
 
         self.lxmert_tokenizer = LxmertTokenizer.from_pretrained("unc-nlp/lxmert-base-uncased")
 
+
+    def get_answers(self):
+        """
+        Returns a list of the possible model answers.
+        :return: a list of answers
+        """
+        return self.answers
+
     # run frcnn
     @torch.no_grad()
     def infer(self, URL, test_question ):
+        """
+        Given an image url and a question, returns an answer.
+        :param URL: image stored at the url
+        :param test_question: a question concerning the image
+        :return: an answer
+        """
+
         # URL = "https://raw.githubusercontent.com/airsplay/py-bottom-up-attention/master/demo/data/images/input.jpg",
         # URL = "https://vqa.cloudcv.org/media/test2014/COCO_test2014_000000262567.jpg"
         # image viz

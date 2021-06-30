@@ -10,8 +10,10 @@ import base64
 
 import click
 import socketIO_client
-
+from config.util import get_config
 from avatar.game_master_slurk import GameMaster
+
+master_conf = get_config()["image_server"]
 
 
 def build_url(host, context=None, port=None, base_url=None, auth=None):
@@ -42,7 +44,7 @@ def build_url(host, context=None, port=None, base_url=None, auth=None):
               help="domain of the image server")
 @click.option("--image_server_context", default=None, show_default=True,
               help="sub-path to the image server")
-@click.option("--image_server_port", default="8000", show_default=True, required=True,
+@click.option("--image_server_port", default=master_conf["port"], show_default=True, required=True,
               help="port of the image server")
 @click.option("--image_server_auth", help="credentials in format 'username:password'")
 def start_and_wait(token, slurk_host, slurk_context, slurk_port,

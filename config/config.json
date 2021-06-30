@@ -1,14 +1,15 @@
 {
   "image_server": {
     "host": "localhost",
-    "port": 8000,
+    "port": 30000,
     "debug": false
   },
-  "use_dev_config": false,
+  "use_dev_config": true,
   "ms_coco_dir" : "/home/users/acordova/data/ImageCorpora/MSCOCO/",
   "vqa_dir" : "/home/users/acordova/data/ImageCorpora/VQA/",
   "ade20k_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/",
-  "ade20k_vqa_file" : "ade20k_vqa.jsonl",
+  "ade20k_vqa_file" : "merged_synthetic_vqa_shuffled.jsonl",
+  "ade20k_vqa_max_questions" : 5000,
   "ade20k_localized_narratives_train_file": "ade20k_train_captions.jsonl",
   "ade20k_caption_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/image-description-sequences/data/",
   "pretrained_root" : "/home/users/acordova/project/sose21-pm-language-and-vision-g1/pretrained/",
@@ -24,7 +25,7 @@
     "lxmert" : {
       "question_length": 24,
       "model" : "vqa",
-      "cuda_device" : "cpu"
+      "cuda_device" : "cuda:1"
     }
   },
   "captioning": { "attention": {

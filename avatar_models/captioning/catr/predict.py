@@ -3,8 +3,8 @@ import torch.nn.functional
 
 from transformers import BertTokenizer
 from PIL import Image
-
-from avatar_models.captioning.catr.datasets import coco, utils
+from avatar_models.captioning.catr.hubconf import v3
+from avatar_models.captioning.catr.datasets import coco
 from avatar_models.captioning.catr.configuration import Config
 from config.util import get_config
 import numpy as np
@@ -48,7 +48,7 @@ class CATRInference():
         self.max_length = self.config.max_position_embeddings
         self.start_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._cls_token)
         self.end_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._sep_token)
-        self.model = torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
+        self.model = v3(pretrained=True)#torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
         catr_config = get_config()["captioning"]["catr"]
         self.cuda_device = catr_config["cuda_device"]
         self.beam_size = catr_config["beam_size"]
@@ -71,7 +71,7 @@ class CATRInference():
 
         return self.caption_template, self.mask_template
     @torch.no_grad()
-    def infer_(self, image_path):
+    def infer_beam(self, image_path):
 
         image = Image.open(image_path)
         image = coco.val_transform(image)
@@ -83,10 +83,10 @@ class CATRInference():
             image = image.cuda(self.cuda_device)
             caption = caption.cuda(self.cuda_device)
             cap_mask = cap_mask.cuda(self.cuda_device)
-
+        src, mask, pos = self.model.init_sample(image)
         # model.eval()
 
-        predictions = self.model(image, caption, cap_mask)
+        predictions = self.model.infer(src, mask, pos, caption, cap_mask) #self.model(image, caption, cap_mask)
         predictions = predictions[:, 0, :]#torch.nn.functional.log_softmax(predictions[:, 0, :])
         previous_log_prob, candidate_indices = torch.topk(predictions, beam_size)
         preds = {i: np.zeros(self.max_length, dtype=int) for i in range(beam_size)}
@@ -97,11 +97,14 @@ class CATRInference():
         image = image.repeat(beam_size, 1, 1, 1)
         caption = caption.repeat(beam_size, 1)
         cap_mask = cap_mask.repeat(beam_size, 1)
+        src = src.repeat(beam_size,1 ,1 ,1)
+        mask = mask.repeat(beam_size,1 ,1)
+        pos[0] = pos[0].repeat(beam_size,1, 1,1)
         candidates = []
         caption[:, 1] = candidate_indices
         cap_mask[:, 1] = False
         for step in range(1, self.max_length - 1):
-            predictions = self.model(image, caption, cap_mask)
+            predictions = self.model.infer(src, mask, pos, caption, cap_mask) #self.model(image, caption, cap_mask)
             predictions = predictions[:, step, :]
             candidates_log_prob, candidate_indices = torch.topk(predictions, beam_size)
             candidates_log_prob = torch.reshape(candidates_log_prob + previous_log_prob, (-1,))
@@ -149,6 +152,9 @@ class CATRInference():
                     cap_mask = torch.index_select(cap_mask, dim=0, index=left_idx)
                     image = torch.index_select(image, dim=0, index=left_idx)
                     previous_log_prob = torch.index_select(previous_log_prob, dim=0, index=left_idx)
+                    src = torch.index_select(src, dim=0, index=left_idx)
+                    mask = torch.index_select(mask, dim=0, index=left_idx)
+                    pos[0] = torch.index_select(pos[0], dim=0, index=left_idx)
                     # now that the finished sentences have been removed, we need to update the predictions dict accordingly
                     for i, key in enumerate(sorted(preds.keys())):
                         preds[i] = preds.pop(key)
@@ -184,9 +190,11 @@ class CATRInference():
             image = image.cuda(self.cuda_device)
             caption = caption.cuda(self.cuda_device)
             cap_mask = cap_mask.cuda(self.cuda_device)
+
+        src, mask, pos = self.model.init_sample(image)
         #model.eval()
         for i in range(self.max_length - 1):
-            predictions = self.model(image, caption, cap_mask)
+            predictions = self.model.infer(src, mask, pos, caption, cap_mask)
             predictions = predictions[:, i, :]
             predicted_id = torch.argmax(predictions, axis=-1)
 

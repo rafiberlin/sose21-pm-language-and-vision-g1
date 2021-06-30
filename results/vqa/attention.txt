@@ -1,0 +1,74 @@
+##########  START : Run VQA Test on Attention Model ##########
+MSCOCO Dataset
+Dev Setup: dev_config.json will be used
+Dev Setup: dev_config.json will be used
+Dev Setup: dev_config.json will be used
+Dataset contains 88752 questions
+After filtering (keeping only answers in the model vocabulary), test on 79863 questions
+0it [00:00, ?it/s]2021-06-29 17:47:24.704071: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:176] None of the MLIR Optimization Passes are enabled (registered 2)
+2021-06-29 17:47:24.721864: I tensorflow/core/platform/profile_utils/cpu_utils.cc:114] CPU Frequency: 3499910000 Hz
+998it [02:11,  7.66it/s]epoch 1000 Acc 0.5136666666666665
+1999it [04:32,  7.34it/s]epoch 2000 Acc 0.510666666666667
+2998it [06:48,  7.18it/s]epoch 3000 Acc 0.5121111111111106
+3998it [09:04,  7.53it/s]epoch 4000 Acc 0.5116666666666658
+4998it [11:17,  7.37it/s]
+epoch 5000 Acc 0.5134666666666662
+MSCOCO VQA Accuracy 0.5134666666666662 5000 questions tested
+ADE20K Dataset
+Dev Setup: dev_config.json will be used
+Dev Setup: dev_config.json will be used
+Reading /home/rafi/_datasets/ADE20K/merged_synthetic_vqa_shuffled.jsonl
+479725it [00:00, 3583210.58it/s]
+99it [00:13,  7.51it/s]epoch 100 Acc 0.26
+199it [00:26,  7.59it/s]epoch 200 Acc 0.28
+299it [00:40,  7.54it/s]epoch 300 Acc 0.27
+398it [00:54,  6.74it/s]epoch 400 Acc 0.285
+499it [01:07,  7.44it/s]epoch 500 Acc 0.27
+598it [01:21,  6.89it/s]epoch 600 Acc 0.27666666666666667
+698it [01:34,  7.40it/s]epoch 700 Acc 0.2742857142857143
+798it [01:48,  7.53it/s]epoch 800 Acc 0.2775
+898it [02:02,  7.55it/s]epoch 900 Acc 0.27555555555555555
+999it [02:16,  7.22it/s]epoch 1000 Acc 0.281
+1099it [02:30,  7.26it/s]epoch 1100 Acc 0.2790909090909091
+1199it [02:43,  7.42it/s]epoch 1200 Acc 0.2808333333333333
+1299it [02:57,  7.49it/s]epoch 1300 Acc 0.28692307692307695
+1398it [03:11,  7.27it/s]epoch 1400 Acc 0.2885714285714286
+1499it [03:26,  7.01it/s]epoch 1500 Acc 0.2866666666666667
+1599it [03:41,  7.17it/s]epoch 1600 Acc 0.280625
+1699it [03:58,  6.19it/s]epoch 1700 Acc 0.28647058823529414
+1798it [04:12,  6.87it/s]epoch 1800 Acc 0.2811111111111111
+1898it [04:27,  6.86it/s]epoch 1900 Acc 0.2794736842105263
+1999it [04:41,  6.94it/s]epoch 2000 Acc 0.2795
+2098it [04:55,  7.07it/s]epoch 2100 Acc 0.2776190476190476
+2198it [05:10,  7.05it/s]epoch 2200 Acc 0.2786363636363636
+2298it [05:24,  6.81it/s]epoch 2300 Acc 0.27956521739130435
+2399it [05:39,  6.55it/s]epoch 2400 Acc 0.27958333333333335
+2498it [05:53,  7.19it/s]epoch 2500 Acc 0.2788
+2599it [06:07,  7.39it/s]epoch 2600 Acc 0.2784615384615385
+2698it [06:21,  7.30it/s]epoch 2700 Acc 0.2759259259259259
+2798it [06:34,  7.46it/s]epoch 2800 Acc 0.27714285714285714
+2898it [06:48,  7.42it/s]epoch 2900 Acc 0.2775862068965517
+2998it [07:01,  7.56it/s]epoch 3000 Acc 0.2763333333333333
+3098it [07:15,  7.56it/s]epoch 3100 Acc 0.27741935483870966
+3199it [07:28,  7.39it/s]epoch 3200 Acc 0.2790625
+3298it [07:42,  7.40it/s]epoch 3300 Acc 0.2806060606060606
+3398it [07:55,  7.44it/s]epoch 3400 Acc 0.27941176470588236
+3499it [08:09,  7.25it/s]epoch 3500 Acc 0.282
+3598it [08:23,  7.38it/s]epoch 3600 Acc 0.2827777777777778
+3698it [08:36,  7.40it/s]epoch 3700 Acc 0.28378378378378377
+3799it [08:50,  7.64it/s]epoch 3800 Acc 0.2839473684210526
+3899it [09:04,  7.41it/s]epoch 3900 Acc 0.28512820512820514
+3999it [09:17,  7.33it/s]epoch 4000 Acc 0.285
+4098it [09:30,  7.35it/s]epoch 4100 Acc 0.28560975609756095
+4199it [09:44,  7.50it/s]epoch 4200 Acc 0.28476190476190477
+4298it [09:58,  7.39it/s]epoch 4300 Acc 0.28488372093023256
+4398it [10:11,  7.51it/s]epoch 4400 Acc 0.2847727272727273
+4499it [10:25,  7.08it/s]epoch 4500 Acc 0.2848888888888889
+4599it [10:38,  7.06it/s]epoch 4600 Acc 0.2847826086956522
+4699it [10:52,  7.48it/s]epoch 4700 Acc 0.2853191489361702
+4799it [11:05,  7.25it/s]epoch 4800 Acc 0.2839583333333333
+4899it [11:19,  7.37it/s]epoch 4900 Acc 0.28285714285714286
+4998it [11:33,  7.21it/s]
+epoch 5000 Acc 0.2822
+ADE20K VQA Accuracy 0.2822 5000 questions tested
+##########  END : Run VQA Test on Attention Model ##########

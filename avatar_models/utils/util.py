@@ -9,9 +9,20 @@ import jsonlines
 import pickle
 import pandas as pd
 import json
-
+import re
+from tqdm import tqdm
+import random
 
 def load_preprocessed_vqa_data():
+    """
+    :return: X_train: VQA Training Data
+            X_val: VQA Validation Data
+            tokenizer: the question tokenizer for our Attention VQA model
+            label_encoder: encodes a question for our Attention VQA model
+            question_vector_train: endcoded questions for training for our Attention VQA model
+            question_vector_val: encoded questions for validation for our Attention VQA model
+    """
+
     conf = get_config()
     vqa_conf = conf["vqa"]["attention"]
     pretrained_dir = vqa_conf["pretrained_dir"]
@@ -50,17 +61,31 @@ def load_preprocessed_vqa_data():
     return X_train, X_val, tokenizer, label_encoder, question_vector_train, question_vector_val
 
 
-def get_ade20_vqa_data():
+def get_ade20_vqa_data(file_name="ade20k_vqa.jsonl"):
     """
     Get the general project configpretrained_dir = conf["captioning"]["pretrained_dir"]
     :return:
     """
     conf = get_config()
     vqa_file = conf["ade20k_dir"]
-    file = os.path.join(vqa_file, "ade20k_vqa.jsonl")
-
+    file = os.path.join(vqa_file, file_name)
+    print(f"Reading {file}")
     with jsonlines.open(file) as reader:
         data = [i for i in iter(reader)]
+    return data
+
+
+def get_ade20_qa_cleaned(file_name="ade20k_qa_cleaned.json"):
+    """
+    Get the general project configpretrained_dir = conf["captioning"]["pretrained_dir"]
+    :return:
+    """
+    conf = get_config()
+    vqa_file = conf["ade20k_dir"]
+    file = os.path.join(vqa_file, file_name)
+
+    with open(file) as content:
+        data = json.load(content)
     return data
 
 
@@ -132,8 +157,65 @@ def get_pretrained_image_encoder():
     return encoder
 
 
+def add_image_path_qa_data(
+        path_save="/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/data/ade20k_vqa/ade20k_qa_cleaned_with_image_path.json"):
+    """
+    The qa pairs for vqa does not have the proper paths to images, this function tries to fix the issue.
+    :param path_save: Path to the new file with corrected image paths
+    :return:
+    """
+    vqa_yes_no = get_ade20_vqa_data()
+    qa_cleaned = get_ade20_qa_cleaned()
+    # get Key values of the form : "ADE_train_00005297": "training/c/cathedral/indoor/ADE_train_00005297.jpg"
+    vqa_path_dict = {re.search(r'.*/(.*?).jpg', line["image_path"]).group(1): line["image_path"] for line in vqa_yes_no}
 
+    corrected_qa_paths = {}
+    for k in qa_cleaned.keys():
+        if k in vqa_path_dict.keys():
+            path = vqa_path_dict[k]
+            corrected_qa_paths[path] = qa_cleaned[k]
+
+    print(f"Saving {len(corrected_qa_paths)} corrrected paths to {path_save}")
+    with open(path_save, 'w') as outfile:
+        json.dump(corrected_qa_paths, outfile)
+
+
+def merge_synthetic_qa(path_save="/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/data/ade20k_vqa/merged_synthetic_vqa"):
+    """
+    creates two files, with json and jsonl extensions.
+    The json file is a dictionary with image paths as keys, and list of question/answers as values
+    The jsonlines file has the same content in a flat structure (one line, one question answer pair)
+    :param path_save: path name without extension.
+    :return:
+    """
+    qa_cleaned = get_ade20_qa_cleaned("ade20k_qa_cleaned_with_image_path.json")
+    vqa = get_ade20_vqa_data()
+    merged_vqa = {k: qa_cleaned[k] for k in qa_cleaned.keys()}
+    print("Start merging")
+    for row in tqdm(vqa):
+        key = row["image_path"]
+        if key in merged_vqa.keys():
+            merged_vqa[key].append({"question": row["question"], "answer": row["answer"]})
+
+    print(f"Save {path_save}.json")
+    with open(path_save+".json", 'w') as outfile:
+        json.dump(merged_vqa, outfile)
+
+    print(f"Save {path_save}.jsonl")
+    jsonl = []
+    with jsonlines.open(path_save+".jsonl", 'w') as outfile:
+        for key in tqdm(merged_vqa.keys()):
+            for row in merged_vqa[key]:
+                jsonl.append({"image_path": key, "question": row["question"], "answer": row["answer"]})
+                outfile.write({"image_path": key, "question": row["question"], "answer": row["answer"]})
+    # Fix the shuffling
+    random.seed(10)
+    random.shuffle(jsonl)
+
+    with jsonlines.open(path_save+"_shuffled.jsonl", 'w') as outfile:
+        for line in tqdm(jsonl):
+            outfile.write(line)
 
 if __name__ == "__main__":
-
+    #merge_synthetic_qa()
     pass

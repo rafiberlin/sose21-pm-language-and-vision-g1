@@ -1,0 +1,10 @@
+5 wins out of 10 games
+rafi_10_games_04_jun_21.txt
+
+Dev Setup: dev_config.json will be used
+Average Score -0.6400000000000001
+Best Game under normal Score 0.8 Game Number 9
+Worse Game under normal Score -1.5 Game Number 0
+Average Score with questions discount -0.7949999999999999
+Best Game under Question Discounted Score 0.7 Game number 3
+Worse Game under Question Discounted Score -0.9000000000000006 Game Number 1

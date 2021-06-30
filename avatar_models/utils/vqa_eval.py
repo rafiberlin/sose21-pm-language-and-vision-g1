@@ -6,7 +6,7 @@ import pandas as pd
 from avatar_models.vqa.evaluate_attention_vqa import get_eval_vqa_model
 from avatar_models.vqa.lxmert.lxmert import LXMERTInference
 import numpy as np
-
+import time
 
 def run_official_vqa_metrics(vqa, answer_list, num_questions=None):
     """
@@ -33,14 +33,16 @@ def run_official_vqa_metrics(vqa, answer_list, num_questions=None):
     print(f"After filtering (keeping only answers in the model vocabulary), test on {len(answers)} questions")
 
     total = 0
-    epoch = 1
+    epoch = 0
     for i, (question, image, _answers) in tqdm(enumerate(zip(questions, image_paths_val, answers))):
         prediction = vqa.infer(image, question)
         total += min(sum([1 for answer in _answers if answer["answer"] == prediction]) / 3, 1)
         epoch += 1
+        # Work around to avoid reboots on my old GPU...
+        if epoch % 500 == 0:
+            time.sleep(30)
         if epoch % 1000 == 0:
             print("epoch", epoch, "Acc", total / epoch)
-
         if epoch == num_questions:
             break
     acc = total / epoch
@@ -61,13 +63,17 @@ def run_ade20k_vqa_metrics(vqa, answer_list, num_questions=None):
     answers = df["answer"]
     image_paths_val = df["image_path"].apply(lambda x: os.path.join(ADE20K_DIR, "images", x))
     total = 0
-    epoch = 1
+    epoch = 0
 
     for i, (question, image, answer) in tqdm(enumerate(zip(questions, image_paths_val, answers))):
         prediction = vqa.infer(image, question)
         if prediction == answer:
             total += 1
         epoch +=  1
+        #Work around to avoid reboots on my old GPU...
+        if epoch % 500 == 0:
+            time.sleep(30)
+
         if epoch % 1000 == 0:
             print("epoch", epoch, "Acc", total / epoch)
         if epoch == num_questions:
@@ -80,13 +86,13 @@ def run_ade20k_vqa_metrics(vqa, answer_list, num_questions=None):
 if __name__ == "__main__":
     _, _, tokenizer, _, _, _ = load_preprocessed_vqa_data()
     max_questions = get_config()["ade20k_vqa_max_questions"]
-    vqa_attention = get_eval_vqa_model()
+    #vqa_attention = get_eval_vqa_model()
     answer_vocab__attention = tokenizer.word_index.keys()
     print("##########  START : Run VQA Test on Attention Model ##########")
     print("MSCOCO Dataset")
-    run_official_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
+    #run_official_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("ADE20K Dataset")
-    run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
+    #run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")
 
     vqa_lxmert = LXMERTInference()

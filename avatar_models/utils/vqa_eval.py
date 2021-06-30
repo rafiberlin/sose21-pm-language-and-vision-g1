@@ -19,7 +19,6 @@ def run_official_vqa_metrics(vqa, answer_list, num_questions=None):
     _, X_val, _, _, _, _ = load_preprocessed_vqa_data()
     MS_COCO_DIR = conf["ms_coco_dir"]
     derived_answer_col_id = np.where(X_val.columns.values == "derived_answer")[0]
-    _, X_val, _, _, _, _ = load_preprocessed_vqa_data()
     coco_train = os.path.join(MS_COCO_DIR, "train2017")
     filtered = pd.DataFrame(
         [row for row in X_val.itertuples(index=False) if row[int(derived_answer_col_id)] in answer_list])
@@ -86,13 +85,13 @@ def run_ade20k_vqa_metrics(vqa, answer_list, num_questions=None):
 if __name__ == "__main__":
     _, _, tokenizer, _, _, _ = load_preprocessed_vqa_data()
     max_questions = get_config()["ade20k_vqa_max_questions"]
-    #vqa_attention = get_eval_vqa_model()
+    vqa_attention = get_eval_vqa_model()
     answer_vocab__attention = tokenizer.word_index.keys()
     print("##########  START : Run VQA Test on Attention Model ##########")
     print("MSCOCO Dataset")
-    #run_official_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
+    run_official_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("ADE20K Dataset")
-    #run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
+    run_ade20k_vqa_metrics(vqa_attention, answer_vocab__attention, max_questions)
     print("##########  END : Run VQA Test on Attention Model ##########")
 
     vqa_lxmert = LXMERTInference()

@@ -1,7 +1,7 @@
 {
   "image_server": {
     "host": "localhost",
-    "port": 8000,
+    "port": 30000,
     "debug": false
   },
   "use_dev_config": true,
@@ -25,7 +25,7 @@
     "lxmert" : {
       "question_length": 24,
       "model" : "vqa",
-      "cuda_device" : "cuda:0"
+      "cuda_device" : "cpu"
     }
   },
   "captioning": { "attention": {

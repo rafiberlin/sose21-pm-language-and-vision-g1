@@ -183,7 +183,7 @@ admin token.
 #### 2. Download and expose the dataset
 
 Download and unpack the ADE20K dataset. Go into the images training directory and start a http server as the server
-serving the images. You can use `python -m http.server 30000` for this.
+serving the images. You can use `python -m http.server 8000` for this.
 
 #### 3. Create the slurk game room and player tokens
 
@@ -201,7 +201,7 @@ manually provide a name for the room.
 #### 1. Start the game master bot
 
 Run the `game_master_cli --token <master-token>` script or the `game-master --token <master-token>` cli. This will
-connect the game master with slurk. By default, this will create image-urls that point to `localhost:30000`.
+connect the game master with slurk. By default, this will create image-urls that point to `localhost:8000`.
 
 #### 2. Start a browser for the 'Player'
 
@@ -232,7 +232,7 @@ First, do everything as in *Run everything on localhost: Prepare servers and dat
 ### Prepare ngrok
 
 1. Externalize the slurk server using `ngrok http 5000` which will give you something like `<slurk-hash>.ngrok.io`
-1. Externalize the image server using `ngrok http 30000` which will give you something like `<image-hash>.ngrok.io`
+1. Externalize the image server using `ngrok http 8000` which will give you something like `<image-hash>.ngrok.io`
 
 ### Prepare clients and bots
 

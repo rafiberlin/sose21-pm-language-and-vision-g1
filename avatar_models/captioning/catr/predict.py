@@ -77,6 +77,7 @@ class CATRInference():
         :param image_path:
         :return:
         """
+        self.model.eval()
         image = Image.open(image_path)
         image = coco.val_transform(image)
         image = image.unsqueeze(0)
@@ -178,7 +179,7 @@ class CATRInference():
 
     @torch.no_grad()
     def infer(self, image_path):
-
+        self.model.eval()
         image = Image.open(image_path)
         image = coco.val_transform(image)
         image = image.unsqueeze(0)
@@ -208,7 +209,7 @@ if __name__ == "__main__":
     ade20k = get_config()["ade20k_dir"]
     image_path = os.path.join(ade20k, "images/training/u/utility_room/ADE_train_00019432.jpg")
     catr = CATRInference()
-    output = catr.infer_beam(image_path)
+    output = catr.infer(image_path)
     #result = catr.tokenizer.decode(output[0].tolist(), skip_special_tokens=True)
     #result = tokenizer.decode(output[0], skip_special_tokens=True)
     print(output)

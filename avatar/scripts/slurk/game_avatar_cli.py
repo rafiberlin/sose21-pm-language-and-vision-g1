@@ -44,7 +44,7 @@ def build_url(host, context=None, port=None, base_url=None, auth=None):
               help="sub-path of to the slurk host")
 @click.option("--slurk_port", default="5000", show_default=True, required=True,
               help="port of the slurk app")
-@click.option("--image_directory", default="None", show_default=True, required=True,
+@click.option("--image_directory", default="http://localhost:8000/", show_default=True, required=True,
               help="If images are accessible by the bot, "
                    "then this is the path to the image directory usable as a prefix for images")
 def start_and_wait(token, slurk_host, slurk_context, slurk_port, image_directory):

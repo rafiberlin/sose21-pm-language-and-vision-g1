@@ -14,8 +14,6 @@ DIRECTION_TO_WORD = {
     "s": "south"
 }
 
-ADE20K_URL = "http://localhost:8000/"
-
 def direction_to_word(direction: str):
     if direction in DIRECTION_TO_WORD:
         return DIRECTION_TO_WORD[direction]
@@ -35,14 +33,17 @@ class CustomAvatar(Avatar):
 #        The simple avatar is only repeating the observations.
 
     def __init__(self, image_directory, caption_expert, vqa_expert):
+
+        assert image_directory is not None
+        assert caption_expert is not None
+        assert vqa_expert is not None
+        if not image_directory.endswith("/"):
+            image_directory = image_directory + "/"
         self.image_directory = image_directory
         self.observation = None
         self.caption_expert = caption_expert
-        #self.vqa_expert = get_eval_vqa_model()
         self.vqa_expert = vqa_expert
-        conf = get_config()
-        conf = conf["image_server"]
-        self.ADE20K_URL = f"http://{conf['host']}:{conf['port']}/"
+        conf = get_config()["image_server"]
         self.debug = conf["debug"]
 
     def step(self, observation: dict) -> dict:
@@ -112,7 +113,7 @@ class CustomAvatar(Avatar):
         image_url = None
         if observation["image"]:
             if self.observation:
-                image_url = self.ADE20K_URL + self.observation["image"]
+                image_url = self.image_directory + self.observation["image"]
                 last_char_index = image_url.rfind("/")
                 image_name = image_url[last_char_index + 1:]
                 image_path = tf.keras.utils.get_file(image_name, origin=image_url)

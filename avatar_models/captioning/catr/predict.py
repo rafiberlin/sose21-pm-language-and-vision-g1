@@ -50,6 +50,7 @@ class CATRInference():
         self.start_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._cls_token)
         self.end_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._sep_token)
         self.model = v3(pretrained=True)#torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
+        self.model.eval()
         catr_config = get_config()["captioning"]["catr"]
         self.cuda_device = catr_config["cuda_device"]
         self.beam_size = catr_config["beam_size"]
@@ -78,7 +79,6 @@ class CATRInference():
         :param image_path:
         :return:
         """
-        self.model.eval()
         image = Image.open(image_path)
         image = coco.val_transform(image)
         image = image.unsqueeze(0)
@@ -179,7 +179,6 @@ class CATRInference():
 
     @torch.no_grad()
     def infer(self, image_path):
-        self.model.eval()
         image = Image.open(image_path)
         image = coco.val_transform(image)
         image = image.unsqueeze(0)

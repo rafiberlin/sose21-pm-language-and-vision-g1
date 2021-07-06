@@ -66,7 +66,7 @@ def calc_scores(ref, hypo):
             final_scores[method] = score
     return final_scores
 
-def get_ms_coco_captions(data_type="val2017", shuffle=False, image_number=None):
+def get_ms_coco_captions(image_number=None, data_type="val2017", shuffle=False):
 
     """
 

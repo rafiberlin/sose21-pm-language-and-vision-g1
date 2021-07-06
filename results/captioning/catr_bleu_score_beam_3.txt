@@ -1,0 +1,16 @@
+CATR Captioning Performing the BLEU score and SPICE score on MSCOCO
+100%|██████████| 5000/5000 [31:50<00:00,  2.62it/s]
+SPICE evaluation took: 4.533 s
+MS COCO {'Bleu_1': 0.6650539784086233, 'Bleu_2': 0.4863343346254148, 'Bleu_3': 0.3560918595969771, 'Bleu_4': 0.26297030321376524, 'SPICE': 0.19090954155133408}
+
+CATR Captioning Performing the BLEU score and SPICE score with only 2 references on MSCOCO.
+100%|██████████| 5000/5000 [31:56<00:00,  2.61it/s]
+SPICE evaluation took: 2.755 s
+MS COCO {'Bleu_1': 0.49792083166732315, 'Bleu_2': 0.32574462621255473, 'Bleu_3': 0.22338124869159848, 'Bleu_4': 0.15870215533845283, 'SPICE': 0.241745955641921}
+
+CATR Captioning Performing the BLEU score and SPICE score on ADE20K
+100%|██████████| 411/411 [02:44<00:00,  2.51it/s]
+SPICE evaluation took: 7.809 s
+MS COCO {'Bleu_1': 0.33677686799367296, 'Bleu_2': 0.18654307085559965, 'Bleu_3': 0.10305048910349852, 'Bleu_4': 0.05872959369136464, 'SPICE': 0.13275019013569267}
+
+Process finished with exit code 0

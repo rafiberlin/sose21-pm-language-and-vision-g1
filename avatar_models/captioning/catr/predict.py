@@ -44,11 +44,13 @@ else:
 class CATRInference():
     def __init__(self):
         self.config = Config()
-        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', local_files_only=True)
+        # set local file to True if you have connection issues...
+        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', local_files_only=False)
         self.max_length = self.config.max_position_embeddings
         self.start_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._cls_token)
         self.end_token = self.tokenizer.convert_tokens_to_ids(self.tokenizer._sep_token)
         self.model = v3(pretrained=True)#torch.hub.load('saahiluppal/catr', 'v3', pretrained=True)
+        self.model.eval()
         catr_config = get_config()["captioning"]["catr"]
         self.cuda_device = catr_config["cuda_device"]
         self.beam_size = catr_config["beam_size"]
@@ -72,7 +74,11 @@ class CATRInference():
         return self.caption_template, self.mask_template
     @torch.no_grad()
     def infer_beam(self, image_path):
-
+        """
+        Beam Search still broken. Does not deliver better bleu score than greedy search
+        :param image_path:
+        :return:
+        """
         image = Image.open(image_path)
         image = coco.val_transform(image)
         image = image.unsqueeze(0)
@@ -84,17 +90,16 @@ class CATRInference():
             caption = caption.cuda(self.cuda_device)
             cap_mask = cap_mask.cuda(self.cuda_device)
         src, mask, pos = self.model.init_sample(image)
-        # model.eval()
 
         predictions = self.model.infer(src, mask, pos, caption, cap_mask) #self.model(image, caption, cap_mask)
-        predictions = predictions[:, 0, :]#torch.nn.functional.log_softmax(predictions[:, 0, :])
+        predictions = torch.nn.functional.log_softmax(predictions[:, 0, :], dim=-1)#predictions[:, 0, :]#torch.nn.functional.log_softmax(predictions[:, 0, :])
         previous_log_prob, candidate_indices = torch.topk(predictions, beam_size)
         preds = {i: np.zeros(self.max_length, dtype=int) for i in range(beam_size)}
         for i in range(beam_size):
             preds[i][0] = candidate_indices[0][i]
         # Copy entries a number of time equal to the beam size (the number of alternative paths)
         # 1 means the dimensions stay untouched
-        image = image.repeat(beam_size, 1, 1, 1)
+        #image = image.repeat(beam_size, 1, 1, 1)
         caption = caption.repeat(beam_size, 1)
         cap_mask = cap_mask.repeat(beam_size, 1)
         src = src.repeat(beam_size,1 ,1 ,1)
@@ -105,14 +110,14 @@ class CATRInference():
         cap_mask[:, 1] = False
         for step in range(1, self.max_length - 1):
             predictions = self.model.infer(src, mask, pos, caption, cap_mask) #self.model(image, caption, cap_mask)
-            predictions = predictions[:, step, :]
+            predictions = torch.nn.functional.log_softmax(predictions[:, step, :], dim=-1)#predictions[:, step, :]
             candidates_log_prob, candidate_indices = torch.topk(predictions, beam_size)
             candidates_log_prob = torch.reshape(candidates_log_prob + previous_log_prob, (-1,))
             candidate_indices = torch.reshape(candidate_indices, (-1,))
             current_top_candidates, current_top_candidates_idx = torch.topk(candidates_log_prob, k=beam_size)
 
             # Do the mapping best candidate and "source" of the best candidates
-            k_idx = torch.gather(candidate_indices, dim=0, index=current_top_candidates_idx)
+            k_idx = torch.index_select(candidate_indices, dim=0, index=current_top_candidates_idx)
             prev_idx = torch.floor(current_top_candidates_idx / beam_size).to(torch.int32)
 
             previous_log_prob = torch.unsqueeze(current_top_candidates, dim=1)
@@ -120,10 +125,11 @@ class CATRInference():
             # Overwrite the previous predictions due to the new best candidates
             temp = caption.clone()
             for i in range(prev_idx.shape[0]):
-                temp[i][:step] = caption[np_prev_idx[i]][:step]
+                temp[i][:step + 1] = caption[np_prev_idx[i]][:step + 1]
             caption = temp
             preds = {i: preds[np_prev_idx[i]].copy() for i in range(prev_idx.shape[0])}
-
+            caption[:, step + 1] = k_idx
+            cap_mask[:, step + 1] = False
             stop_idx = []
             for i in range(k_idx.shape[0]):
                 preds[i][step] = k_idx[i]
@@ -135,22 +141,21 @@ class CATRInference():
                 for i in reversed(sorted(stop_idx)):
                     candidate = preds.pop(i)
                     loss = current_top_candidates[i]
-                    length = np.where(candidate == self.end_token)[0] + 1
+                    length = np.where(candidate == self.end_token)[0]
                     normalized_loss = loss / float(length)
                     candidates.append((candidate, normalized_loss))
                 beam_size = beam_size - len(stop_idx)
                 if beam_size > 0:
                     left_idx = torch.LongTensor([i for i in range(k_idx.shape[0]) if i not in stop_idx])
-                    k_idx = torch.LongTensor([k_idx[i] for i in range(k_idx.shape[0]) if i not in stop_idx])
+
                     if self.cuda_device.startswith("cuda"):
                         left_idx = left_idx.cuda(self.cuda_device)
-                        k_idx = k_idx.cuda(self.cuda_device)
                     # current_top_candidates = torch.IntTensor(
                     #     [current_top_candidates[i] for i in range(current_top_candidates.shape[0]) if
                     #      i not in stop_idx])
                     caption = torch.index_select(caption, dim=0, index=left_idx)
                     cap_mask = torch.index_select(cap_mask, dim=0, index=left_idx)
-                    image = torch.index_select(image, dim=0, index=left_idx)
+                    #image = torch.index_select(image, dim=0, index=left_idx)
                     previous_log_prob = torch.index_select(previous_log_prob, dim=0, index=left_idx)
                     src = torch.index_select(src, dim=0, index=left_idx)
                     mask = torch.index_select(mask, dim=0, index=left_idx)
@@ -161,13 +166,7 @@ class CATRInference():
                 else:
                     break  # No sequences unfinished
 
-            # predicted_id = torch.argmax(predictions, axis=-1)
-            pass
-            # if predicted_id[0] == self.end_token:
-            #     #return caption
-            #     break
-            caption[:, step + 1] = k_idx
-            cap_mask[:, step + 1] = False
+
 
         if len(candidates) > 0:
             result, _ = max(candidates, key=lambda c: c[1])
@@ -180,7 +179,6 @@ class CATRInference():
 
     @torch.no_grad()
     def infer(self, image_path):
-
         image = Image.open(image_path)
         image = coco.val_transform(image)
         image = image.unsqueeze(0)
@@ -197,7 +195,6 @@ class CATRInference():
             predictions = self.model.infer(src, mask, pos, caption, cap_mask)
             predictions = predictions[:, i, :]
             predicted_id = torch.argmax(predictions, axis=-1)
-
             if predicted_id[0] == self.end_token:
                 #return caption
                 break
@@ -208,7 +205,6 @@ class CATRInference():
 
 
 if __name__ == "__main__":
-
     ade20k = get_config()["ade20k_dir"]
     image_path = os.path.join(ade20k, "images/training/u/utility_room/ADE_train_00019432.jpg")
     catr = CATRInference()

@@ -22,12 +22,12 @@ class Caption(nn.Module):
         features, pos = self.backbone(samples)
         src, mask = features[-1].decompose()
 
-        return src, mask, pos
+        return self.input_proj(src), mask, pos
 
     def infer(self, src, mask, pos, target, target_mask):
         assert mask is not None
 
-        hs = self.transformer(self.input_proj(src), mask,
+        hs = self.transformer(src, mask,
                               pos[-1], target, target_mask)
         out = self.mlp(hs.permute(1, 0, 2))
         return out

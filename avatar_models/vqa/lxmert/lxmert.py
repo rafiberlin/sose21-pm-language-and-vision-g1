@@ -9,11 +9,10 @@ import torch
 
 class LXMERTInference():
 
-    def __init__(self):
+    def __init__(self, model_type=None):
         """
-        Get a function for LXMERT inferences, The input of this function is of the form  URL, test_question
-        and returns a string as answer.
-        :return:the LXMERT inference function
+        Create a LXMERT inference Model
+        :param model_type: String, either vqa or gqa
         """
 
         self.OBJ_URL = "https://raw.githubusercontent.com/airsplay/py-bottom-up-attention/master/demo/data/genome/1600-400-20/objects_vocab.txt"
@@ -21,7 +20,10 @@ class LXMERTInference():
 
         conf = get_config()
         lxmert_conf = conf["vqa"]["lxmert"]
-        self.model_type = lxmert_conf["model"]
+        if model_type is not None:
+            self.model_type = lxmert_conf["model"]
+        else:
+            self.model_type = model_type
 
         if self.model_type.lower() == "gqa":
             print("Loading GQA Model for LXMERT")

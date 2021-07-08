@@ -133,7 +133,7 @@ def train(model_type, device, train_dataset, test_dataset, batch_size, n_epochs=
         total_loss = 0
         
         # run evaluation after each epoch
-        evaluate(model, test_dataset, BATCH_SIZE)
+        evaluate(model=model, device=device, test_dataset=test_dataset, batch_size=batch_size)
         
         # Save checkpoint
         state = {
@@ -149,7 +149,7 @@ def train(model_type, device, train_dataset, test_dataset, batch_size, n_epochs=
         )
         print("Saved!")
 
-def evaluate(model, device, test_, dataset, batch_size):
+def evaluate(model, device, test_dataset, batch_size):
     model.eval()
     
     eval_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)

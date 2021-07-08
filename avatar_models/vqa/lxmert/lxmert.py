@@ -20,7 +20,7 @@ class LXMERTInference():
 
         conf = get_config()
         lxmert_conf = conf["vqa"]["lxmert"]
-        if model_type is not None:
+        if model_type is None:
             self.model_type = lxmert_conf["model"]
         else:
             self.model_type = model_type

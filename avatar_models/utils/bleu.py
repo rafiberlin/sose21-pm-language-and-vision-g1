@@ -212,7 +212,7 @@ if __name__ == "__main__":
 
     print( "CATR Captioning", msg)
     perform_bleu_score(captions_coco, caption_expert, num_ref)
-    captions_ade20k = get_ade20k_caption_annotations()
+
     print("CATR Captioning", msg2)
     perform_bleu_score(captions_ade20k, caption_expert, num_ref)
     # cap = merge_annotations("/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/annotations/captions_fully_annotated.csv", "/home/rafi/merged.csv")

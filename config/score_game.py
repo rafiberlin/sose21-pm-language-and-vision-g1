@@ -2,7 +2,7 @@ import os
 from config.util import get_config, read_game_logs, output_game_metrics
 import argparse
 
-# Execute as score_game.py --file rafi_10_games_04_jun_21.txt --dir ../data/game_logs
+# Execute as score_game.py --file rafi_10_games_04_jun_21_attention_caption_lxmert_vqa.txt --dir ../data/game_logs
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Calculate the game statistics given a game log file')
     parser.add_argument("--file", help="the file to process", required=True)

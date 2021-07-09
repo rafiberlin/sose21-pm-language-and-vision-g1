@@ -1,12 +1,13 @@
 import os
 import json
 
+
 def get_config():
     """
     Get the general project config
     :return:
     """
-    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),  "config.json")
+    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
     with open(config_file, "r") as read_file:
         conf = json.load(read_file)
 
@@ -19,17 +20,16 @@ def get_config():
         print("Server Setup: config.json will be used")
 
     pretrained_root = conf["pretrained_root"]
-    conf["glove_embeddings"] = os.path.join(pretrained_root,  conf["glove_embeddings"] )
+    conf["glove_embeddings"] = os.path.join(pretrained_root, conf["glove_embeddings"])
     if not os.path.exists(conf["glove_embeddings"]):
         os.makedirs(conf["glove_embeddings"])
         print("Created directory:", conf["glove_embeddings"])
 
-
     conf["captioning"]["attention"]["pretrained_dir"] = os.path.join(pretrained_root,
-                                            conf["captioning"]["attention"]["pretrained_dir"])
+                                                                     conf["captioning"]["attention"]["pretrained_dir"])
 
     conf["vqa"]["attention"]["pretrained_dir"] = os.path.join(pretrained_root,
-                                            conf["vqa"]["attention"]["pretrained_dir"])
+                                                              conf["vqa"]["attention"]["pretrained_dir"])
 
     captioning_pretrained_dir = conf["captioning"]["attention"]["pretrained_dir"]
     vqa_pretrained_dir = conf["vqa"]["attention"]["pretrained_dir"]
@@ -53,8 +53,8 @@ def get_config():
         os.makedirs(conf["game_logs_dir"])
         print("Created directory:", conf["game_logs_dir"])
 
-
     return conf
+
 
 def create_directory_structure(struct):
     if not os.path.exists(struct):
@@ -83,69 +83,113 @@ def read_game_logs(file_path):
 
         start = None
         end = None
-
+        real_end = None  # WHen The came master says COngrats or you die, because rest of the messages looks like bugs...
         episode_list = []
         length = len(log)
         game_finished = False
+        # Episode are being searched between 2 starts commands
+        # only the one where the command done has been issued is kept
         for i, l in enumerate(log):
             if "command" in l.keys():
-                if  l["command"] == "start":
+                if l["command"] == "start":
                     if start == None:
                         start = i
                     elif end == None:
                         end = i
                 if l["command"] == "done":
                     game_finished = True
+
+            if l["user"]["id"] == 1 and l["event"] == "text_message" and type(l["message"]) is str and (
+                    l["message"].startswith("Congrats") or l["message"].startswith(
+                    "The rescue robot has not reached you")):
+                real_end = i + 1  # +1 because we want to include this message in the log slice...
             if start is not None and end is not None:
                 if game_finished:
-                    episode_list.append(log[start:end])
+                    episode_list.append(log[start:real_end])
                 start = end
                 end = None
+                real_end = None
                 game_finished = False
 
             if i + 1 == length:
-                if start is not None and end is None:
-                    episode_list.append(log[start:length])
+                if start is not None and end is None and game_finished:
+                    episode_list.append(log[start:real_end])
 
         score_list = {}
         for i, e in enumerate(episode_list):
             # the number of answers the avatar utters gives us the number of question asked
-            num_questions = sum(
-                [1 for m in e if m["user"]["name"] == "Avatar" and m["event"] == "text_message"])
+            # num_questions = sum(
+            #     [1 for m in e if m["user"]["name"] == "Avatar" and m["event"] == "text_message"])
+
+            #Just sum every messages ending with a question mark issueed by the user...
+            num_questions = sum([1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
+                "event"] == "text_message" and type(m["message"]) is str and m["message"].endswith("?")])
 
             # user id 1 is alway the game master, we are looping here on the messages of the "real" player
             # when we tell the avatar to change location, we don't get an answer, this is why the substraction gives the number of orders
             # this does not include the order "done"
-            num_orders = sum(
-                [1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
-                    "event"] == "text_message"]) - num_questions
+            # num_orders = sum(
+            #     [1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
+            #         "event"] == "text_message"]) - num_questions
+
+            #Just sum every order of type "go west". Describe orders are not counted.
+            num_orders = sum([1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
+                "event"] == "text_message" and type(m["message"]) is str and (
+                                      "east" in m["message"].lower() or "north" in m["message"].lower() or "west" in m[
+                                  "message"].lower() or "south" in m["message"].lower())])
+
+            game_won = sum([1 for m in e if m["user"]["id"] == 1 and m[
+                "event"] == "text_message" and type(m["message"]) is str and m["message"].startswith("Congrats")]) > 0
 
             score_list[i] = {"score": sum([m["message"]["observation"]["reward"] for m in e if
-                                                              "message" in m.keys() and type(m["message"]) is dict]),
-                             "num_questions": num_questions, "num_orders": num_orders, "game_session": e}
+                                           "message" in m.keys() and type(m["message"]) is dict]),
+                             "num_questions": num_questions, "num_orders": num_orders, "game_session": e,
+                             "game_won": game_won}
 
         return score_list
 
     else:
         raise (f"{file_path} is not a correct file path.")
 
-def output_game_metrics(log):
 
+def output_game_metrics(log):
     num_game = len(log)
+    PENALTY_FOR_QUESTION_ASKED = -0.01
+    PENALTY_FOR_ORDERS = -0.01
+    discounted_score = lambda l, i: l[i]["score"] + l[i]["num_questions"] * PENALTY_FOR_QUESTION_ASKED + l[i]["num_orders"] * PENALTY_FOR_ORDERS
+
     s = 0
     sq = 0
     for k in log.keys():
-        sq = sq + log[k]["score"] + log[k]["num_questions"]*-0.01
-        s = s + log[k]["score"]
+        sq += discounted_score(log,k)
+        s += log[k]["score"]
 
-    print("Average Score", s/num_game)
-    print("Best Game under normal Score", log[max(log.keys(), key=lambda k: log[k]["score"])]["score"], "Game Number", max(log.keys(), key=lambda k: log[k]["score"]))
-    print("Worse Game under normal Score", log[min(log.keys(), key=lambda k: log[k]["score"])]["score"], "Game Number", min(log.keys(), key=lambda k: log[k]["score"]))
+    print("Average Score", s / num_game)
+    print("Won Games", f"{sum([1 for k in log.keys() if log[k]['game_won']])} / {num_game}")
+    print("Questions Asked Per Game", f"{sum([log[k]['num_questions'] for k in log.keys()])/num_game}")
+    print("Orders Given Per Game", f"{sum([log[k]['num_orders'] for k in log.keys()])/num_game}")
+
+    max_score_id = max(log.keys(), key=lambda k: log[k]["score"])
+    print("Best Game under normal Score", log[max_score_id]["score"], "Game Number",
+          max_score_id)
+    lowest_score_id = min(log.keys(), key=lambda k: log[k]["score"])
+    print("Worse Game under normal Score", log[lowest_score_id]["score"], "Game Number",
+          lowest_score_id)
     print("Average Score with questions discount", sq / num_game)
-    print("Best Game under Question Discounted Score", log[max(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1)]["score"], "Game number", max(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1))
-    print("Worse Game under Question Discounted Score", log[min(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1)]["score"], "Game Number", min(log.keys(), key=lambda k: log[k]["score"]+ log[k]["num_questions"]*-0.1))
+
+    max_score_question_discount_id = max(log.keys(), key=lambda k: discounted_score(log, k))
+
+
+    print("Best Game with Question/Orders Discounted Score",
+          discounted_score(log, max_score_question_discount_id), "Game number",
+          max_score_question_discount_id)
+    min_score_question_discount_id = min(log.keys(), key=lambda k: discounted_score(log, k))
+    print("Worse Game under Question/Orders Discounted Score",
+          discounted_score(log, min_score_question_discount_id), "Game Number",
+          min_score_question_discount_id)
 
     return (s, sq)
+
 
 if __name__ == "__main__":
     pass

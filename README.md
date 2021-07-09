@@ -105,6 +105,17 @@ These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluati
 Please also unpack all files found under ./data/ade20k_vqa in the directory defined in the ./config/config.json file, 
 under the key "ade20k_dir", in order to be able to run the ADE20K evaluation for VQA.
 
+## Output Game Statistics from a Slurk Log
+
+If you have extracted a game log from a slurk server (as a reminder, go to the directory where slurk is installed 
+and run: `sh scripts/get_logs.sh 00000000-0000-0000-0000-000000000000 avatar_room > your_file_name.log` to extract the logs)
+
+You can run the following to get some game statistics:
+
+`python ./config/score_game.py --file your_file_name.log --dir ../data/game_logs`
+
+
+
 # Installation
 
 Important: if you face errors concerning the import of modules, please export this project to you python path:

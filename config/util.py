@@ -148,7 +148,4 @@ def output_game_metrics(log):
     return (s, sq)
 
 if __name__ == "__main__":
-    game_logs_dir = get_config()["game_logs_dir"]
-    log_path = os.path.join(game_logs_dir, "rafi_10_games_04_jun_21.txt")
-    log = read_game_logs(log_path)
-    output_game_metrics(log)
+    pass

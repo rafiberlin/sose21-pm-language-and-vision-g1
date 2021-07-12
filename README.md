@@ -1,5 +1,10 @@
 # A MapWorld Avatar Game (SoSe21 PM Vision)
 
+Remark for the configuration (see config/config.json):
+
+If some expected directories are missing, try to execute config/util.py (with sudo if necessary)
+It will try to create the missing directories needed in some cases.
+
 # Pretrained Models
 
 ## Captioning

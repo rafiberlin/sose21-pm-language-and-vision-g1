@@ -193,6 +193,9 @@ To install the latest update from the github repo, just type:
 `git pull`
 `pip install .` or `python setup.py install`
 
+If git complains about changed files, the following reverts local changes, you should then be able to pull latest changes:
+`git checkout .`
+
 You can simply deactivate the environment by typing:
 
 `deactivate`

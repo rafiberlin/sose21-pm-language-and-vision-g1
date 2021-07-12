@@ -35,7 +35,6 @@ def directions_to_sent(directions: str):
 class CustomAvatar(Avatar):
 
     def __init__(self, image_directory, caption_expert, vqa_expert):
-
         assert image_directory is not None
         assert caption_expert is not None
         assert vqa_expert is not None

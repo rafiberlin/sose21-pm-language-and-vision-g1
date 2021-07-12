@@ -4,6 +4,7 @@ from avatar_models.vqa.lxmert.modeling_frcnn import GeneralizedRCNN
 from avatar_models.vqa.lxmert.utils import Config, get_data
 from transformers import LxmertForQuestionAnswering, LxmertTokenizer
 from avatar_models.utils.util import get_config
+import os
 import torch
 
 
@@ -20,19 +21,33 @@ class LXMERTInference():
 
         conf = get_config()
         lxmert_conf = conf["vqa"]["lxmert"]
+        device = conf["vqa"]["lxmert"]["cuda_device"]
+
         if model_type is None:
             self.model_type = lxmert_conf["model"]
         else:
             self.model_type = model_type
 
-        if self.model_type.lower() == "gqa":
+        if type(self.model_type) is str:
+            self.model_type = self.model_type.lower()
+
+        if self.model_type == "gqa":
             print("Loading GQA Model for LXMERT")
             self.MODEL_URL = "https://raw.githubusercontent.com/airsplay/lxmert/master/data/gqa/trainval_label2ans.json"
             self.vqa = LxmertForQuestionAnswering.from_pretrained("unc-nlp/lxmert-gqa-uncased")
         else:
             print("Loading default VQA Model for LXMERT")
+            self.model_type = "vqa"
             self.MODEL_URL = "https://raw.githubusercontent.com/airsplay/lxmert/master/data/vqa/trainval_label2ans.json"
             self.vqa = LxmertForQuestionAnswering.from_pretrained("unc-nlp/lxmert-vqa-uncased")
+
+        if lxmert_conf["fine_tuning"]["use_pretrained"]:
+            fine_tuned_model = os.path.join(conf["pretrained_root"], lxmert_conf["fine_tuning"]["pretrained_dir"], self.model_type, lxmert_conf["fine_tuning"]["model_file"])
+            if not os.path.exists(fine_tuned_model):
+                raise Exception(f"{fine_tuned_model} does not exit, VQA LXMERT with fine tuning cannot be loaded")
+            print(f"Fine-tuned weights for VQA loaded: {fine_tuned_model}")
+            ckpt = torch.load(fine_tuned_model, map_location=device)
+            self.vqa.load_state_dict(ckpt["state_dict"])
 
         self.QUESTION_LENGTH = lxmert_conf["question_length"]
         """
@@ -51,7 +66,7 @@ class LXMERTInference():
 
         # load avatar_models and model components
         self.frcnn_cfg = Config.from_pretrained("unc-nlp/frcnn-vg-finetuned")
-        device = conf["vqa"]["lxmert"]["cuda_device"]
+
         if torch.cuda.is_available() and device is not None and device.startswith("cuda"):
             print("Enabling CUDA for LXMERT", device)
             self.frcnn_cfg.model.device = device
@@ -139,7 +154,7 @@ class LXMERTInference():
             visual_feats=features,
             visual_pos=normalized_boxes,
             token_type_ids=inputs.token_type_ids,
-            output_attentions=False,
+            output_attentions=False
         )
         # get prediction
         pred_vqa = output_vqa["question_answering_score"].argmax(-1)

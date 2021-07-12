@@ -4,7 +4,7 @@
     "port": 30000,
     "debug": false
   },
-  "use_dev_config": false,
+  "use_dev_config": true,
   "ms_coco_dir" : "/home/users/acordova/data/ImageCorpora/MSCOCO/",
   "vqa_dir" : "/home/users/acordova/data/ImageCorpora/VQA/",
   "ade20k_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/",
@@ -30,12 +30,12 @@
       "model" : "vqa",
       "cuda_device" : "cuda:1",
       "fine_tuning" : {
-        "pretrained_dir": "vqa/lxmert/gqa",
+        "pretrained_dir": "vqa/lxmert/",
         "epoch": 3,
         "batch_size" : 64,
         "use_pretrained": true,
         "learning_rate" : 5e-5,
-        "weights" : "lxmert_gqa_epoch3.pkl.pl"
+        "model_file" : "lxmert_gqa_epoch3.pkl"
       }
     }
   },

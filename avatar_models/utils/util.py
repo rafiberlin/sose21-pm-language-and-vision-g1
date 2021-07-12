@@ -69,7 +69,7 @@ def get_ade20_vqa_data(file_name="ade20k_vqa.jsonl"):
     :return:
     """
     conf = get_config()
-    vqa_file = conf["ade20k_dir"]
+    vqa_file = conf["ade20k_vqa_dir"]
     file = os.path.join(vqa_file, file_name)
     print(f"Reading {file}")
     with jsonlines.open(file) as reader:

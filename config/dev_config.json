@@ -27,15 +27,15 @@
     ,
     "lxmert" : {
       "question_length": 24,
-      "model" : "vqa",
+      "model" : "gqa",
       "cuda_device" : "cpu",
       "fine_tuning" : {
-        "pretrained_dir": "vqa/lxmert/gqa/",
+        "pretrained_dir": "vqa/lxmert/",
         "epoch": 3,
         "batch_size" : 64,
         "use_pretrained": true,
         "learning_rate" : 5e-5,
-        "weights" : "lxmert_gqa_epoch3.pkl.pl"
+        "model_file" : "lxmert_gqa_epoch3.pkl"
       }
     }
   },

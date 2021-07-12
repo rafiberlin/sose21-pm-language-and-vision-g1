@@ -1,0 +1,28 @@
+version: "2.0"
+
+rules:
+
+- rule: Say goodbye anytime the user says goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- rule: Say 'I am a bot' anytime the user challenges
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- rule: Generate expert model caption
+  steps:
+  - intent: get_caption
+  - action: utter_on_caption
+  
+- rule: Generate expert model vqa
+  steps:
+  - intent: get_vqa
+  - action: utter_on_vqa
+  
+- rule: Get directions
+  steps:
+  - intent: get_direction
+  - action: utter_on_direction

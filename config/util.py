@@ -32,7 +32,8 @@ def get_config():
                                                               conf["vqa"]["attention"]["pretrained_dir"])
 
     conf["vqa"]["lxmert"]["fine_tuning"]["pretrained_dir"] = os.path.join(pretrained_root,
-                                                              conf["vqa"]["lxmert"]["fine_tuning"]["pretrained_dir"])
+                                                                          conf["vqa"]["lxmert"]["fine_tuning"][
+                                                                              "pretrained_dir"])
 
     captioning_pretrained_dir = conf["captioning"]["attention"]["pretrained_dir"]
     vqa_pretrained_dir = conf["vqa"]["attention"]["pretrained_dir"]
@@ -41,9 +42,9 @@ def get_config():
     vqa_features = os.path.join(conf["ade20k_vqa_dir"], "precomputed_features/training")
 
     gqa_dir = os.path.join(lxmert_pretrained_dir,
-                 "gqa")
+                           "gqa")
     vqa_dir = os.path.join(lxmert_pretrained_dir,
-                 "vqa")
+                           "vqa")
 
     if not os.path.exists(captioning_pretrained_dir):
         os.makedirs(captioning_pretrained_dir)
@@ -129,7 +130,7 @@ def read_game_logs(file_path):
 
             if l["user"]["id"] == 1 and l["event"] == "text_message" and type(l["message"]) is str and (
                     l["message"].startswith("Congrats") or l["message"].startswith(
-                    "The rescue robot has not reached you")):
+                "The rescue robot has not reached you")):
                 real_end = i + 1  # +1 because we want to include this message in the log slice...
             if start is not None and end is not None:
                 if game_finished:
@@ -149,7 +150,7 @@ def read_game_logs(file_path):
             # num_questions = sum(
             #     [1 for m in e if m["user"]["name"] == "Avatar" and m["event"] == "text_message"])
 
-            #Just sum every messages ending with a question mark issueed by the user...
+            # Just sum every messages ending with a question mark issueed by the user...
             num_questions = sum([1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
                 "event"] == "text_message" and type(m["message"]) is str and m["message"].endswith("?")])
 
@@ -160,7 +161,7 @@ def read_game_logs(file_path):
             #     [1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
             #         "event"] == "text_message"]) - num_questions
 
-            #Just sum every order of type "go west". Describe orders are not counted.
+            # Just sum every order of type "go west". Describe orders are not counted.
             num_orders = sum([1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
                 "event"] == "text_message" and type(m["message"]) is str and (
                                       "east" in m["message"].lower() or "north" in m["message"].lower() or "west" in m[
@@ -184,18 +185,19 @@ def output_game_metrics(log):
     num_game = len(log)
     PENALTY_FOR_QUESTION_ASKED = -0.01
     PENALTY_FOR_ORDERS = -0.01
-    discounted_score = lambda l, i: l[i]["score"] + l[i]["num_questions"] * PENALTY_FOR_QUESTION_ASKED + l[i]["num_orders"] * PENALTY_FOR_ORDERS
+    discounted_score = lambda l, i: l[i]["score"] + l[i]["num_questions"] * PENALTY_FOR_QUESTION_ASKED + l[i][
+        "num_orders"] * PENALTY_FOR_ORDERS
 
     s = 0
     sq = 0
     for k in log.keys():
-        sq += discounted_score(log,k)
+        sq += discounted_score(log, k)
         s += log[k]["score"]
 
     print("Average Score", s / num_game)
     print("Won Games", f"{sum([1 for k in log.keys() if log[k]['game_won']])} / {num_game}")
-    print("Questions Asked Per Game", f"{sum([log[k]['num_questions'] for k in log.keys()])/num_game}")
-    print("Orders Given Per Game", f"{sum([log[k]['num_orders'] for k in log.keys()])/num_game}")
+    print("Questions Asked Per Game", f"{sum([log[k]['num_questions'] for k in log.keys()]) / num_game}")
+    print("Orders Given Per Game", f"{sum([log[k]['num_orders'] for k in log.keys()]) / num_game}")
 
     max_score_id = max(log.keys(), key=lambda k: log[k]["score"])
     print("Best Game under normal Score", log[max_score_id]["score"], "Game Number",
@@ -206,7 +208,6 @@ def output_game_metrics(log):
     print("Average Score with questions discount", sq / num_game)
 
     max_score_question_discount_id = max(log.keys(), key=lambda k: discounted_score(log, k))
-
 
     print("Best Game with Question/Orders Discounted Score",
           discounted_score(log, max_score_question_discount_id), "Game number",
@@ -223,4 +224,3 @@ if __name__ == "__main__":
     print("Executing the script once should create every directories needed for proper execution.")
     get_config()
     print("Done")
-

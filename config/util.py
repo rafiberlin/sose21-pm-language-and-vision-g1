@@ -20,10 +20,10 @@ def get_config():
         print("Server Setup: config.json will be used")
 
     pretrained_root = conf["pretrained_root"]
-    conf["glove_embeddings"] = os.path.join(pretrained_root, conf["glove_embeddings"])
-    if not os.path.exists(conf["glove_embeddings"]):
-        os.makedirs(conf["glove_embeddings"])
-        print("Created directory:", conf["glove_embeddings"])
+    gloves_dir = os.path.join(pretrained_root, "gloves")
+    if not os.path.exists(gloves_dir):
+        os.makedirs(gloves_dir)
+        print("Created directory:", gloves_dir)
 
     conf["captioning"]["attention"]["pretrained_dir"] = os.path.join(pretrained_root,
                                                                      conf["captioning"]["attention"]["pretrained_dir"])

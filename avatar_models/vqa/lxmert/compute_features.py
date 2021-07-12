@@ -1,14 +1,31 @@
 import pickle
 import os 
 from tqdm import tqdm
-from processing_image import Preprocess
-from modeling_frcnn import GeneralizedRCNN
-from utils import Config
+from avatar_models.vqa.lxmert.processing_image import Preprocess
+from avatar_models.vqa.lxmert.modeling_frcnn import GeneralizedRCNN
+from avatar_models.vqa.lxmert.utils import Config
 import torch
-
+from config.util import get_config
 
 def compute_features():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    project_conf = get_config()
+    ADE20K_DIR = project_conf["ade20k_dir"]
+    train_dir = os.path.join(ADE20K_DIR, "images/training")
+
+    train_save_path = os.path.join(project_conf["ade20k_vqa_dir"], "precomputed_features/training")
+
+    if not os.path.exists(train_dir):
+        raise(f"Training Dir {train_dir} does not exist")
+
+    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    device = "cpu"
+    tmp_device = project_conf["vqa"]["lxmert"]["cuda_device"]
+    if torch.cuda.is_available() and tmp_device is not None and tmp_device.startswith("cuda"):
+        print("Enabling CUDA for LXMERT Feature extraction", device)
+        device = tmp_device
+
     checkpoint = "unc-nlp/frcnn-vg-finetuned"
     frcnn_cfg = Config.from_pretrained(checkpoint)
     frcnn_cfg.MODEL.device = device
@@ -17,12 +34,8 @@ def compute_features():
     image_preprocess = Preprocess(frcnn_cfg)
     
     print("Computing features from training images...")
-    # Create folder to save featers into
-    train_save_path = "precomputed_features/training"
-    if not os.path.exists(train_save_path):
-        os.makedirs(train_save_path)
 
-    for root, dirs, files in tqdm(os.walk("/data/ImageCorpora/ADE20K_2016_07_26/images/training")): #edit path
+    for root, dirs, files in tqdm(os.walk(train_dir)): #edit path
         for file in files:
             if file.endswith("jpg") and file[0] != ".": # We only care about normal images
                 img_file = os.path.join(root, file)
@@ -54,5 +67,5 @@ def compute_features():
 #                     pickle.dump(output_dict, f)
     print("Done!")
     
-
-compute_features()
+if __name__ == "__main__":
+    compute_features()

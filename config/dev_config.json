@@ -8,6 +8,7 @@
   "ms_coco_dir" : "/home/rafi/_datasets/MSCOCO/",
   "vqa_dir" : "/home/rafi/_datasets/VQA/",
   "ade20k_dir" : "/home/rafi/_datasets/ADE20K/",
+  "ade20k_vqa_dir" : "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/data/ade20k_vqa",
   "ade20k_vqa_file" : "ade20k_vqa.jsonl",
   "ade20k_vqa_file_train_test" : "merged_synthetic_vqa_splits.json",
   "ade20k_vqa_file_test" : "merged_synthetic_vqa_test.jsonl",
@@ -27,7 +28,15 @@
     "lxmert" : {
       "question_length": 24,
       "model" : "vqa",
-      "cuda_device" : "cpu"
+      "cuda_device" : "cpu",
+      "fine_tuning" : {
+        "pretrained_dir": "vqa/lxmert/",
+        "epoch": 3,
+        "batch_size" : 64,
+        "use_pretrained": true,
+        "learning_rate" : 5e-5,
+        "weights" : "lxmert_gqa_epoch3.pkl.pl"
+      }
     }
   },
   "captioning": { "attention": {

@@ -1,27 +1,18 @@
 import pickle
 import os
 import json
-import io
-import wget
 from tqdm import tqdm
-import sys
-sys.path.append('/project/lxmert/sose21-pm-language-and-vision-g1/')
-from IPython.display import clear_output, Image, display
-import PIL.Image
 import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
-from processing_image import Preprocess
-from modeling_frcnn import GeneralizedRCNN
 from transformers import LxmertForQuestionAnswering, LxmertTokenizer
 from transformers import AdamW # is this needed for training?
-import utils
-from avatar_models.vqa.lxmert.utils import Config, get_data
-from avatar_models.utils.util import get_config
+from config.util import get_config
+from avatar_models.vqa.lxmert.utils import get_data
     
 class ADE20K_Dataset(Dataset):
-    def __init__(self, model_type, image_paths, questions, answers, question_length):
+    def __init__(self, model_type, image_paths, questions, answers, question_length, features_folder="precomputed_features/training"):
         self.image_paths = image_paths
         self.questions = questions
         self.answers = answers
@@ -32,18 +23,18 @@ class ADE20K_Dataset(Dataset):
         self.image_paths = np.array(self.image_paths)[good_indices]
         self.questions = np.array(self.questions)[good_indices]
         self.answers = np.array(self.answers)[good_indices]
-        
+        self.features_folder = features_folder
     def load_vocab(self, model_type):
         if model_type == "vqa":
             tokenizer = LxmertTokenizer.from_pretrained("unc-nlp/lxmert-vqa-uncased")
             VQA_URL = "https://raw.githubusercontent.com/airsplay/lxmert/master/data/vqa/trainval_label2ans.json"
-            answers = utils.get_data(VQA_URL)
+            answers = get_data(VQA_URL)
             label_2_ans = {key:value for key, value in enumerate(answers)}
             ans_2_label = {value:key for key, value in label_2_ans.items()}
         else:
             tokenizer = LxmertTokenizer.from_pretrained("unc-nlp/lxmert-gqa-uncased")
             GQA_URL = "https://raw.githubusercontent.com/airsplay/lxmert/master/data/gqa/trainval_label2ans.json"
-            answers = utils.get_data(GQA_URL)
+            answers = get_data(GQA_URL)
             label_2_ans = {key:value for key, value in enumerate(answers)}
             ans_2_label = {value:key for key, value in label_2_ans.items()}
         return (answers, label_2_ans, ans_2_label, tokenizer)
@@ -52,8 +43,7 @@ class ADE20K_Dataset(Dataset):
         "Loads precomputed FRCNN features for the image from the precomputed_features folder."
         # Add the .pickle extension
         img_path += ".pickle"
-        features_folder = "precomputed_features/training"
-        output_dict = pickle.load(open(os.path.join(features_folder, img_path), "rb"))
+        output_dict = pickle.load(open(os.path.join(self.features_folder, img_path), "rb"))
         return output_dict
   
     def __getitem__(self, idx):
@@ -67,7 +57,7 @@ class ADE20K_Dataset(Dataset):
         input = self.tokenizer(
             q,
             padding="max_length", 
-            max_length=20,
+            max_length=self.question_length,
             truncation=True,
             return_token_type_ids=True,
             return_attention_mask=True,
@@ -82,23 +72,26 @@ class ADE20K_Dataset(Dataset):
     def __len__(self):
         return len(self.answers)
 
-def train(model_type, device, train_dataset, test_dataset, batch_size, n_epochs=3):
+def train(model_type, device, train_dataset, test_dataset, batch_size, n_epochs=3, learning_rate=5e-5):
     if model_type == "vqa":
         model_checkpoint = "unc-nlp/lxmert-vqa-uncased"
         print("Loading {}".format(model_checkpoint))
         model = LxmertForQuestionAnswering.from_pretrained(model_checkpoint).to(device)
+
     elif model_type == "gqa":
         model_checkpoint = "unc-nlp/lxmert-gqa-uncased"
         print("Loading {}".format(model_checkpoint))
         model = LxmertForQuestionAnswering.from_pretrained(model_checkpoint).to(device)
     else:
-        print("Wrong model type")
-        
+        raise ValueError(f"Wrong model type{model_type}, choose gqa or vqa")
+
+    save_dir = os.path.join(MODEL_DIR, model_type)
+
     train_loader = DataLoader(train_dataset, batch_size, shuffle=True)
     
     model.train()
 
-    optim = AdamW(model.parameters(), lr=5e-5)
+    optim = AdamW(model.parameters(), lr=learning_rate)
     loss_fn = torch.nn.CrossEntropyLoss()
     
     total_loss = 0
@@ -143,8 +136,7 @@ def train(model_type, device, train_dataset, test_dataset, batch_size, n_epochs=
         print("Saving a model after epoch ".format(epoch+1))
         torch.save(
             state,
-            os.path.join(os.getcwd(),
-                         "finetuned-lxmert/{}".format(model_type),
+            os.path.join(save_dir,
                          'epoch' + str(epoch+1) + '.pkl')
         )
         print("Saved!")
@@ -178,20 +170,25 @@ def evaluate(model, device, test_dataset, batch_size):
 if __name__ == "__main__":
     # Get configuration
     config = get_config()
-
-    BATCH_SIZE = 64
+    BATCH_SIZE = config['vqa']['lxmert']['fine_tuning']["batch_size"]
+    EPOCH = config['vqa']['lxmert']['fine_tuning']["epoch"]
     MODEL_TYPE = config['vqa']['lxmert']['model']
+    LR = config['vqa']['lxmert']['fine_tuning']["learning_rate"]
     QUESTION_LENGTH = config['vqa']['lxmert']['question_length']
     DEVICE = config['vqa']['lxmert']['cuda_device']
+    MODEL_DIR = os.path.join( config["ade20k_vqa_dir"], config['vqa']['lxmert']['fine_tuning']["pretrained_dir"])
+    ADE20K_SYNTHETIC_DATASET = os.path.join(config["ade20k_vqa_dir"], config["ade20k_vqa_file_train_test"])
+    features_folder = os.path.join(config["ade20k_vqa_dir"], "precomputed_features/training")
+
     print("DEVICE:", DEVICE)
 
-    # Create folder for saving the model
-    if not os.path.exists("finetuned-lxmert/{}".format(MODEL_TYPE)):
-        os.makedirs("finetuned-lxmert/{}".format(MODEL_TYPE))
+    # # Create folder for saving the model => moved to get_config()
+    # if not os.path.exists("finetuned-lxmert/{}".format(MODEL_TYPE)):
+    #     os.makedirs("finetuned-lxmert/{}".format(MODEL_TYPE))
         
     # Load dataset
-    print("Loading the dataset...")
-    with open("merged_synthetic_vqa_splits.json", "r") as f:
+    print(f"Loading the dataset under {ADE20K_SYNTHETIC_DATASET}")
+    with open(ADE20K_SYNTHETIC_DATASET, "r") as f:
         vqa_dataset = json.load(f)
     
     training = pd.DataFrame(vqa_dataset["training"])
@@ -200,8 +197,8 @@ if __name__ == "__main__":
     train_image_paths, train_questions, train_answers = training['image_path'].values, training['question'].values, training['answer'].values
     test_image_paths, test_questions, test_answers = testing['image_path'].values, testing['question'].values, testing['answer'].values
     
-    train_dataset = ADE20K_Dataset(MODEL_TYPE, train_image_paths, train_questions, train_answers, QUESTION_LENGTH)
-    test_dataset = ADE20K_Dataset(MODEL_TYPE, test_image_paths, test_questions, test_answers, QUESTION_LENGTH)
+    train_dataset = ADE20K_Dataset(MODEL_TYPE, train_image_paths, train_questions, train_answers, QUESTION_LENGTH, features_folder)
+    test_dataset = ADE20K_Dataset(MODEL_TYPE, test_image_paths, test_questions, test_answers, QUESTION_LENGTH, features_folder)
 
     # Fine-tune the model
-    train(MODEL_TYPE, DEVICE, train_dataset, test_dataset, BATCH_SIZE, n_epochs=3)
+    train(MODEL_TYPE, DEVICE, train_dataset, test_dataset, BATCH_SIZE, n_epochs=EPOCH, learning_rate=LR)

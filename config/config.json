@@ -8,6 +8,7 @@
   "ms_coco_dir" : "/home/users/acordova/data/ImageCorpora/MSCOCO/",
   "vqa_dir" : "/home/users/acordova/data/ImageCorpora/VQA/",
   "ade20k_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/",
+  "ade20k_vqa_dir" : "/home/users/acordova/project/sose21-pm-language-and-vision-g1/data/ade20k_vqa",
   "ade20k_vqa_file" : "ade20k_vqa.jsonl",
   "ade20k_vqa_file_train_test" : "merged_synthetic_vqa_splits.json",
   "ade20k_vqa_file_test" : "merged_synthetic_vqa_test.jsonl",
@@ -27,7 +28,16 @@
     "lxmert" : {
       "question_length": 24,
       "model" : "vqa",
-      "cuda_device" : "cuda:1"
+      "cuda_device" : "cuda:1",
+      "fine_tuning" : {
+        "pretrained_dir": "vqa/lxmert/",
+        "precomputed_feature" : "",
+        "epoch": 3,
+        "batch_size" : 64,
+        "learning_rate": 5e-5,
+        "use_pretrained": true,
+        "weights" : "lxmert_gqa_epoch3.pkl.pl"
+      }
     }
   },
   "captioning": { "attention": {

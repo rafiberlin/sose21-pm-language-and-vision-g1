@@ -31,8 +31,19 @@ def get_config():
     conf["vqa"]["attention"]["pretrained_dir"] = os.path.join(pretrained_root,
                                                               conf["vqa"]["attention"]["pretrained_dir"])
 
+    conf["vqa"]["lxmert"]["fine_tuning"]["pretrained_dir"] = os.path.join(pretrained_root,
+                                                              conf["vqa"]["lxmert"]["fine_tuning"]["pretrained_dir"])
+
     captioning_pretrained_dir = conf["captioning"]["attention"]["pretrained_dir"]
     vqa_pretrained_dir = conf["vqa"]["attention"]["pretrained_dir"]
+    lxmert_pretrained_dir = conf["vqa"]["lxmert"]["fine_tuning"]["pretrained_dir"]
+
+    vqa_features = os.path.join(conf["ade20k_vqa_dir"], "precomputed_features/training")
+
+    gqa_dir = os.path.join(lxmert_pretrained_dir,
+                 "gqa")
+    vqa_dir = os.path.join(lxmert_pretrained_dir,
+                 "vqa")
 
     if not os.path.exists(captioning_pretrained_dir):
         os.makedirs(captioning_pretrained_dir)
@@ -40,6 +51,23 @@ def get_config():
     if not os.path.exists(vqa_pretrained_dir):
         os.makedirs(vqa_pretrained_dir)
         print("Created directory:", vqa_pretrained_dir)
+
+    if not os.path.exists(lxmert_pretrained_dir):
+        os.makedirs(lxmert_pretrained_dir)
+        print("Created directory:", lxmert_pretrained_dir)
+
+    if not os.path.exists(gqa_dir):
+        os.makedirs(gqa_dir)
+        print("Created directory:", gqa_dir)
+
+    if not os.path.exists(vqa_dir):
+        os.makedirs(vqa_dir)
+        print("Created directory:", vqa_dir)
+
+    if not os.path.exists(vqa_features):
+        os.makedirs(vqa_features)
+        print("Created directory:", vqa_features)
+
     checkpoints_dir = os.path.join(captioning_pretrained_dir, "checkpoints")
     create_directory_structure(checkpoints_dir)
 

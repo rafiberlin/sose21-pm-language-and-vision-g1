@@ -66,7 +66,7 @@ def calc_scores(ref, hypo):
             final_scores[method] = score
     return final_scores
 
-def get_ms_coco_captions(data_type="val2017", shuffle=False, image_number=None):
+def get_ms_coco_captions(image_number=None, data_type="val2017", shuffle=False):
 
     """
 
@@ -101,39 +101,6 @@ def get_ms_coco_captions(data_type="val2017", shuffle=False, image_number=None):
 
     return image_path_to_caption
 
-def perform_bleu_score_on_mscoco_attention(data_type="val2017", shuffle=False, image_number=None):
-    """
-    The punctuation is not part of this model vocabulary, so we need to remove the punctuation on the references
-
-    :param data_type:
-    :param shuffle:
-    :param image_number:
-    :return:
-    """
-    captions  = get_ms_coco_captions(data_type=data_type, shuffle=shuffle, image_number=image_number)
-    caption_expert = CaptionWithAttention()
-
-    conf = get_config()
-    captioning_conf = conf["captioning"]
-    PRETRAINED_DIR = captioning_conf["pretrained_dir"]
-
-    serialized_tokenizer = os.path.join(PRETRAINED_DIR,
-                                        "tokenizer.pickle")
-
-    with open(serialized_tokenizer, 'rb') as handle:
-        tokenizer = pickle.load(handle)
-
-    references = {}
-    hypothesis = {}
-
-    for image_path in tqdm(captions):
-        removed_punctuation_caps = [" ".join(text_to_word_sequence(c, filters=tokenizer.filters)) for c in captions[image_path]]
-        predicted_caption = caption_expert.infer(image_path)
-        references[image_path]= removed_punctuation_caps
-        hypothesis[image_path] = [predicted_caption]
-    scores = calc_scores(references, hypothesis)
-    print("MS COCO", scores)
-    return scores
 
 def perform_bleu_score(captions, caption_expert, num_ref=5, punctuation_filter='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ '):
     """
@@ -158,28 +125,6 @@ def perform_bleu_score(captions, caption_expert, num_ref=5, punctuation_filter='
     print("MS COCO", scores)
     return scores
 
-def perform_bleu_score_on_ade20k():
-    captions = get_ade20k_caption_annotations()
-    caption_expert = CaptionWithAttention()
-    serialized_tokenizer = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                        "../captioning/checkpoints/train/tokenizer.pickle")
-    with open(serialized_tokenizer, 'rb') as handle:
-        tokenizer = pickle.load(handle)
-
-    references = {}
-    hypothesis = {}
-    for i, row in tqdm(captions.iterrows()):
-        gold_caption = " ".join(text_to_word_sequence(row["caption"], filters=tokenizer.filters))
-        image_path = row["image_path"]
-        image_id = row["image_id"]
-        predicted_caption = caption_expert.infer(image_path)
-        references[image_id]= [gold_caption]
-        hypothesis[image_id] = [predicted_caption]
-
-
-    scores = calc_scores(references, hypothesis)
-    print("ADE20k", scores)
-    return scores
 
 def create_ade20k_caption_annotations_empty(path, server_name="clp-pmvss21-1", user_name="alatif"):
     """
@@ -267,7 +212,7 @@ if __name__ == "__main__":
 
     print( "CATR Captioning", msg)
     perform_bleu_score(captions_coco, caption_expert, num_ref)
-    captions_ade20k = get_ade20k_caption_annotations()
+
     print("CATR Captioning", msg2)
     perform_bleu_score(captions_ade20k, caption_expert, num_ref)
     # cap = merge_annotations("/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/annotations/captions_fully_annotated.csv", "/home/rafi/merged.csv")

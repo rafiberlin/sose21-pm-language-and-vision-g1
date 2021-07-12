@@ -102,8 +102,20 @@ We do not need the pretrained model from this archive, only the pre-processed Qu
 
 These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluation for any model.
 
-TODO: Explain where to unpack sose21-pm-language-and-vision-g1/data/ade20k_vqa/merged_synthetic_vqa.tar.gz
-to make the evaluation work.
+Please also unpack all files found under ./data/ade20k_vqa in the directory defined in the ./config/config.json file, 
+under the key "ade20k_dir", in order to be able to run the ADE20K evaluation for VQA.
+
+## Output Game Statistics from a Slurk Log
+
+If you have extracted a game log from a slurk server (as a reminder, go to the directory where slurk is installed 
+and run: `sh scripts/get_logs.sh 00000000-0000-0000-0000-000000000000 avatar_room > your_file_name.log` to extract the logs)
+
+You can run the following to get some game statistics:
+
+`python ./config/score_game.py --file your_file_name.log --dir ../data/game_logs`
+
+
+
 # Installation
 
 Important: if you face errors concerning the import of modules, please export this project to you python path:
@@ -183,7 +195,7 @@ admin token.
 #### 2. Download and expose the dataset
 
 Download and unpack the ADE20K dataset. Go into the images training directory and start a http server as the server
-serving the images. You can use `python -m http.server 30000` for this.
+serving the images. You can use `python -m http.server 8000` for this.
 
 #### 3. Create the slurk game room and player tokens
 
@@ -201,7 +213,7 @@ manually provide a name for the room.
 #### 1. Start the game master bot
 
 Run the `game_master_cli --token <master-token>` script or the `game-master --token <master-token>` cli. This will
-connect the game master with slurk. By default, this will create image-urls that point to `localhost:30000`.
+connect the game master with slurk. By default, this will create image-urls that point to `localhost:8000`.
 
 #### 2. Start a browser for the 'Player'
 
@@ -232,7 +244,7 @@ First, do everything as in *Run everything on localhost: Prepare servers and dat
 ### Prepare ngrok
 
 1. Externalize the slurk server using `ngrok http 5000` which will give you something like `<slurk-hash>.ngrok.io`
-1. Externalize the image server using `ngrok http 30000` which will give you something like `<image-hash>.ngrok.io`
+1. Externalize the image server using `ngrok http 8000` which will give you something like `<image-hash>.ngrok.io`
 
 ### Prepare clients and bots
 

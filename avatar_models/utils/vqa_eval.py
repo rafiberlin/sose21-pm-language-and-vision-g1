@@ -53,7 +53,7 @@ def run_official_vqa_metrics(vqa, answer_list, num_questions=None):
 def run_ade20k_vqa_metrics(vqa, answer_list, num_questions=None):
     conf = get_config()
     ADE20K_DIR = conf["ade20k_dir"]
-    VQA_FILE = conf["ade20k_vqa_file"]
+    VQA_FILE = conf["ade20k_vqa_file_test"]
     data = get_ade20_vqa_data(VQA_FILE)
 
     filtered_data = [d for i, d in tqdm(enumerate(data)) if d["answer"] in answer_list]

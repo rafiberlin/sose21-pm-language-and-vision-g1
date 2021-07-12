@@ -23,13 +23,13 @@ MSCOCO VQA Accuracy 0.7300666666666673 5000 questions tested
 ADE20K Dataset
 Dev Setup: dev_config.json will be used
 Dev Setup: dev_config.json will be used
-Reading /home/rafi/_datasets/ADE20K/merged_synthetic_vqa_shuffled.jsonl
-479725it [00:09, 50725.16it/s]
-999it [11:32,  1.35it/s]epoch 1000 Acc 0.501
-2000it [24:15,  9.75s/it]epoch 2000 Acc 0.511
-2999it [36:18,  1.42it/s]epoch 3000 Acc 0.5156666666666667
-3999it [48:57,  1.34it/s]epoch 4000 Acc 0.51425
-4999it [1:02:22,  1.34it/s]
-epoch 5000 Acc 0.5144
-ADE20K VQA Accuracy 0.5144 5000 questions tested
+Reading /home/rafi/_datasets/ADE20K/merged_synthetic_vqa_test.jsonl
+119932it [00:02, 51562.77it/s]
+1000it [11:56,  9.67s/it]epoch 1000 Acc 0.512
+1999it [23:28,  1.55it/s]epoch 2000 Acc 0.5235
+2999it [35:29,  1.31it/s]epoch 3000 Acc 0.5193333333333333
+3999it [47:24,  1.70it/s]epoch 4000 Acc 0.51625
+4999it [59:17,  1.31it/s]epoch 5000 Acc 0.5162
+4999it [59:48,  1.39it/s]
+ADE20K VQA Accuracy 0.5162 5000 questions tested
 ##########  END : Run VQA Test on LXMERT Model ##########

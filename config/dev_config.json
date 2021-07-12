@@ -30,7 +30,7 @@
       "model" : "vqa",
       "cuda_device" : "cpu",
       "fine_tuning" : {
-        "pretrained_dir": "lxmert/gqa",
+        "pretrained_dir": "vqa/lxmert/gqa/",
         "epoch": 3,
         "batch_size" : 64,
         "use_pretrained": true,

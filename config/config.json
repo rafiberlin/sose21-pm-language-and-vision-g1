@@ -30,12 +30,11 @@
       "model" : "vqa",
       "cuda_device" : "cuda:1",
       "fine_tuning" : {
-        "pretrained_dir": "vqa/lxmert/",
-        "precomputed_feature" : "",
+        "pretrained_dir": "lxmert/gqa",
         "epoch": 3,
         "batch_size" : 64,
-        "learning_rate": 5e-5,
         "use_pretrained": true,
+        "learning_rate" : 5e-5,
         "weights" : "lxmert_gqa_epoch3.pkl.pl"
       }
     }

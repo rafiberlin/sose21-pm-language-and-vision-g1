@@ -177,7 +177,7 @@ def read_game_logs(file_path):
         return score_list
 
     else:
-        raise (f"{file_path} is not a correct file path.")
+        raise Exception(f"{file_path} is not a correct file path.")
 
 
 def output_game_metrics(log):
@@ -220,4 +220,7 @@ def output_game_metrics(log):
 
 
 if __name__ == "__main__":
-    pass
+    print("Executing the script once should create every directories needed for proper execution.")
+    get_config()
+    print("Done")
+

@@ -30,7 +30,7 @@
       "cuda_device": "cuda:1",
       "fine_tuning": {
         "pretrained_dir": "vqa/lxmert/",
-        "epoch": 3,
+        "epoch": 1,
         "batch_size": 64,
         "use_pretrained": true,
         "learning_rate": 5e-5,

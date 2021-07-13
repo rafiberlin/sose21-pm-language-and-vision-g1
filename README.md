@@ -143,6 +143,9 @@ under the key "ade20k_vqa_dir" (should be the directory `./data/ade20k_vqa`), in
 `cd /data/ade20k_vqa`
 `tar xvf merged_synthetic_vqa.tar.gz`
 
+The evaluation of the different models can be performed with:
+
+`python avatar_models/utils/vqa_eval.py`
 
 ## Output Game Statistics from a Slurk Log
 

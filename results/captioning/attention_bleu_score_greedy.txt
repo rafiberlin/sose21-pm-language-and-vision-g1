@@ -1,0 +1,11 @@
+Attention Captioning Performing the BLEU score and SPICE score
+5 Captions
+
+MS COCO {'Bleu_1': 0.6742707475233789, 'Bleu_2': 0.5036088310911162, 'Bleu_3': 0.3633818335345378, 'Bleu_4': 0.2571594509662846, 'SPICE': 0.15893419228892577}
+
+Attention Captioning Performing the BLEU score and SPICE score with only 2 references on MSCOCO.
+
+MS COCO {'Bleu_1': 0.5132083107756287, 'Bleu_2': 0.342671727283994, 'Bleu_3': 0.22761082369297253, 'Bleu_4': 0.15231290021719238, 'SPICE': 0.20697320593713134}
+
+Attention Captioning Performing the BLEU score and SPICE score on ADE20K
+MS COCO {'Bleu_1': 0.41886561021305957, 'Bleu_2': 0.2985576256317161, 'Bleu_3': 0.2033347397920487, 'Bleu_4': 0.13800480610501129, 'SPICE': 0.13547752530627247}

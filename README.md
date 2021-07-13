@@ -1,5 +1,10 @@
 # A MapWorld Avatar Game (SoSe21 PM Vision)
 
+Remark for the configuration (see config/config.json):
+
+If some expected directories are missing, try to execute config/util.py (with sudo if necessary)
+It will try to create the missing directories needed in some cases.
+
 # Pretrained Models
 
 ## Captioning
@@ -90,6 +95,32 @@ for the first GPU, "cuda:1" for the second GPU or none / "cpu" if no GPUs are av
 
 To see an example how to run an inference, run models/vqa/lxmert/lxmert_eval.py
 
+The LXMERT models have been also fine tune on our synthetic VQA dataset (under `./data/ade20k_vqa`).
+
+The models are available under: https://drive.google.com/drive/folders/1-xX5ZAEvn6yxfp0EVwLVsODwefOV4PYv
+
+To use the models, create the directories:
+
+`pretrained/vqa/lxmert/vqa`
+`pretrained/vqa/lxmert/gqa`
+
+download the gqa model under `pretrained/vqa/lxmert/gqa` 
+download the vqa model under `pretrained/vqa/lxmert/vqa`
+
+If you want to use the fine-tuned model on GQA, you need to adjust the configuration keys under "vqa", "lxmert" as 
+follow:
+"model" : "gqa"
+"fine_tuning" : "model_file" : "lxmert_gqa_epoch3.pkl"
+"fine_tuning" : "use_pretrained": true
+
+For the fine-tuned model on VQA, change the configuration similarly: 
+
+"model" : "vqa"
+"fine_tuning" : "model_file" : "lxmert_vqa_epoch3.pkl"
+"fine_tuning" : "use_pretrained": true
+
+Setting "fine_tuning" : "use_pretrained": false will allow to use the models as provided by Huggingface.
+
 ### Evaluation on the official VQA metrics
 
 https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
@@ -102,8 +133,24 @@ We do not need the pretrained model from this archive, only the pre-processed Qu
 
 These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluation for any model.
 
-TODO: Explain where to unpack sose21-pm-language-and-vision-g1/data/ade20k_vqa/merged_synthetic_vqa.tar.gz
-to make the evaluation work.
+Please also unpack all files found under ./data/ade20k_vqa in the directory defined in the ./config/config.json file, 
+under the key "ade20k_vqa_dir" (should be the directory `./data/ade20k_vqa`), in order to be able to run the ADE20K evaluation for VQA.
+
+`cd /data/ade20k_vqa`
+`tar xvf merged_synthetic_vqa.tar.gz`
+
+
+## Output Game Statistics from a Slurk Log
+
+If you have extracted a game log from a slurk server (as a reminder, go to the directory where slurk is installed 
+and run: `sh scripts/get_logs.sh 00000000-0000-0000-0000-000000000000 avatar_room > your_file_name.log` to extract the logs)
+
+You can run the following to get some game statistics:
+
+`python ./config/score_game.py --file your_file_name.log --dir ../data/game_logs`
+
+
+
 # Installation
 
 Important: if you face errors concerning the import of modules, please export this project to you python path:
@@ -150,6 +197,9 @@ To install the latest update from the github repo, just type:
 
 `git pull`
 `pip install .` or `python setup.py install`
+
+If git complains about changed files, the following reverts local changes, you should then be able to pull latest changes:
+`git checkout .`
 
 You can simply deactivate the environment by typing:
 

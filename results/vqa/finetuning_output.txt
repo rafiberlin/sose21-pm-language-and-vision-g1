@@ -1,0 +1,67 @@
+VQA
+
+(venv) alatif@clp-pmvss21-1:~/project/_demo_g1/sose21-pm-language-and-vision-g1$ python avatar_models/vqa/lxmert/finetune.py
+2021-07-13 06:04:17.415034: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+Server Setup: config.json will be used
+DEVICE: cuda:1
+Loading the dataset under /home/users/acordova/project/_demo_g1/sose21-pm-language-and-vision-g1/data/ade20k_vqa/merged_synthetic_vqa_splits.json
+Loading unc-nlp/lxmert-vqa-uncased
+Starting training.
+Epoch 1
+100%|██████████████████████████████████████████████████████████| 3861/3861 [40:18<00:00,  1.60it/s]
+Average loss: 0.8773
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 1289/1289 [05:18<00:00,  4.04it/s]
+Accuracy: 80.39%
+Saving a model after epoch
+Saved!
+Epoch 2
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 3861/3861 [39:37<00:00,  1.62it/s]
+Average loss: 0.7013
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 1289/1289 [05:20<00:00,  4.02it/s]
+Accuracy: 81.04%
+Saving a model after epoch
+Saved!
+Epoch 3
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 3861/3861 [39:40<00:00,  1.62it/s]
+Average loss: 0.6038
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 1289/1289 [05:23<00:00,  3.98it/s]
+Accuracy: 80.98%
+Saving a model after epoch
+Saved!
+
+
+GQA
+
+(venv) alatif@clp-pmvss21-1:~/project/_demo_g1/sose21-pm-language-and-vision-g1$ python avatar_models/vqa/lxmert/finetune.py
+2021-07-13 08:40:31.308765: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+Server Setup: config.json will be used
+DEVICE: cuda:1
+Loading the dataset under /home/users/acordova/project/_demo_g1/sose21-pm-language-and-vision-g1/data/ade20k_vqa/merged_synthetic_vqa_splits.json
+Downloading: 100%|█████████████████████████████████████████████████████████████████████████████████████████████| 232k/232k [00:00<00:00, 1.27MB/s]
+Downloading: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| 112/112 [00:00<00:00, 76.8kB/s]
+Downloading: 100%|████████████████████████████████████████████████████████████████████████████████████████████████| 153/153 [00:00<00:00, 112kB/s]
+Loading unc-nlp/lxmert-gqa-uncased
+Downloading: 100%|████████████████████████████████████████████████████████████████████████████████████████████████| 880/880 [00:00<00:00, 610kB/s]
+Downloading: 100%|█████████████████████████████████████████████████████████████████████████████████████████████| 848M/848M [00:30<00:00, 28.2MB/s]
+Starting training.
+Epoch 1
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 3802/3802 [39:28<00:00,  1.60it/s]
+Average loss: 0.8589
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 1270/1270 [05:17<00:00,  4.01it/s]
+Accuracy: 80.75%
+Saving a model after epoch
+Saved!
+Epoch 2
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 3802/3802 [39:01<00:00,  1.62it/s]
+Average loss: 0.6820
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 1270/1270 [05:16<00:00,  4.02it/s]
+Accuracy: 81.53%
+Saving a model after epoch
+Saved!
+Epoch 3
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 3802/3802 [39:04<00:00,  1.62it/s]
+Average loss: 0.5886
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 1270/1270 [05:19<00:00,  3.98it/s]
+Accuracy: 81.69%
+Saving a model after epoch
+Saved!

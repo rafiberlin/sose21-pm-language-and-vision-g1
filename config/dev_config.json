@@ -28,14 +28,14 @@
     "lxmert" : {
       "question_length": 24,
       "model" : "gqa",
-      "cuda_device" : "cpu",
+      "cuda_device" : "cuda:0",
       "fine_tuning" : {
         "pretrained_dir": "vqa/lxmert/",
         "epoch": 3,
         "batch_size" : 64,
         "use_pretrained": true,
         "learning_rate" : 5e-5,
-        "model_file" : "lxmert_gqa_epoch3.pkl"
+        "model_file" : "epoch3.pkl"
       }
     }
   },

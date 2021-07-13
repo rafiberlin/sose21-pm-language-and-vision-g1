@@ -184,9 +184,7 @@ def read_game_logs(file_path):
 def output_game_metrics(log):
     num_game = len(log)
     PENALTY_FOR_QUESTION_ASKED = -0.01
-    PENALTY_FOR_ORDERS = -0.01
-    discounted_score = lambda l, i: l[i]["score"] + l[i]["num_questions"] * PENALTY_FOR_QUESTION_ASKED + l[i][
-        "num_orders"] * PENALTY_FOR_ORDERS
+    discounted_score = lambda l, i: l[i]["score"] + l[i]["num_questions"] * PENALTY_FOR_QUESTION_ASKED
 
     s = 0
     sq = 0
@@ -209,11 +207,11 @@ def output_game_metrics(log):
 
     max_score_question_discount_id = max(log.keys(), key=lambda k: discounted_score(log, k))
 
-    print("Best Game with Question/Orders Discounted Score",
+    print("Best Game with Question Penalty Score",
           discounted_score(log, max_score_question_discount_id), "Game number",
           max_score_question_discount_id)
     min_score_question_discount_id = min(log.keys(), key=lambda k: discounted_score(log, k))
-    print("Worse Game under Question/Orders Discounted Score",
+    print("Worse Game under Question Penalty Score",
           discounted_score(log, min_score_question_discount_id), "Game Number",
           min_score_question_discount_id)
 

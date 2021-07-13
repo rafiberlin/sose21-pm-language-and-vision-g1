@@ -46,8 +46,10 @@ class CustomAvatar(Avatar):
         self.vqa_expert = vqa_expert
         conf = get_config()["image_server"]
         self.debug = conf["debug"]
+        self.rasa_model_path = conf["rasa"]["model"]
+        self.device = conf["rasa"]["tensorflow_gpu_name"]
         self.previous = []
-        self.agent = Agent.load("/home/sose21-pm-language-and-vision-g1/rasa/models/")
+        self.agent = Agent.load(self.rasa_model_path)
 
     def step(self, observation: dict) -> dict:
         print(observation)  # for debugging

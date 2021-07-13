@@ -57,6 +57,10 @@
     "catr" : {
       "cuda_device" : "cuda:0",
       "beam_size": 3
+    },
+    "rasa" : {
+      "model_dir" : "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/rasa/models/",
+      "tensorflow_gpu_name": "/physical_device:GPU:0"
     }
   }
 }

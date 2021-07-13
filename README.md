@@ -95,17 +95,21 @@ for the first GPU, "cuda:1" for the second GPU or none / "cpu" if no GPUs are av
 
 To see an example how to run an inference, run models/vqa/lxmert/lxmert_eval.py
 
-The LXMERT models have been also fine tune on our synthetic VQA dataset (under `./data/ade20k_vqa`).
+The LXMERT models have been also fine tuned on our synthetic VQA dataset (under `./data/ade20k_vqa`).
 
 The models are available under: https://drive.google.com/drive/folders/1-xX5ZAEvn6yxfp0EVwLVsODwefOV4PYv
 
-To use the models, create the directories:
+To use the models, create the directory:
 
-`pretrained/vqa/lxmert/vqa`
-`pretrained/vqa/lxmert/gqa`
+`./pretrained/vqa/lxmert/`
 
-download the gqa model under `pretrained/vqa/lxmert/gqa` 
-download the vqa model under `pretrained/vqa/lxmert/vqa`
+
+Download the vqa model under `pretrained/vqa/lxmert/` from https://drive.google.com/file/d/1KWApviWWF3qCeXhMgSzPpPHd8JUwZEQN/view?usp=sharing, and 
+unpack the content with `tar xvf vqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/vqa/epoch3.pkl`.
+
+Download the gqa model under `pretrained/vqa/lxmert/` https://drive.google.com/file/d/1r15rAqsHxwbhyvwlZkI1dZ7T1LsTlUlL/view?usp=sharing, and 
+unpack the content with `tar xvf gqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/gqa/epoch3.pkl`
+
 
 If you want to use the fine-tuned model on GQA, you need to adjust the configuration keys under "vqa", "lxmert" as 
 follow:
@@ -123,9 +127,9 @@ Setting "fine_tuning" : "use_pretrained": false will allow to use the models as 
 
 ### Evaluation on the official VQA metrics
 
-https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
+Download attention_vqa_val_acc_0.394.tar.gz from https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
 
-Unpack under ./
+Unpack under ./ with `tar xvf attention_vqa_val_acc_0.394.tar.gz`
 
 You should end up with all files under ./avatar_models/vqa/attentions/
 

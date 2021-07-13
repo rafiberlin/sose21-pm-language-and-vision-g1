@@ -1,0 +1,15 @@
+(Orders like go north or describe does not imply any penalty, the game is already assigning a negative rewards when the avatar moves)
+
+/home/rafi/.conda/envs/rasa37/bin/python /home/rafi/pycharm-community-2018.3.4/helpers/pydev/pydevd.py --multiproc --qt-support=auto --client 127.0.0.1 --port 44975 --file /home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/config/score_game.py --file lxmert_gqa_catr_logs_kevin.txt --dir ../data/game_logs
+pydev debugger: process 21210 is connecting
+
+Connected to pydev debugger (build 183.6156.16)
+Average Score -1.0800000000000003
+Won Games 5 / 10
+Questions Asked Per Game 6.5
+Orders Given Per Game 10.1
+Best Game under normal Score -0.2 Game Number 4
+Worse Game under normal Score -2.800000000000001 Game Number 6
+Average Score with questions discount -1.1450000000000002
+Best Game with Question Penalty Score -0.22 Game number 4
+Worse Game under Question Penalty Score -2.950000000000001 Game Number 6

@@ -1,3 +1,5 @@
+import asyncio
+from rasa.core.agent import Agent
 from avatar.game_avatar import Avatar
 import tensorflow as tf
 from config.util import get_config
@@ -5,8 +7,9 @@ from config.util import get_config
 
 """
     Avatar action routines
-
+    
 """
+
 DIRECTION_TO_WORD = {
     "n": "north",
     "e": "east",
@@ -30,10 +33,8 @@ def directions_to_sent(directions: str):
     return ", ".join(words[:-1]) + " or " + words[-1]
 
 class CustomAvatar(Avatar):
-#        The simple avatar is only repeating the observations.
 
     def __init__(self, image_directory, caption_expert, vqa_expert):
-
         assert image_directory is not None
         assert caption_expert is not None
         assert vqa_expert is not None
@@ -43,8 +44,12 @@ class CustomAvatar(Avatar):
         self.observation = None
         self.caption_expert = caption_expert
         self.vqa_expert = vqa_expert
-        conf = get_config()["image_server"]
-        self.debug = conf["debug"]
+        conf = get_config()
+        self.debug = conf["image_server"]["debug"]
+        self.rasa_model_path = conf["rasa"]["model_dir"]
+        self.device = conf["rasa"]["tensorflow_gpu_name"]
+        self.previous = []
+        self.agent = Agent.load(self.rasa_model_path)
 
     def step(self, observation: dict) -> dict:
         print(observation)  # for debugging
@@ -52,7 +57,6 @@ class CustomAvatar(Avatar):
         if observation["image"]:
             self.__update_observation(observation)
             actions["response"] = self.__get_caption_expert_answer(observation)
-
 
         if observation["message"]:
             self.__update_actions(actions, observation["message"])
@@ -62,41 +66,50 @@ class CustomAvatar(Avatar):
         self.observation = observation
 
     def __update_actions(self, actions, message):
-        if "go" in message.lower():
-            actions["move"] = self.__predict_move_action(message)
+        if not "where" in message.lower() and "go" in message.lower() or not "where" in message.lower() and "move" in message.lower():
+            direction = self.__predict_move_action(message.lower())
+            if "back" in message.lower() or "previous" in message.lower():
+                # last element of the list is the previous direction
+                direction = self.__go_back(self.previous[-1])
+            actions["move"] = direction
+            self.previous = direction
         else:
             actions["response"] = self.__generate_response(message)
 
     def __generate_response(self, message: str) -> str:
         message = message.lower()
+        # response = asyncio.run(self.agent.handle_text(message))[0]['text']
+        # asyncio.run is only available in pyth3.7, work around to make it work starting from python 3.6 like on the server
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(self.agent.handle_text(message))
+        response = result[0]['text']
         image_path= None
         image_url = None
+
         if self.observation:
             image_path, image_url = self.__get_image_path_and_url(self.observation)
 
-        if message.startswith("describe"):
+        if response == "get_caption_expert_answer":
             if self.observation:
                 caption = self.caption_expert.infer(image_path)
                 return self.__format_caption_answer(caption, image_url)
-
             else:
                 return "I dont know"
 
-        if message.startswith("where"):
+        if response == "get_possible_directions":
             if self.observation:
                 return "I can go " + directions_to_sent(self.observation["directions"])
             else:
                 return "I dont know"
 
-        if message.endswith("?"):
+        if response == "get_vqa_expert_answer":
             if self.observation:
                 answer = self.vqa_expert.infer(image_path, message)
                 return answer
-                # return "It has maybe something to do with " + self.observation["image"]
             else:
                 return "I dont know"
 
-        return "I do not understand"
+        return response
 
     def __predict_move_action(self, message: str) -> str:
         if "north" in message:
@@ -108,6 +121,17 @@ class CustomAvatar(Avatar):
         if "south" in message:
             return "s"
         return "nowhere"
+
+    def __go_back(self, direction: str) -> str:
+        if direction == "n":
+            return "s"
+        if direction == "s":
+            return "n"
+        if direction == "w":
+            return "e"
+        if direction == "e":
+            return "w"
+
     def __get_image_path_and_url(self, observation):
         image_path = None
         image_url = None
@@ -130,4 +154,3 @@ class CustomAvatar(Avatar):
         if self.debug:
             debug_msg = f'("+ {image_url}+")'
         return f"I see {debug_msg}: " + caption
-

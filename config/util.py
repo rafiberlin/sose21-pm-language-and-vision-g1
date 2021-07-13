@@ -165,7 +165,7 @@ def read_game_logs(file_path):
             num_orders = sum([1 for m in e if m["user"]["name"] != "Avatar" and m["user"]["id"] != 1 and m[
                 "event"] == "text_message" and type(m["message"]) is str and (
                                       "east" in m["message"].lower() or "north" in m["message"].lower() or "west" in m[
-                                  "message"].lower() or "south" in m["message"].lower())])
+                                  "message"].lower() or "south" in m["message"].lower() or "back" in m["message"].lower())])
 
             game_won = sum([1 for m in e if m["user"]["id"] == 1 and m[
                 "event"] == "text_message" and type(m["message"]) is str and m["message"].startswith("Congrats")]) > 0

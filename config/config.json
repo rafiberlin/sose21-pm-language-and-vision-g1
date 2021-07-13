@@ -5,58 +5,62 @@
     "debug": false
   },
   "use_dev_config": false,
-  "ms_coco_dir" : "/home/users/acordova/data/ImageCorpora/MSCOCO/",
-  "vqa_dir" : "/home/users/acordova/data/ImageCorpora/VQA/",
-  "ade20k_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/",
-  "ade20k_vqa_dir" : "/home/users/acordova/project/sose21-pm-language-and-vision-g1/data/ade20k_vqa",
-  "ade20k_vqa_file" : "ade20k_vqa.jsonl",
-  "ade20k_vqa_file_train_test" : "merged_synthetic_vqa_splits.json",
-  "ade20k_vqa_file_test" : "merged_synthetic_vqa_test.jsonl",
-  "ade20k_vqa_max_questions" : 5000,
+  "ms_coco_dir": "/home/users/acordova/data/ImageCorpora/MSCOCO/",
+  "vqa_dir": "/home/users/acordova/data/ImageCorpora/VQA/",
+  "ade20k_dir": "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/",
+  "ade20k_vqa_dir": "/home/users/acordova/project/sose21-pm-language-and-vision-g1/data/ade20k_vqa",
+  "ade20k_vqa_file": "ade20k_vqa.jsonl",
+  "ade20k_vqa_file_train_test": "merged_synthetic_vqa_splits.json",
+  "ade20k_vqa_file_test": "merged_synthetic_vqa_test.jsonl",
+  "ade20k_vqa_max_questions": 5000,
   "ade20k_localized_narratives_train_file": "ade20k_train_captions.jsonl",
-  "ade20k_caption_dir" : "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/image-description-sequences/data/",
-  "pretrained_root" : "/home/users/acordova/project/sose21-pm-language-and-vision-g1/pretrained/",
-  "glove_embeddings" : "gloves/glove.6B.300d.txt",
-  "game_logs_dir":  "/home/users/acordova/project/sose21-pm-language-and-vision-g1/data/game_logs/",
-  "vqa" : {
-    "attention" : {
+  "ade20k_caption_dir": "/home/users/acordova/data/ImageCorpora/ADE20K_2016_07_26/image-description-sequences/data/",
+  "pretrained_root": "/home/users/acordova/project/sose21-pm-language-and-vision-g1/pretrained/",
+  "glove_embeddings": "gloves/glove.6B.300d.txt",
+  "game_logs_dir": "/home/users/acordova/project/sose21-pm-language-and-vision-g1/data/game_logs/",
+  "vqa": {
+    "attention": {
       "pretrained_dir": "vqa/attention/",
-      "vqa_top_answers" : 2000,
-      "vqa_cache_images" : true
-    }
-    ,
-    "lxmert" : {
+      "vqa_top_answers": 2000,
+      "vqa_cache_images": true
+    },
+    "lxmert": {
       "question_length": 24,
-      "model" : "vqa",
-      "cuda_device" : "cuda:1",
-      "fine_tuning" : {
+      "model": "vqa",
+      "cuda_device": "cuda:1",
+      "fine_tuning": {
         "pretrained_dir": "vqa/lxmert/",
-        "epoch": 3,
-        "batch_size" : 64,
+        "epoch": 1,
+        "batch_size": 64,
         "use_pretrained": true,
-        "learning_rate" : 5e-5,
-        "model_file" : "lxmert_gqa_epoch3.pkl"
+        "learning_rate": 5e-5,
+        "model_file": "epoch1.pkl"
       }
     }
   },
-  "captioning": { "attention": {
-    "pretrained_dir": "captioning/attention/",
-    "batch_size": 128,
-    "vocab_size": 5000,
-    "use_glove" : true,
-    "embedding_dim" : 300,
-    "epochs" : 15,
-    "buffer_size": 29952,
-    "lr" : 0.0005,
-    "clip": 0.0005,
-    "beam_size": 3,
-    "horizontal_flip": true,
-    "pad_images": true,
-    "tensorflow_gpu_name": "/physical_device:GPU:0"
-  },
-    "catr" : {
-      "cuda_device" : "cuda:0",
+  "captioning": {
+    "attention": {
+      "pretrained_dir": "captioning/attention/",
+      "batch_size": 128,
+      "vocab_size": 5000,
+      "use_glove": true,
+      "embedding_dim": 300,
+      "epochs": 15,
+      "buffer_size": 29952,
+      "lr": 0.0005,
+      "clip": 0.0005,
+      "beam_size": 3,
+      "horizontal_flip": true,
+      "pad_images": true,
+      "tensorflow_gpu_name": "/physical_device:GPU:0"
+    },
+    "catr": {
+      "cuda_device": "cuda:0",
       "beam_size": 3
     }
+  },
+  "rasa": {
+    "model_dir": "/home/users/acordova/project/sose21-pm-language-and-vision-g1/rasa/models/",
+    "tensorflow_gpu_name": "/physical_device:GPU:0"
   }
 }

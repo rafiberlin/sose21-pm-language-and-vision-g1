@@ -1,0 +1,42 @@
+[
+  {
+    "text": "good afternoon",
+    "intent": "greet",
+    "intent_prediction": {
+      "name": "goodbye",
+      "confidence": 0.7149708271026611
+    }
+  },
+  {
+    "text": "move south",
+    "intent": "movement",
+    "intent_prediction": {
+      "name": "affirm",
+      "confidence": 0.6713277697563171
+    }
+  },
+  {
+    "text": "move north",
+    "intent": "movement",
+    "intent_prediction": {
+      "name": "greet",
+      "confidence": 0.595097541809082
+    }
+  },
+  {
+    "text": "move west",
+    "intent": "movement",
+    "intent_prediction": {
+      "name": "mood_unhappy",
+      "confidence": 0.825831413269043
+    }
+  },
+  {
+    "text": "move east",
+    "intent": "movement",
+    "intent_prediction": {
+      "name": "greet",
+      "confidence": 0.4315122663974762
+    }
+  }
+]

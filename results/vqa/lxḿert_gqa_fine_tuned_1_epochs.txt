@@ -1,0 +1,26 @@
+##########  START : Run VQA Test on LXMERT Model gqa##########
+MSCOCO Dataset
+Server Setup: config.json will be used
+Server Setup: config.json will be used
+Dataset contains 88752 questions
+After filtering (keeping only answers in the model vocabulary), test on 62921 questions
+999it [06:47,  2.69it/s]epoch 1000 Acc 0.5386666666666665
+1999it [14:10,  2.42it/s]epoch 2000 Acc 0.5396666666666667
+2999it [21:32,  3.07it/s]epoch 3000 Acc 0.550555555555555
+3999it [28:54,  2.67it/s]epoch 4000 Acc 0.5510833333333324
+4999it [36:13,  2.60it/s]epoch 5000 Acc 0.5531333333333328
+4999it [36:44,  2.27it/s]
+MSCOCO VQA Accuracy 0.5531333333333328 5000 questions tested
+ADE20K Dataset
+Server Setup: config.json will be used
+Server Setup: config.json will be used
+Reading /home/users/acordova/project/_demo_g1/sose21-pm-language-and-vision-g1/data/ade20k_vqa/merged_synthetic_vqa_test.jsonl
+119932it [00:01, 64182.27it/s]
+999it [06:56,  2.88it/s]epoch 1000 Acc 0.806
+1999it [14:21,  2.23it/s]epoch 2000 Acc 0.801
+2999it [21:43,  2.51it/s]epoch 3000 Acc 0.8
+3999it [29:03,  2.63it/s]epoch 4000 Acc 0.803
+4999it [36:28,  2.48it/s]epoch 5000 Acc 0.8022
+4999it [36:58,  2.25it/s]
+ADE20K VQA Accuracy 0.8022 5000 questions tested
+##########  END : Run VQA Test on LXMERT Model gqa##########

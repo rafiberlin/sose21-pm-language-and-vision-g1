@@ -78,7 +78,11 @@ class CustomAvatar(Avatar):
 
     def __generate_response(self, message: str) -> str:
         message = message.lower()
-        response = asyncio.run(self.agent.handle_text(message))[0]['text']
+        # response = asyncio.run(self.agent.handle_text(message))[0]['text']
+        # asyncio.run is only available in pyth3.7, work around to make it work starting from python 3.6 like on the server
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(self.agent.handle_text(message))
+        response = result[0]['text']
         image_path= None
         image_url = None
 

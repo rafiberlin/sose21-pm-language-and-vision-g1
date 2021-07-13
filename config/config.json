@@ -34,7 +34,7 @@
         "batch_size": 64,
         "use_pretrained": true,
         "learning_rate": 5e-5,
-        "model_file": "epoch3.pkl"
+        "model_file": "epoch1.pkl"
       }
     }
   },

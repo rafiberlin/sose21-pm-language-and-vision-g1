@@ -1,0 +1,25 @@
+##########  START : Run VQA Test on LXMERT Model gqa##########
+MSCOCO Dataset
+Dev Setup: dev_config.json will be used
+Dev Setup: dev_config.json will be used
+Dataset contains 88752 questions
+After filtering (keeping only answers in the model vocabulary), test on 62921 questions
+1000it [16:17,  9.88s/it]epoch 1000 Acc 0.48766666666666647
+1999it [31:38,  1.08it/s]epoch 2000 Acc 0.48166666666666724
+2999it [47:42,  1.21it/s]epoch 3000 Acc 0.48577777777777814
+3999it [1:03:21,  1.24it/s]epoch 4000 Acc 0.4882499999999999
+4999it [1:18:31,  1.08it/s]epoch 5000 Acc 0.48980000000000035
+MSCOCO VQA Accuracy 0.48980000000000035 5000 questions tested
+ADE20K Dataset
+Dev Setup: dev_config.json will be used
+Dev Setup: dev_config.json will be used
+Reading /home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/data/ade20k_vqa/merged_synthetic_vqa_test.jsonl
+119932it [00:01, 70067.60it/s]
+1000it [15:22,  9.88s/it]epoch 1000 Acc 0.81
+1999it [30:22,  1.06it/s]epoch 2000 Acc 0.8115
+3000it [46:21,  9.88s/it]epoch 3000 Acc 0.8106666666666666
+4000it [1:01:50,  9.87s/it]epoch 4000 Acc 0.8125
+4999it [1:17:24,  1.08it/s]
+epoch 5000 Acc 0.8094
+ADE20K VQA Accuracy 0.8094 5000 questions tested
+##########  END : Run VQA Test on LXMERT Model gqa##########

@@ -1,12 +1,11 @@
-(Orders like go north or describe does not imply any penalty)
+(Orders like go north or describe does not imply any penalty, the game is already assigning a negative rewards when the avatar moves)
 
-/home/rafi/.conda/envs/lxmert/bin/python /home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/config/score_game.py --file rafi_10_games_04_jun_21_attention_caption_lxmert_vqa.txt --dir ../data/game_logs
 Average Score -0.6400000000000001
 Won Games 5 / 10
 Questions Asked Per Game 5.0
 Orders Given Per Game 5.5
 Best Game under normal Score -0.1 Game Number 2
 Worse Game under normal Score -1.9000000000000006 Game Number 1
-Average Score with questions discount -0.7450000000000003
-Best Game with Question/Orders Discounted Score -0.12000000000000001 Game number 7
-Worse Game under Question/Orders Discounted Score -2.130000000000001 Game Number 1
+Average Score with questions discount -0.6900000000000002
+Best Game with Question Penalty Score -0.12000000000000001 Game number 7
+Worse Game under Question Penalty Score -1.9500000000000006 Game Number 1

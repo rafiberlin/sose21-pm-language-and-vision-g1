@@ -96,9 +96,9 @@ if __name__ == "__main__":
 
     vqa_lxmert = LXMERTInference()
     answer_vocab_lxmert = vqa_lxmert.get_answers()
-    print("##########  START : Run VQA Test on LXMERT Model ##########")
+    print(f"##########  START : Run VQA Test on LXMERT Model {vqa_lxmert.model_type}##########")
     print("MSCOCO Dataset")
     run_official_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
     print("ADE20K Dataset")
     run_ade20k_vqa_metrics(vqa_lxmert, answer_vocab_lxmert, max_questions)
-    print("##########  END : Run VQA Test on LXMERT Model ##########")
+    print(f"##########  END : Run VQA Test on LXMERT Model {vqa_lxmert.model_type}##########")

@@ -44,9 +44,9 @@ class CustomAvatar(Avatar):
         self.observation = None
         self.caption_expert = caption_expert
         self.vqa_expert = vqa_expert
-        conf = get_config()["image_server"]
-        self.debug = conf["debug"]
-        self.rasa_model_path = conf["rasa"]["model"]
+        conf = get_config()
+        self.debug = conf["image_server"]["debug"]
+        self.rasa_model_path = conf["rasa"]["model_dir"]
         self.device = conf["rasa"]["tensorflow_gpu_name"]
         self.previous = []
         self.agent = Agent.load(self.rasa_model_path)

@@ -100,6 +100,9 @@ scikit_learn == 0.24.2
 # sose21-pm-language-and-vision-g1/setup.py: 6
 setuptools == 56.1.0
 
+# sose21-pm-language-and-vision-g1/avatar/game_avatar_custom.py: 2
+rasa == 2.7.1
+
 # sose21-pm-language-and-vision-g1/avatar/game_avatar_slurk.py: 4
 # sose21-pm-language-and-vision-g1/avatar/game_master_slurk.py: 4
 # sose21-pm-language-and-vision-g1/avatar/scripts/slurk/game_avatar_cli.py: 12
@@ -127,7 +130,7 @@ socketIO_client == 0.7.2
 # sose21-pm-language-and-vision-g1/models/vqa/evaluate_attention_vqa.py: 1,2
 # sose21-pm-language-and-vision-g1/models/vqa/evaluate_vqa.py: 1,2
 # sose21-pm-language-and-vision-g1/models/vqa/naive_vqa.py: 1
-tensorflow == 2.3.0
+tensorflow >= 2.3.0
 
 # sose21-pm-language-and-vision-g1/models/vqa/lxmert/extracting_data.py: 11
 # sose21-pm-language-and-vision-g1/models/vqa/lxmert/lxmert.py: 7

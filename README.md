@@ -104,26 +104,33 @@ To use the models, create the directory:
 `./pretrained/vqa/lxmert/`
 
 
-Download the vqa model under `pretrained/vqa/lxmert/` from https://drive.google.com/file/d/1KWApviWWF3qCeXhMgSzPpPHd8JUwZEQN/view?usp=sharing, and 
-unpack the content with `tar xvf vqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/vqa/epoch3.pkl`.
+Download the vqa model under `pretrained/vqa/lxmert/` from https://drive.google.com/file/d/1SCqFSLRaIwZD5AdTTkWKs6qhvHfjrIy9/view?usp=sharing, and 
+unpack the content with `tar xvf vqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/vqa/epoch1.pkl`.
 
-Download the gqa model under `pretrained/vqa/lxmert/` https://drive.google.com/file/d/1r15rAqsHxwbhyvwlZkI1dZ7T1LsTlUlL/view?usp=sharing, and 
+Download the gqa model under `pretrained/vqa/lxmert/` from https://drive.google.com/file/d/1FHXernav2TNDl8txss4ATV0gPuaUQSEe/view?usp=sharing
 unpack the content with `tar xvf gqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/gqa/epoch3.pkl`
 
 
 If you want to use the fine-tuned model on GQA, you need to adjust the configuration keys under "vqa", "lxmert" as 
 follow:
 "model" : "gqa"
-"fine_tuning" : "model_file" : "lxmert_gqa_epoch3.pkl"
+"fine_tuning" : "model_file" : "epoch1.pkl"
 "fine_tuning" : "use_pretrained": true
 
 For the fine-tuned model on VQA, change the configuration similarly: 
 
 "model" : "vqa"
-"fine_tuning" : "model_file" : "lxmert_vqa_epoch3.pkl"
+"fine_tuning" : "model_file" : "epoch1.pkl"
 "fine_tuning" : "use_pretrained": true
 
 Setting "fine_tuning" : "use_pretrained": false will allow to use the models as provided by Huggingface.
+
+
+Note: these a fine tuned model for 3 epochs but their performance on the VQA 2.0 task is much worse...
+
+VQA Fine tuned 3 epochs: https://drive.google.com/file/d/1KWApviWWF3qCeXhMgSzPpPHd8JUwZEQN/view?usp=sharing
+
+GQA Fine tuned 3 epochs:  https://drive.google.com/file/d/1r15rAqsHxwbhyvwlZkI1dZ7T1LsTlUlL/view?usp=sharing
 
 ### Evaluation on the official VQA metrics
 

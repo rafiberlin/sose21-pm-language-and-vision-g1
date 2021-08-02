@@ -98,7 +98,7 @@ As many members worked on the dataset creation, we do not have one process to cr
 final result in one pass (especially, we didn't use a fixed random seed...). However, all functions available
 to create the synthetic dataset are in the repository.
 
-These are the main steps to follow, to recreate the dataset:
+
 
 In ./config/config.json, the key "ade20k_dir" contains the path to the directory containing the relevant ADE20K external 
 resources such as:
@@ -107,6 +107,12 @@ resources such as:
 - the preprocessed ADE20K annotations saved as pandas data frame export under the folder preprocessed_dfs (as found on the jarvis server under data/ImageCorpora/ADE20K_2016_07_26/preprocessed_dfs)
 
 We will refer to the main ADE20K directory under the "ade20k_dir" config key as [ADE20K_DIR].
+
+[ADE20K_DIR] must be prepared to contain the previously listed resources; the configuration file ./config/config.json
+must be amended accordingly.
+
+Once this is done, the next actions should help to recreate the dataset successfully.
+
 
 The first step is to create the yes/no questions with:
 

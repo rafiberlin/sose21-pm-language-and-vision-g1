@@ -82,6 +82,12 @@ def get_config():
         os.makedirs(conf["game_logs_dir"])
         print("Created directory:", conf["game_logs_dir"])
 
+    ade20k_localized_narratives_train_file = os.path.join(conf["ade20k_dir"], conf["ade20k_localized_narratives_train_file"])
+
+    if not os.path.exists(ade20k_localized_narratives_train_file):
+        print(f"Warning, config for ade20k_localized_narratives_train_file is missing: {ade20k_localized_narratives_train_file}")
+    conf["ade20k_localized_narratives_train_file"] = ade20k_localized_narratives_train_file
+
     return conf
 
 

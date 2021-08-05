@@ -2,7 +2,7 @@
 
 Remark for the configuration (see config/config.json):
 
-If some expected directories are missing, try to execute config/util.py (with sudo if necessary)
+If some expected directories are missing, leading to some errors, try to execute config/util.py (with sudo if necessary)
 It will try to create the missing directories needed in some cases.
 
 # Pretrained Models
@@ -83,6 +83,60 @@ Especially, setting "cuda_device" to "cuda:0" will let run the model on your fir
 and so on.
 
 ## VQA
+
+### Question - Answer Dataset creation for ADE20K
+
+We created Question Answers pairs for ADE20K using 2 methods:
+
+- we used object annotation for ADE20K to create simple yes/no questions with fixed templates
+- we re-used a github project ( https://github.com/patil-suraj/question_generation, relying on huggingface transformers)
+to create Question Answer pairs based on the localized narrative captions for ADE20K (https://storage.googleapis.com/localized-narratives/annotations/ade20k_train_captions.jsonl)
+
+The resulting dataset is stored under ./data/ade20k_vqa/merged_synthetic_vqa.tar.gz (must be unzipped).
+
+As many members worked on the dataset creation, we do not have one process to create the
+final result in one pass (especially, we didn't use a fixed random seed...). However, all functions available
+to create the synthetic dataset are in the repository.
+
+
+
+In ./config/config.json, the key "ade20k_dir" contains the path to the directory containing the relevant ADE20K external 
+resources such as:
+- the original ADE20K images and annotations (in a folder named "images")
+- the localized narrative annotations (textual captions only) under folder named "annotations"
+- the preprocessed ADE20K annotations saved as pandas data frame export under the folder preprocessed_dfs (as found on the jarvis server under data/ImageCorpora/ADE20K_2016_07_26/preprocessed_dfs)
+
+We will refer to the main ADE20K directory under the "ade20k_dir" config key as [ADE20K_DIR].
+
+[ADE20K_DIR] must be prepared to contain the previously listed resources; the configuration file ./config/config.json
+must be amended accordingly.
+
+Once this is done, the next actions should help to recreate the dataset successfully.
+
+
+The first step is to create the yes/no questions with:
+
+`python ./avatar_models/utils/create_ade20k_vqa_dataset.py`
+
+It creates a `ade20k_vqa.jsonl` file under [ADE20K_DIR].
+
+The second step is to create the Question Answer pairs with transformer architecture:
+
+`python ./avatar_models/vqa/create_qa_pairs.py`
+
+It creates a `ade20k_qa_cleaned.json` file under [ADE20K_DIR].
+
+The `ade20k_qa_cleaned.json` needs to be further processed, to add the actual images paths.
+This is done using `add_image_path_qa_data()` in `./avatar_models/utils/util.py`, which will 
+output `ade20k_qa_cleaned_with_image_path.json` under [ADE20K_DIR].
+
+
+Finally, the function `merge_synthetic_qa()` in `./avatar_models/utils/util.py` will merge 
+`ade20k_qa_cleaned_with_image_path.json` and `ade20k_vqa.jsonl` into the set of files found under
+
+`./data/ade20k_vqa/merged_synthetic_vqa.tar.gz`.
+
+
 
 ### LXMERT (Huggingface)
 

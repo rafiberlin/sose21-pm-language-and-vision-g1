@@ -208,6 +208,29 @@ The evaluation of the different models can be performed with:
 
 `python avatar_models/utils/vqa_eval.py`
 
+## RASA
+
+In the configuration file `./config/config.json`, the key "rasa" indicates the location of the finetuned NLU model and
+necessary files.
+
+Setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
+and so on.
+
+To train the NLU model, type inside the rasa directory: 
+
+`rasa train`
+
+This trains a model using the NLU data and stories and saves it in `./models`. To then access the nlu and core functions locally without running
+the HTTP API, decompress the model file (ending with tar.gz) to reveal the folders `./models/core` and `./models/nlu`.
+
+For finetuning, the following files have to be edited for the changes to take effect:
+`domain.yml`
+`.data/nlu.yml`
+`.data/stories.yml`
+`.data/rules.yml`
+
+After adjusting the files, repeat training and (if no errors occur) decompressing the model file. 
+
 ## Output Game Statistics from a Slurk Log
 
 If you have extracted a game log from a slurk server (as a reminder, go to the directory where slurk is installed 

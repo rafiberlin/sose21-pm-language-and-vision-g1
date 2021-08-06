@@ -1,8 +1,8 @@
 # A MapWorld Avatar Game (SoSe21 PM Vision)
 
-Remark for the configuration (see config/config.json):
+Remark for the configuration (see `config/config.json`):
 
-If some expected directories are missing, leading to some errors, try to execute config/util.py (with sudo if necessary)
+If some expected directories are missing, leading to some errors, try to execute `config/util.py` (with sudo if necessary)
 It will try to create the missing directories needed in some cases.
 
 # Pretrained Models
@@ -13,7 +13,7 @@ It will try to create the missing directories needed in some cases.
 
 #### MSCOCO Dataset
 
-In the configuration file ./config.json, the key "ms_coco_dir" indicates the location of the MSCOCO dataset,
+In the configuration file `./config.json`, the key "ms_coco_dir" indicates the location of the MSCOCO dataset,
 which is required to train the captioning model.
 
 Let's call the directory defined for the key "ms_coco_dir" [MS_COCO_DIR]
@@ -38,25 +38,25 @@ The glove embeddings can be used.
 
 Download the files from http://nlp.stanford.edu/data/glove.6B.zip
 
-Unzip the content under ./pretrained/gloves
+Unzip the content under `./pretrained/gloves`
 
-The location for the downloaded Glove embeddings can be changed, the key "glove_embeddings" in ./config.json
+The location for the downloaded Glove embeddings can be changed, the key "glove_embeddings" in `./config.json`
 must be changed accordingly.
 
 #### Training
 
-In the configuration file ./config/config.json, under the key "captioning", the "attention" key contains all relevant parameters for training 
+In the configuration file `./config/config.json`, under the key "captioning", the "attention" key contains all relevant parameters for training 
 and hyperparameters to train the captioning model.
 
 Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
 and so on.
 
-Execute the script ./avatar_models/captioning/preprocessing.py to cache features for training,
+Execute the script `./avatar_models/captioning/preprocessing.py` to cache features for training,
 
-It is important, to use the same configuration in ./config/config.json under the key "captioning" for both preprocessing
+It is important, to use the same configuration in `./config/config.json` under the key "captioning" for both preprocessing
 and training.
 
-The training can be started by running ./avatar_models/captioning/visual_attention_simple.py
+The training can be started by running `./avatar_models/captioning/visual_attention_simple.py`
 
 
 #### Evaluation
@@ -66,17 +66,17 @@ First download the pretrained model from:
 
 https://drive.google.com/file/d/1ZcCXm9F6T8AbqCGBpDcom4rbDgQyXNr6/view?usp=sharing
 
-Unpack under ./
+Unpack under `./`
 
-You should end up with training files under ./pretrained/captioning/ (the most important file being the tokenizer,pickle)
-and the saved model files  under ./pretrained/captioning/checkpoints
+You should end up with training files under `./pretrained/captioning/` (the most important file being the tokenizer,pickle)
+and the saved model files  under `./pretrained/captioning/checkpoints`
 
 Run the script `avatar_models/captioning/evaluate.py` to verify that the model can be loaded correctly.
 
 
 ### CATR model
 
-In the configuration file ./config/config.json, under the key "captioning", the "catr" key contains all relevant parameters for training 
+In the configuration file `./config/config.json`, under the key "captioning", the "catr" key contains all relevant parameters for training 
 and hyperparameters to train the captioning model.
 
 Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
@@ -92,7 +92,7 @@ We created Question Answers pairs for ADE20K using 2 methods:
 - we re-used a github project ( https://github.com/patil-suraj/question_generation, relying on huggingface transformers)
 to create Question Answer pairs based on the localized narrative captions for ADE20K (https://storage.googleapis.com/localized-narratives/annotations/ade20k_train_captions.jsonl)
 
-The resulting dataset is stored under ./data/ade20k_vqa/merged_synthetic_vqa.tar.gz (must be unzipped).
+The resulting dataset is stored under `./data/ade20k_vqa/merged_synthetic_vqa.tar.gz` (must be unzipped).
 
 As many members worked on the dataset creation, we do not have one process to create the
 final result in one pass (especially, we didn't use a fixed random seed...). However, all functions available
@@ -104,11 +104,11 @@ In ./config/config.json, the key "ade20k_dir" contains the path to the directory
 resources such as:
 - the original ADE20K images and annotations (in a folder named "images")
 - the localized narrative annotations (textual captions only) under folder named "annotations"
-- the preprocessed ADE20K annotations saved as pandas data frame export under the folder preprocessed_dfs (as found on the jarvis server under data/ImageCorpora/ADE20K_2016_07_26/preprocessed_dfs)
+- the preprocessed ADE20K annotations saved as pandas data frame export under the folder preprocessed_dfs (as found on the jarvis server under `data/ImageCorpora/ADE20K_2016_07_26/preprocessed_dfs`)
 
 We will refer to the main ADE20K directory under the "ade20k_dir" config key as [ADE20K_DIR].
 
-[ADE20K_DIR] must be prepared to contain the previously listed resources; the configuration file ./config/config.json
+[ADE20K_DIR] must be prepared to contain the previously listed resources; the configuration file `./config/config.json`
 must be amended accordingly.
 
 Once this is done, the next actions should help to recreate the dataset successfully.
@@ -143,11 +143,11 @@ Finally, the function `merge_synthetic_qa()` in `./avatar_models/utils/util.py` 
 If the installations works correctly, all dependencies and weights will be downloaded automatically after the first 
 use.
 
-In the configuration file ./config/config.json, under the keys "vqa" / "lxmert", you can change the maximum length of the 
+In the configuration file `./config/config.json`, under the keys "vqa" / "lxmert", you can change the maximum length of the 
 question and switch between "vqa" or "gqa" models. You can also assign directly a GPU with cuda_device, e.g "cuda:0" 
 for the first GPU, "cuda:1" for the second GPU or none / "cpu" if no GPUs are available.
 
-To see an example how to run an inference, run models/vqa/lxmert/lxmert_eval.py
+To see an example how to run an inference, run `models/vqa/lxmert/lxmert_eval.py`
 
 The LXMERT models have been also fine tuned on our synthetic VQA dataset (under `./data/ade20k_vqa`).
 
@@ -188,17 +188,17 @@ GQA Fine tuned 3 epochs:  https://drive.google.com/file/d/1r15rAqsHxwbhyvwlZkI1d
 
 ### Evaluation on the official VQA metrics
 
-Download attention_vqa_val_acc_0.394.tar.gz from https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
+Download `attention_vqa_val_acc_0.394.tar.gz` from https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
 
 Unpack under ./ with `tar xvf attention_vqa_val_acc_0.394.tar.gz`
 
-You should end up with all files under ./avatar_models/vqa/attentions/
+You should end up with all files under `./avatar_models/vqa/attentions/`
 
 We do not need the pretrained model from this archive, only the pre-processed Questions / Answers from the VQA dataset.
 
-These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluation for any model.
+These are used in the script `./util/utils/vqa_eval.py` to perform the VQA evaluation for any model.
 
-Please also unpack all files found under ./data/ade20k_vqa in the directory defined in the ./config/config.json file, 
+Please also unpack all files found under `./data/ade20k_vqa` in the directory defined in the `./config/config.json file`, 
 under the key "ade20k_vqa_dir" (should be the directory `./data/ade20k_vqa`), in order to be able to run the ADE20K evaluation for VQA.
 
 `cd /data/ade20k_vqa`
@@ -224,10 +224,10 @@ This trains a model using the NLU data and stories and saves it in `./models`. T
 the HTTP API, decompress the model file (ending with tar.gz) to reveal the folders `./models/core` and `./models/nlu`.
 
 For finetuning, the following files have to be edited for the changes to take effect:
-`domain.yml`
-`.data/nlu.yml`
-`.data/stories.yml`
-`.data/rules.yml`
+`./domain.yml`
+`./data/nlu.yml`
+`./data/stories.yml`
+`./data/rules.yml`
 
 After adjusting the files, repeat training and (if no errors occur) decompressing the model file. 
 

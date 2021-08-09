@@ -1,4 +1,4 @@
-from avatar_models.utils.util import load_preprocessed_vqa_data,  get_config
+from avatar_models.utils.util import load_preprocessed_vqa_data,  get_config, get_ade20_vqa_data, get_ade20_qa_cleaned
 from avatar_models.utils.bleu import get_ade20k_caption_annotations
 import os, json
 
@@ -29,3 +29,10 @@ if __name__ == "__main__":
     average_caption_length_old = sum(caption_lengths_old) / len(caption_lengths_old)
     print(f"ADE20K average caption length with our captions: {average_caption_length_new}")
     print(f"ADE20K average caption length originally: {average_caption_length_old}")
+
+    template_based_vqa = get_ade20_vqa_data()
+    print(f"ADE20K Questions based on templates only: {len(template_based_vqa)}")
+
+    transformer_based_vqa = get_ade20_qa_cleaned("ade20k_qa_cleaned.json")
+    num_transformer_questions = sum([len(image) for image in transformer_based_vqa.keys()])
+    print(f"ADE20K Questions based on Transformer only: {num_transformer_questions}")

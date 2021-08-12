@@ -101,8 +101,8 @@ if __name__ == "__main__":
     conf = get_config()
     VQA_ANNOTATIONS_DIR = conf["vqa_dir"]
     MS_COCO_DIR = conf["ms_coco_dir"]
-    VQA_TOP_ANSWERS = conf["vqa_top_answers"]
-    CACHE_IMAGES = conf["vqa_cache_images"]
+    VQA_TOP_ANSWERS = conf["vqa"]["attention"]["vqa_top_answers"]
+    CACHE_IMAGES = conf["vqa"]["attention"]["vqa_cache_images"]
     BATCH_SIZE = 128
     annotation_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_mscoco_train2014_annotations.json")
     question_file = os.path.join(VQA_ANNOTATIONS_DIR, "v2_OpenEnded_mscoco_train2014_questions.json")

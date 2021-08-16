@@ -10,7 +10,7 @@ The size and the characteristics of the map can be changed with following keys i
 
 - "map_size" : set the size for a square labyrinth. Default is 4.
 - "map_ambiguity" : assign a number of adjacent similar rooms. Default is 2
-- "map_rooms" : Number of rooms to be populated in the labyrinth. Cannot exceed map_size*map_size. Default is 8.
+- "map_rooms" : Number of rooms to be populated in the labyrinth. Cannot exceed map_size*map_size, must be a multiple of ambiguity. Default is 8.
 
 Changing the value for similar rooms might increase the number of random crash (problem when sampling from similar room).
 In that case the game master and the bot needs to be restarted.

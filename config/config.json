@@ -18,6 +18,9 @@
   "pretrained_root": "/home/users/acordova/project/sose21-pm-language-and-vision-g1/pretrained/",
   "glove_embeddings": "gloves/glove.6B.300d.txt",
   "game_logs_dir": "/home/users/acordova/project/sose21-pm-language-and-vision-g1/data/game_logs/",
+  "map_size" : 4,
+  "map_ambiguity" : 2,
+  "map_rooms" : 8,
   "vqa": {
     "attention": {
       "pretrained_dir": "vqa/attention/",

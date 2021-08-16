@@ -5,6 +5,18 @@ Remark for the configuration (see `config/config.json`):
 If some expected directories are missing, leading to some errors, try to execute `config/util.py` (with sudo if necessary)
 It will try to create the missing directories needed in some cases.
 
+The size and the characteristics of the map can be changed with following keys in the 
+`config/config.json`
+
+- "map_size" : set the size for a square labyrinth. Default is 4.
+- "map_ambiguity" : assign a number of adjacent similar rooms. Default is 2
+- "map_rooms" : Number of rooms to be populated in the labyrinth. Cannot exceed map_size*map_size. Default is 8.
+
+Changing the value for similar rooms might increase the number of random crash (problem when sampling from similar room).
+In that case the game master and the bot needs to be restarted.
+
+The size of map, the number of similar
+
 # Pretrained Models
 
 ## Captioning
@@ -162,7 +174,7 @@ Download the vqa model under `pretrained/vqa/lxmert/` from https://drive.google.
 unpack the content with `tar xvf vqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/vqa/epoch1.pkl`.
 
 Download the gqa model under `pretrained/vqa/lxmert/` from https://drive.google.com/file/d/1FHXernav2TNDl8txss4ATV0gPuaUQSEe/view?usp=sharing
-unpack the content with `tar xvf gqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/gqa/epoch3.pkl`
+unpack the content with `tar xvf gqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/gqa/epoch1.pkl`
 
 
 If you want to use the fine-tuned model on GQA, you need to adjust the configuration keys under "vqa", "lxmert" as 

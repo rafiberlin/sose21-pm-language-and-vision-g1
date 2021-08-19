@@ -1,0 +1,13 @@
+/home/rafi/.conda/envs/rasa37/bin/python /home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/config/score_game.py --file rafi_10_games_lxmert_vqa_finetuned_v1.0_default.log
+Dev Setup: dev_config.json will be used
+Average Score -0.51
+Won Games 4 / 10
+Questions Asked Per Game 0.5
+Orders Given Per Game 4.1
+Best Game under normal Score -0.2 Game Number 4
+Worse Game under normal Score -0.9999999999999999 Game Number 8
+Average Score with questions discount -0.515
+Best Game with Question Penalty Score -0.2 Game number 4
+Worse Game under Question Penalty Score -1.0099999999999998 Game Number 8
+
+Process finished with exit code 0

@@ -5,6 +5,18 @@ Remark for the configuration (see `config/config.json`):
 If some expected directories are missing, leading to some errors, try to execute `config/util.py` (with sudo if necessary)
 It will try to create the missing directories needed in some cases.
 
+The size and the characteristics of the map can be changed with following keys in the 
+`config/config.json`
+
+- "map_size" : set the size for a square labyrinth. Default is 4.
+- "map_ambiguity" : assign a number of adjacent similar rooms. Default is 2
+- "map_rooms" : Number of rooms to be populated in the labyrinth. Cannot exceed map_size*map_size, must be a multiple of ambiguity. Default is 8.
+
+Changing the value for similar rooms might increase the number of random crash (problem when sampling from similar room).
+In that case the game master and the bot needs to be restarted.
+
+The size of map, the number of similar
+
 # Pretrained Models
 
 ## Captioning
@@ -82,6 +94,10 @@ and hyperparameters to train the captioning model.
 Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
 and so on.
 
+The original code for the CATR model comes from https://github.com/saahiluppal/catr
+and has been copied under `./avatar_models/captioning/catr` with amendment to the corresponding
+python module paths.
+
 ## VQA
 
 ### Question - Answer Dataset creation for ADE20K
@@ -140,12 +156,23 @@ Finally, the function `merge_synthetic_qa()` in `./avatar_models/utils/util.py` 
 
 ### LXMERT (Huggingface)
 
+The code for integrating LXMERT in our project comes from :
+
+`https://github.com/huggingface/transformers/blob/master/examples/research_projects/lxmert/demo.ipynb`
+
 If the installations works correctly, all dependencies and weights will be downloaded automatically after the first 
 use.
 
 In the configuration file `./config/config.json`, under the keys "vqa" / "lxmert", you can change the maximum length of the 
 question and switch between "vqa" or "gqa" models. You can also assign directly a GPU with cuda_device, e.g "cuda:0" 
 for the first GPU, "cuda:1" for the second GPU or none / "cpu" if no GPUs are available.
+
+#### Finetuning LXMERT
+
+1. run `python compute_features.py` — this will compute FRCNN features for the ADE20K Dataset and save them into a folder to ensure faster training.
+2. run `pyhon finetune.py` — this will fine-tune the specified model for 3 epochs. The type of the model (vqa or gqa), type of device (cuda or cpu) and other stuff are specified in the  config file
+3. the script expects the dataset ("merged_synthetic_vqa_splits.json") to be in this directory, so add it here or change the path in the script accordingly
+
 
 To see an example how to run an inference, run `models/vqa/lxmert/lxmert_eval.py`
 
@@ -162,7 +189,7 @@ Download the vqa model under `pretrained/vqa/lxmert/` from https://drive.google.
 unpack the content with `tar xvf vqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/vqa/epoch1.pkl`.
 
 Download the gqa model under `pretrained/vqa/lxmert/` from https://drive.google.com/file/d/1FHXernav2TNDl8txss4ATV0gPuaUQSEe/view?usp=sharing
-unpack the content with `tar xvf gqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/gqa/epoch3.pkl`
+unpack the content with `tar xvf gqa.tar.gz`, you should end up with  `./pretrained/vqa/lxmert/gqa/epoch1.pkl`
 
 
 If you want to use the fine-tuned model on GQA, you need to adjust the configuration keys under "vqa", "lxmert" as 

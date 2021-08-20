@@ -176,8 +176,15 @@ def read_game_logs(file_path):
             game_won = sum([1 for m in e if m["user"]["id"] == 1 and m[
                 "event"] == "text_message" and type(m["message"]) is str and m["message"].startswith("Congrats")]) > 0
 
+            # Work-Around - the final reward giving +1.0 on success and -1.0 on loss happens after the messages
+            # Saying "congratulations" or "you die horribly" just repeating the message when the game starts.
+            # We had to exclude that message to segment finished games but this is why we have to add these rewards here manually...
+
+            final_reward = -1.0
+            if game_won:
+                final_reward = 1.0
             score_list[i] = {"score": sum([m["message"]["observation"]["reward"] for m in e if
-                                           "message" in m.keys() and type(m["message"]) is dict]),
+                                           "message" in m.keys() and type(m["message"]) is dict])+final_reward,
                              "num_questions": num_questions, "num_orders": num_orders, "game_session": e,
                              "game_won": game_won}
 
@@ -189,7 +196,8 @@ def read_game_logs(file_path):
 
 def output_game_metrics(log):
     num_game = len(log)
-    PENALTY_FOR_QUESTION_ASKED = -0.01
+    PENALTY_FOR_QUESTION_ASKED = -0.1
+
     discounted_score = lambda l, i: l[i]["score"] + l[i]["num_questions"] * PENALTY_FOR_QUESTION_ASKED
 
     s = 0
@@ -198,8 +206,11 @@ def output_game_metrics(log):
         sq += discounted_score(log, k)
         s += log[k]["score"]
 
+
+    won_games = sum([1 for k in log.keys() if log[k]['game_won']])
+
     print("Average Score", s / num_game)
-    print("Won Games", f"{sum([1 for k in log.keys() if log[k]['game_won']])} / {num_game}")
+    print("Won Games", f"{won_games} / {num_game}")
     print("Questions Asked Per Game", f"{sum([log[k]['num_questions'] for k in log.keys()]) / num_game}")
     print("Orders Given Per Game", f"{sum([log[k]['num_orders'] for k in log.keys()]) / num_game}")
 

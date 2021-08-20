@@ -2,7 +2,7 @@
     Slurk client for the game master
 """
 import socketIO_client
-
+from config.util import get_config
 from avatar.game import MapWorldGame
 
 
@@ -24,14 +24,21 @@ class GameMaster(socketIO_client.BaseNamespace):
 
     def __init__(self, io, path):
         super().__init__(io, path)
+        config = get_config()
+        map_size = config["map_size"]
+        map_ambiguity = config["map_ambiguity"]
+        map_rooms = config["map_rooms"]
+        print(f"Map size:{map_size}")
+        print(f"Map ambiguity:{map_ambiguity}")
+        print(f"Map # rooms:{map_rooms}")
         self.id = None
         self.base_image_url = None
         self.image_server_auth = None
         self.games = {}  # game by room_name
-        self.map_width = 4
-        self.map_height = 4
-        self.map_rooms = 8
-        self.map_types_to_repeat = [2, 2]
+        self.map_width = map_size # original is 4
+        self.map_height = map_size # original is 4
+        self.map_rooms = map_rooms # original is 8
+        self.map_types_to_repeat = [map_ambiguity, map_ambiguity] # original is [2, 2]
         self.emit("ready")  # invokes on_joined_room for the token room so we can get the user.id
 
     def set_base_image_url(self, base_image_url: str):

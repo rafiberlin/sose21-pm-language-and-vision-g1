@@ -18,6 +18,9 @@
   "pretrained_root": "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/pretrained/",
   "glove_embeddings": "gloves/glove.6B.300d.txt",
   "game_logs_dir": "/home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/data/game_logs/",
+  "map_size" : 4,
+  "map_ambiguity" : 2,
+  "map_rooms" : 8,
   "vqa": {
     "attention": {
       "pretrained_dir": "vqa/attention/",
@@ -27,7 +30,7 @@
     "lxmert": {
       "question_length": 24,
       "model": "gqa",
-      "cuda_device": "cuda:0",
+      "cuda_device": "cpu",
       "fine_tuning": {
         "pretrained_dir": "vqa/lxmert/",
         "epoch": 1,

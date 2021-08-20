@@ -1,12 +1,11 @@
-(Orders like go north or describe does not imply any penalty, the game is already assigning a negative rewards when the avatar moves)
-
-/home/rafi/.conda/envs/rasa37/bin/python /home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/config/score_game.py --file lxmert_vqa_catr_logs_kevin.txt --dir ../data/game_logs
-Average Score -0.8299999999999998
+/home/rafi/.conda/envs/rasa37/bin/python /home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/config/score_game.py --file lxmert_vqa_catr_logs_kevin.txt
+Dev Setup: dev_config.json will be used
+Average Score -0.43
 Won Games 7 / 10
 Questions Asked Per Game 2.6
 Orders Given Per Game 7.7
-Best Game under normal Score -0.2 Game Number 9
-Worse Game under normal Score -1.4000000000000001 Game Number 5
-Average Score with questions discount -0.8560000000000001
-Best Game with Question Penalty Score -0.22 Game number 9
-Worse Game under Question Penalty Score -1.4400000000000002 Game Number 5
+Best Game under normal Score 0.4 Game Number 2
+Worse Game under normal Score -2.3 Game Number 0
+Average Score with questions discount -0.6900000000000001
+Best Game with Question Penalty Score 0.30000000000000004 Game number 7
+Worse Game under Question Penalty Score -2.6999999999999997 Game Number 0

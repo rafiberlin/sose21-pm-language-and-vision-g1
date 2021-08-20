@@ -230,8 +230,8 @@ def merge_synthetic_qa(save_dir=None, save_filename_root="merged_synthetic_vqa")
 
     with jsonlines.open(path_save+"_train.jsonl", 'w') as outfile:
         print("Saving:", path_save + "_train.jsonl")
-        for key in tqdm(test_subset["image_path"].keys()):
-            outfile.write({"image_path": test_subset["image_path"][key], "question": test_subset["question"][key], "answer": test_subset["answer"][key]})
+        for key in tqdm(training_subset["image_path"].keys()):
+            outfile.write({"image_path": training_subset["image_path"][key], "question": training_subset["question"][key], "answer": training_subset["answer"][key]})
 
     with open(path_save+"_splits.json", "w") as f:
         print("Saving:", path_save+"_splits.json")

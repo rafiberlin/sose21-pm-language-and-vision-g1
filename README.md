@@ -94,6 +94,10 @@ and hyperparameters to train the captioning model.
 Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
 and so on.
 
+The original code for the CATR model comes from https://github.com/saahiluppal/catr
+and has been copied under `./avatar_models/captioning/catr` with amendment to the corresponding
+python module paths.
+
 ## VQA
 
 ### Question - Answer Dataset creation for ADE20K
@@ -151,6 +155,10 @@ Finally, the function `merge_synthetic_qa()` in `./avatar_models/utils/util.py` 
 
 
 ### LXMERT (Huggingface)
+
+The code for integrating LXMERT in our project comes from :
+
+`https://github.com/huggingface/transformers/blob/master/examples/research_projects/lxmert/demo.ipynb`
 
 If the installations works correctly, all dependencies and weights will be downloaded automatically after the first 
 use.

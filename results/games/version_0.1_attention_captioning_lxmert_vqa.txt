@@ -1,11 +1,13 @@
-(Orders like go north or describe does not imply any penalty, the game is already assigning a negative rewards when the avatar moves)
-
+/home/rafi/.conda/envs/rasa37/bin/python /home/rafi/PycharmProjects/sose21-pm-language-and-vision-g1/config/score_game.py --file rafi_10_games_04_jun_21_attention_caption_lxmert_vqa.txt
+Dev Setup: dev_config.json will be used
 Average Score -0.6400000000000001
 Won Games 5 / 10
 Questions Asked Per Game 5.0
 Orders Given Per Game 5.5
-Best Game under normal Score -0.1 Game Number 2
-Worse Game under normal Score -1.9000000000000006 Game Number 1
-Average Score with questions discount -0.6900000000000002
-Best Game with Question Penalty Score -0.12000000000000001 Game number 7
-Worse Game under Question Penalty Score -1.9500000000000006 Game Number 1
+Best Game under normal Score 0.8 Game Number 9
+Worse Game under normal Score -1.5 Game Number 0
+Average Score with questions discount -1.1400000000000001
+Best Game with Question Penalty Score 0.19999999999999996 Game number 3
+Worse Game under Question Penalty Score -2.3 Game Number 4
+
+Process finished with exit code 0

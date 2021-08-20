@@ -159,6 +159,13 @@ In the configuration file `./config/config.json`, under the keys "vqa" / "lxmert
 question and switch between "vqa" or "gqa" models. You can also assign directly a GPU with cuda_device, e.g "cuda:0" 
 for the first GPU, "cuda:1" for the second GPU or none / "cpu" if no GPUs are available.
 
+#### Finetuning LXMERT
+
+1. run `python compute_features.py` — this will compute FRCNN features for the ADE20K Dataset and save them into a folder to ensure faster training.
+2. run `pyhon finetune.py` — this will fine-tune the specified model for 3 epochs. The type of the model (vqa or gqa), type of device (cuda or cpu) and other stuff are specified in the  config file
+3. the script expects the dataset ("merged_synthetic_vqa_splits.json") to be in this directory, so add it here or change the path in the script accordingly
+
+
 To see an example how to run an inference, run `models/vqa/lxmert/lxmert_eval.py`
 
 The LXMERT models have been also fine tuned on our synthetic VQA dataset (under `./data/ade20k_vqa`).

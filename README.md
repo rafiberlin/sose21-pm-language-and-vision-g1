@@ -1,5 +1,30 @@
 # A MapWorld Avatar Game (SoSe21 PM Vision)
 
+This project is the Avatar Game. It has the following structure:
+    .
+    ├── annotations
+    ├── avatar                    # Test files (alternatively `spec` or `tests`)
+    │   ├── mapworld              # Load and stress tests
+    │   ├── resources             # End-to-end, integration tests (alternatively `e2e`)
+    │   ├── scripts  
+    │   ├── __init__.py
+    │   ├── game.py
+    │   ├── game_avatar.py
+    │   ├── game_avatar_custom.py
+    │   ├── game_avatar_slurk.py
+    │   ├── game_master_slurk.py
+    │   ├── game_master_standalone.py   
+    │   └── scripts               # Unit tests
+    ├── avatar models
+    ├── config
+    │   ├── __init__.py
+    │   ├── config.json
+    │   └── utils.py
+    ├── data
+    ├── test
+    └── setup.py
+    
+
 Remark for the configuration (see `config/config.json`):
 
 If some expected directories are missing, leading to some errors, try to execute `config/util.py` (with sudo if necessary)

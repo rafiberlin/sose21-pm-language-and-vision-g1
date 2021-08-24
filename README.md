@@ -3,8 +3,6 @@
 # Repository Structure
 This project is the Avatar Game. It has the following structure:
 
-
-    ├── annotations                         # Annotated captions to train the model
     ├── avatar                              # Game basis
     │   ├── mapworld                        # The map with the images
     │   ├── resources                       # JSON for the layout and the images
@@ -25,12 +23,37 @@ This project is the Avatar Game. It has the following structure:
     │   │   └── vqa_eval                    # Evaluation of VQA model
     │   ├── vqa                             # VQA LXMERT model
     ├── config                              # Config folder                 
-    │   ├── config.json                     # Parameters depending on server
-    │   └── utils.py                        # Read the config file
+    │   ├── config.json                     # Project Parameters depending on server
+    |   ├── dev_config.json                 # Project Parameters for local development
+    │   ├── score_game.py                   # Runs game metrics based on Slurk logs
+    |   └── utils.py                        # Read the config file
     ├── data                                # ADE20K and game_logs
-    ├── test                                # Some tests
+    ├── notebooks                           # Shows some models output in Jupyter notebooks
+    ├── pretrained                          # Directory where to put some of the pretrained model when using them
+    ├── rasa                                # Contains the fine tuned RASA model for NLU
+    ├── results                             # Text output of the different metrics displayed in the final report
+    ├── tests                               # Some MapWorld tests
     └── setup.py                            # To install the game
     
+
+Remark for the configuration (see `config/config.json`):
+
+If some expected directories are missing, leading to some errors, try to execute `config/util.py` (with sudo if necessary)
+It will try to create the missing directories needed in some cases.
+
+Also, to make any configuration change effective, you will need to ALWAYS redeploy the whole
+project by executing `pip install .`
+
+The size and the characteristics of the map can be changed with following keys in the 
+`config/config.json`
+
+- "map_size" : set the size for a square labyrinth. Default is 4.
+- "map_ambiguity" : assign a number of adjacent similar rooms. Default is 2
+- "map_rooms" : Number of rooms to be populated in the labyrinth. Cannot exceed map_size*map_size, must be a multiple of ambiguity. Default is 8.
+
+Changing the value for similar rooms might increase the number of random crash (problem when sampling from similar room).
+In that case the game master and the bot needs to be restarted.
+
 
 # Pretrained Models
 
@@ -100,6 +123,20 @@ and hyperparameters to train the captioning model.
 
 Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
 and so on.
+
+You can run `./avatar_models/captioning/catr/predict.py` to see an example of inference.
+
+### Running BLEU-4 and SPICE score for Attention and CATR model.
+
+To run the captioning evaluation, the additional captions from the Tell Me More fork must be used:
+
+https://github.com/rafiberlin/image-description-sequences
+
+And be configured under the key `ade20k_caption_dir` in the configuration file ./config/config.json accordingly.
+
+The metrics can be run with:
+
+`python ./avatar_models/utils/bleu.py`
 
 ## VQA
 
@@ -241,9 +278,6 @@ under the key "ade20k_vqa_dir" (should be the directory `./data/ade20k_vqa`), in
 
 In the configuration file `./config/config.json`, the key "rasa" indicates the location of the finetuned NLU model and
 necessary files.
-
-Setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
-and so on.
 
 To train the NLU model, type inside the rasa directory: 
 

@@ -1,6 +1,11 @@
 from avatar_models.utils.util import load_preprocessed_vqa_data,  get_config, get_ade20_vqa_data, get_ade20_qa_cleaned
 from avatar_models.utils.bleu import get_ade20k_caption_annotations
-import os, json
+import os, json, urllib.request
+
+def load_json(url):
+    response = urllib.request.urlopen(url)
+    data = json.loads(response.read())
+    return data
 
 if __name__ == "__main__":
 
@@ -41,3 +46,9 @@ if __name__ == "__main__":
     transformer_based_vqa = get_ade20_qa_cleaned("ade20k_qa_cleaned.json")
     num_transformer_questions = sum([len(image) for image in transformer_based_vqa.keys()])
     print(f"ADE20K Questions based on Transformer only: {num_transformer_questions}")
+
+    GQA_VOCAB_URL = "https://raw.githubusercontent.com/airsplay/lxmert/master/data/gqa/trainval_label2ans.json"
+    print(f"LXMERT GQA Vocab size: {len(load_json(GQA_VOCAB_URL))}")
+
+    VQA_VOCAB_URL = "https://raw.githubusercontent.com/airsplay/lxmert/master/data/vqa/trainval_label2ans.json"
+    print(f"LXMERT VQA Vocab size: {len(load_json(VQA_VOCAB_URL))}")

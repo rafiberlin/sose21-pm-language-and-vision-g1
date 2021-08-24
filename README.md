@@ -1,34 +1,48 @@
 # A MapWorld Avatar Game (SoSe21 PM Vision)
 
+# Repository Structure
 This project is the Avatar Game. It has the following structure:
-    .
-    ├── annotations
-    ├── avatar                    # Test files (alternatively `spec` or `tests`)
-    │   ├── mapworld              # Load and stress tests
-    │   ├── resources             # End-to-end, integration tests (alternatively `e2e`)
-    │   ├── scripts  
-    │   ├── __init__.py
-    │   ├── game.py
-    │   ├── game_avatar.py
-    │   ├── game_avatar_custom.py
-    │   ├── game_avatar_slurk.py
-    │   ├── game_master_slurk.py
-    │   ├── game_master_standalone.py   
-    │   └── scripts               # Unit tests
-    ├── avatar models
-    ├── config
-    │   ├── __init__.py
-    │   ├── config.json
-    │   └── utils.py
-    ├── data
-    ├── test
-    └── setup.py
+
+    ├── avatar                              # Game basis
+    │   ├── mapworld                        # The map with the images
+    │   ├── resources                       # JSON for the layout and the images
+    │   ├── scripts                         # To initialize the game
+    │   │   ├── __init__.py                 # Load resources
+    │   │   ├── game.py                     # Start the game
+    │   │   ├── game_avatar.py              # Start the avatar
+    │   │   ├── game_avatar_custom.py       # Functional copy of above
+    │   │   ├── game_avatar_slurk.py        # Start avatar in slurk
+    │   │   ├── game_master_slurk.py        # Start master in slurk
+    │   │   └── game_master_standalone.py   # Start master
+    ├── avatar_models                       # The VQA and captioning models
+    │   ├── captioning                      # The captioning model catr
+    │   ├── utils                           # utils and scoring 
+    │   │   ├── bleu.py                     # Scores for captioning, BLEU and SPICE
+    │   │   ├── create_ade20k_vqa_dataset.py# Prepare the ADE20K for VQA
+    │   │   ├── util.py                     # Some helpful functions
+    │   │   └── vqa_eval                    # Evaluation of VQA model
+    │   ├── vqa                             # VQA LXMERT model
+    ├── config                              # Config folder                 
+    │   ├── config.json                     # Project Parameters depending on server
+    |   ├── dev_config.json                 # Project Parameters for local development
+    │   ├── score_game.py                   # Runs game metrics based on Slurk logs
+    |   └── utils.py                        # Read the config file
+    ├── data                                # ADE20K and game_logs
+    ├── notebooks                           # Shows some models output in Jupyter notebooks
+    ├── pretrained                          # Directory where to put some of the pretrained model when using them
+    ├── rasa                                # Contains the fine tuned RASA model for NLU
+    ├── results                             # Text output of the different metrics displayed in the final report
+    ├── tests                               # Some MapWorld tests
+    └── setup.py                            # To install the game
     
 
 Remark for the configuration (see `config/config.json`):
 
 If some expected directories are missing, leading to some errors, try to execute `config/util.py` (with sudo if necessary)
 It will try to create the missing directories needed in some cases.
+
+Also, to make any configuration change effective, you will need to ALWAYS redeploy the whole
+project by executing `pip install .`
 
 The size and the characteristics of the map can be changed with following keys in the 
 `config/config.json`
@@ -40,7 +54,6 @@ The size and the characteristics of the map can be changed with following keys i
 Changing the value for similar rooms might increase the number of random crash (problem when sampling from similar room).
 In that case the game master and the bot needs to be restarted.
 
-The size of map, the number of similar
 
 # Pretrained Models
 
@@ -50,78 +63,80 @@ The size of map, the number of similar
 
 #### MSCOCO Dataset
 
-In the configuration file `./config.json`, the key "ms_coco_dir" indicates the location of the MSCOCO dataset,
+In the configuration file ./config.json, the key "ms_coco_dir" indicates the location of the MSCOCO dataset,
 which is required to train the captioning model.
 
 Let's call the directory defined for the key "ms_coco_dir" [MS_COCO_DIR]
 
 Download the following files and unzip them under [MS_COCO_DIR]:
 
-http://images.cocodataset.org/zips/train2017.zip
+- http://images.cocodataset.org/zips/train2017.zip
 
-http://images.cocodataset.org/zips/val2017.zip
+- http://images.cocodataset.org/zips/val2017.zip
 
-http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+- http://images.cocodataset.org/annotations/annotations_trainval2017.zip
 
 This would result in 3 new directories containing images and annotations:
 
-[MS_COCO_DIR]/train2017
-[MS_COCO_DIR]/val2017
-[MS_COCO_DIR]/annotations
+- [MS_COCO_DIR]/train2017
+- [MS_COCO_DIR]/val2017
+- [MS_COCO_DIR]/annotations
 
 #### Glove embeddings (optional)
 
-The glove embeddings can be used.
-
-Download the files from http://nlp.stanford.edu/data/glove.6B.zip
-
-Unzip the content under `./pretrained/gloves`
-
-The location for the downloaded Glove embeddings can be changed, the key "glove_embeddings" in `./config.json`
+The glove embeddings can be used. For that:
+1. Download the files from http://nlp.stanford.edu/data/glove.6B.zip
+2. Unzip the content under ./pretrained/gloves
+3. The location for the downloaded Glove embeddings can be changed, the key "glove_embeddings" in ./config.json
 must be changed accordingly.
 
 #### Training
 
-In the configuration file `./config/config.json`, under the key "captioning", the "attention" key contains all relevant parameters for training 
+In the configuration file ./config/config.json, under the key "captioning", the "attention" key contains all relevant parameters for training 
 and hyperparameters to train the captioning model.
 
 Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
 and so on.
 
-Execute the script `./avatar_models/captioning/preprocessing.py` to cache features for training,
+1. Execute the script ./avatar_models/captioning/preprocessing.py to cache features for training.
 
-It is important, to use the same configuration in `./config/config.json` under the key "captioning" for both preprocessing
+It is important, to use the same configuration in ./config/config.json under the key "captioning" for both preprocessing
 and training.
-
-The training can be started by running `./avatar_models/captioning/visual_attention_simple.py`
+2. The training can be started by running ./avatar_models/captioning/visual_attention_simple.py
 
 
 #### Evaluation
 
-First download the pretrained model from:
+1. Download the pretrained model from: https://drive.google.com/file/d/1ZcCXm9F6T8AbqCGBpDcom4rbDgQyXNr6/view?usp=sharing
+2. Unpack under ./
 
+You should end up with training files under ./pretrained/captioning/ (the most important file being the tokenizer,pickle)
+and the saved model files  under ./pretrained/captioning/checkpoints
 
-https://drive.google.com/file/d/1ZcCXm9F6T8AbqCGBpDcom4rbDgQyXNr6/view?usp=sharing
-
-Unpack under `./`
-
-You should end up with training files under `./pretrained/captioning/` (the most important file being the tokenizer,pickle)
-and the saved model files  under `./pretrained/captioning/checkpoints`
-
-Run the script `avatar_models/captioning/evaluate.py` to verify that the model can be loaded correctly.
+3. Run the script `avatar_models/captioning/evaluate.py` to verify that the model can be loaded correctly.
 
 
 ### CATR model
 
-In the configuration file `./config/config.json`, under the key "captioning", the "catr" key contains all relevant parameters for training 
+In the configuration file ./config/config.json, under the key "captioning", the "catr" key contains all relevant parameters for training 
 and hyperparameters to train the captioning model.
 
 Especially, setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
 and so on.
 
-The original code for the CATR model comes from https://github.com/saahiluppal/catr
-and has been copied under `./avatar_models/captioning/catr` with amendment to the corresponding
-python module paths.
+You can run `./avatar_models/captioning/catr/predict.py` to see an example of inference.
+
+### Running BLEU-4 and SPICE score for Attention and CATR model.
+
+To run the captioning evaluation, the additional captions from the Tell Me More fork must be used:
+
+https://github.com/rafiberlin/image-description-sequences
+
+And be configured under the key `ade20k_caption_dir` in the configuration file ./config/config.json accordingly.
+
+The metrics can be run with:
+
+`python ./avatar_models/utils/bleu.py`
 
 ## VQA
 
@@ -177,10 +192,7 @@ Finally, the function `merge_synthetic_qa()` in `./avatar_models/utils/util.py` 
 
 `./data/ade20k_vqa/merged_synthetic_vqa.tar.gz`.
 
-
-
 ### LXMERT (Huggingface)
-
 The code for integrating LXMERT in our project comes from :
 
 `https://github.com/huggingface/transformers/blob/master/examples/research_projects/lxmert/demo.ipynb`
@@ -240,23 +252,25 @@ GQA Fine tuned 3 epochs:  https://drive.google.com/file/d/1r15rAqsHxwbhyvwlZkI1d
 
 ### Evaluation on the official VQA metrics
 
-Download `attention_vqa_val_acc_0.394.tar.gz` from https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
+1. Download `attention_vqa_val_acc_0.394.tar.gz` from https://drive.google.com/file/d/1EWMHAafdAba2wUv56bvdg8UrV9h9rw6V/view?usp=sharing
 
-Unpack under ./ with `tar xvf attention_vqa_val_acc_0.394.tar.gz`
+2. Unpack under ./
 
-You should end up with all files under `./avatar_models/vqa/attentions/`
+You should end up with all files under ./avatar_models/vqa/attentions/
 
 We do not need the pretrained model from this archive, only the pre-processed Questions / Answers from the VQA dataset.
 
-These are used in the script `./util/utils/vqa_eval.py` to perform the VQA evaluation for any model.
+These are used in the script./util/utils/vqa_eval.py to perform the VQA evaluation for any model.
 
-Please also unpack all files found under `./data/ade20k_vqa` in the directory defined in the `./config/config.json file`, 
+3. Please also unpack all files found under `./data/ade20k_vqa` in the directory defined in the `./config/config.json file`, 
 under the key "ade20k_vqa_dir" (should be the directory `./data/ade20k_vqa`), in order to be able to run the ADE20K evaluation for VQA.
 
-`cd /data/ade20k_vqa`
-`tar xvf merged_synthetic_vqa.tar.gz`
+    `cd /data/ade20k_vqa`
 
-The evaluation of the different models can be performed with:
+    `tar xvf merged_synthetic_vqa.tar.gz`
+
+
+4. The evaluation of the different models can be performed with:
 
 `python avatar_models/utils/vqa_eval.py`
 
@@ -264,9 +278,6 @@ The evaluation of the different models can be performed with:
 
 In the configuration file `./config/config.json`, the key "rasa" indicates the location of the finetuned NLU model and
 necessary files.
-
-Setting "cuda_device" to "cuda:0" will let run the model on your first logical GPU, "cuda:1" on the second,
-and so on.
 
 To train the NLU model, type inside the rasa directory: 
 
@@ -293,7 +304,6 @@ You can run the following to get some game statistics:
 `python ./config/score_game.py --file your_file_name.log --dir ../data/game_logs`
 
 
-
 # Installation
 
 Important: if you face errors concerning the import of modules, please export this project to you python path:
@@ -302,57 +312,56 @@ Important: if you face errors concerning the import of modules, please export th
 
 You can install the scripts to be available from the shell (where the python environment is accessible).
 
-For this simply checkout this repository and perform `python setup.py install` from within the root directory. This will
+For this simply checkout this repository and perform `python install .` from within the root directory. This will
 install the app into the currently activate python environment. Also perform `pip install -r requirements.tx` to install 
 additional dependencies. After installation, you can use the `game-setup`
 , `game-master` and `game-avatar` cli commands (where the python environment is accessible).
 
 **Installation on the Jarvis Remote Server**
 
-Install for your own user (no sudo)
-
+1. Install virtualenv for your own user (no sudo)
+   
 `pip install virtualenv`
 
-Check out the project from github and execute 
+2. Check out the project from github and execute 
+
 `cd sose21-pm-language-and-vision-g1`
 
-Create a virtual environmen named venv
+3. Create a virtual environmen named venv
 
 `virtualenv venv`
 
-Active the created environment:
+4. Active the created environment:
 
 `source venv/bin/activate`
 
-Install the pytorch matching the remote server CUDA version, in this case:
+5. Install the pytorch matching the remote server CUDA version, in this case:
 
 `pip install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html`
 
-Install the remaining libraries with 
+6. Install the remaining libraries with 
 
 `pip install -r requirements_server.txt`
 
-Install the avatar with:
+7. Install the avatar with:
 
 `pip install .` or `python setup.py install`
 
-To install the latest update from the github repo, just type:
+8. To install the latest update from the github repo, just type:
 
 `git pull`
 `pip install .` or `python setup.py install`
 
-If git complains about changed files, the following reverts local changes, you should then be able to pull latest changes:
-`git checkout .`
-
-You can simply deactivate the environment by typing:
+10. You can simply deactivate the environment by typing:
 
 `deactivate`
 
-To check that Tensorflow and Pytorch are installed with GPU support, just run:
+11. To check that Tensorflow and Pytorch are installed with GPU support, just run:
 
 `python check_gpu.py`
 
 **Installation for developers on remote machines**
+
 Run `update.sh` to install the project on a machine. This shell script simply pulls the latest changes and performs the
 install from above. As a result, the script will install the python project as an egg
 into `$HOME/.local/lib/pythonX.Y/site-packages`.

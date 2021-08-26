@@ -19,6 +19,7 @@ This project is the Avatar Game. It has the following structure:
     │   ├── utils                           # utils and scoring 
     │   │   ├── bleu.py                     # Scores for captioning, BLEU and SPICE
     │   │   ├── create_ade20k_vqa_dataset.py# Prepare the ADE20K for VQA
+    │   │   ├── datasets_stats.py           # Calculates some statistics used in the report    
     │   │   ├── util.py                     # Some helpful functions
     │   │   └── vqa_eval                    # Evaluation of VQA model
     │   ├── vqa                             # VQA LXMERT model
